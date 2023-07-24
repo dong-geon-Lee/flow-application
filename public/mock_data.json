@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "callerName": "John Doe",
+    "phoneNumber": "123-456-7890",
+    "issue": "Technical Support",
+    "status": "Open",
+    "callDuration": "10:30",
+    "agent": "Agent A",
+    "callNotes": "Customer reported a problem with the internet connection."
+  },
+  {
+    "id": 2,
+    "callerName": "Jane Smith",
+    "phoneNumber": "987-654-3210",
+    "issue": "Billing Inquiry",
+    "status": "In Progress",
+    "callDuration": "15:20",
+    "agent": "Agent B",
+    "callNotes": "Customer had questions about their recent bill."
+  },
+  {
+    "id": 3,
+    "callerName": "Michael Johnson",
+    "phoneNumber": "555-123-4567",
+    "issue": "Product Inquiry",
+    "status": "Resolved",
+    "callDuration": "5:45",
+    "agent": "Agent C",
+    "callNotes": "Customer wanted more information about a product."
+  }
+]
