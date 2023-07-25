@@ -18,7 +18,7 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
 import MailIcon from "@mui/icons-material/Mail";
-import { Link } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 const drawerWidth = 240;
 
@@ -95,6 +95,10 @@ export const MiniDrawer = () => {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
 
+  const navigate = useNavigate();
+  const location = useLocation();
+  console.log(location);
+
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -103,7 +107,28 @@ export const MiniDrawer = () => {
     setOpen(false);
   };
 
-  const links: string[] = ["auth", "contact", "pricing"];
+  const hanldeCustomLinks = (link: string) => {
+    let linkText = link.toLowerCase();
+
+    switch (linkText) {
+      case "dashboard":
+        return "/";
+      case "customer":
+        return "/customer";
+      case "profile":
+        return "/profile";
+      case "invoice":
+        return "/invoice";
+      case "e-commerce":
+        return "/ecommerce";
+      case "contact us":
+        return "/contact";
+      case "pricing":
+        return "/pricing";
+      default:
+        return "/";
+    }
+  };
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -122,9 +147,22 @@ export const MiniDrawer = () => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Sona Viewer
-          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              flexDirection: "row",
+              gap: "2rem",
+              width: "100%",
+            }}
+          >
+            <Typography variant="h6" noWrap component="div">
+              Sona Viewer
+            </Typography>
+            <Typography variant="h6" noWrap component="div">
+              LogIn
+            </Typography>
+          </Box>
         </Toolbar>
       </AppBar>
       <Drawer variant="permanent" open={open}>
@@ -141,33 +179,39 @@ export const MiniDrawer = () => {
         <List>
           {["Dashboard", "Customer", "Profile", "Invoice"].map(
             (text, index) => (
-              <ListItem key={text} disablePadding sx={{ display: "block" }}>
-                <ListItemButton
-                  sx={{
-                    minHeight: 48,
-                    justifyContent: open ? "initial" : "center",
-                    px: 2.5,
-                  }}
-                >
-                  <ListItemIcon
+              <Link to={hanldeCustomLinks(text)} key={text}>
+                <ListItem key={text} disablePadding sx={{ display: "block" }}>
+                  <ListItemButton
                     sx={{
-                      minWidth: 0,
-                      mr: open ? 3 : "auto",
-                      justifyContent: "center",
+                      minHeight: 48,
+                      justifyContent: open ? "initial" : "center",
+                      px: 2.5,
                     }}
                   >
-                    {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                  </ListItemIcon>
-                  <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
-                </ListItemButton>
-              </ListItem>
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : "auto",
+                        justifyContent: "center",
+                      }}
+                    >
+                      {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={text === "" ? "Dashboard" : text}
+                      sx={{ opacity: open ? 1 : 0 }}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              </Link>
             )
           )}
         </List>
         <Divider />
+
         <List>
-          {["Authentication", "Contact US", "Pricing"].map((text, index) => (
-            <Link to={`/${links[index]}`} key={links[index]}>
+          {["E-commerce", "Contact US", "Pricing"].map((text, index) => (
+            <Link to={hanldeCustomLinks(text)} key={text}>
               <ListItem disablePadding sx={{ display: "block" }}>
                 <ListItemButton
                   sx={{
@@ -194,35 +238,8 @@ export const MiniDrawer = () => {
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <DrawerHeader />
-        <Typography paragraph>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Rhoncus
-          dolor purus non enim praesent elementum facilisis leo vel. Risus at
-          ultrices mi tempus imperdiet. Semper risus in hendrerit gravida rutrum
-          quisque non tellus. Convallis convallis tellus id interdum velit
-          laoreet id donec ultrices. Odio morbi quis commodo odio aenean sed
-          adipiscing. Amet nisl suscipit adipiscing bibendum est ultricies
-          integer quis. Cursus euismod quis viverra nibh cras. Metus vulputate
-          eu scelerisque felis imperdiet proin fermentum leo. Mauris commodo
-          quis imperdiet massa tincidunt. Cras tincidunt lobortis feugiat
-          vivamus at augue. At augue eget arcu dictum varius duis at consectetur
-          lorem. Velit sed ullamcorper morbi tincidunt. Lorem donec massa sapien
-          faucibus et molestie ac.
-        </Typography>
-        <Typography paragraph>
-          Consequat mauris nunc congue nisi vitae suscipit. Fringilla est
-          ullamcorper eget nulla facilisi etiam dignissim diam. Pulvinar
-          elementum integer enim neque volutpat ac tincidunt. Ornare suspendisse
-          sed nisi lacus sed viverra tellus. Purus sit amet volutpat consequat
-          mauris. Elementum eu facilisis sed odio morbi. Euismod lacinia at quis
-          risus sed vulputate odio. Morbi tincidunt ornare massa eget egestas
-          purus viverra accumsan in. In hendrerit gravida rutrum quisque non
-          tellus orci ac. Pellentesque nec nam aliquam sem et tortor. Habitant
-          morbi tristique senectus et. Adipiscing elit duis tristique
-          sollicitudin nibh sit. Ornare aenean euismod elementum nisi quis
-          eleifend. Commodo viverra maecenas accumsan lacus vel facilisis. Nulla
-          posuere sollicitudin aliquam ultrices sagittis orci a.
-        </Typography>
+        {/* //! 아웃렛 추가 */}
+        <Outlet />
       </Box>
     </Box>
   );

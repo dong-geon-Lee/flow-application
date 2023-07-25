@@ -5,6 +5,10 @@
 }
 
 html {
-  font-size: 62.5%;
+  font-size: 100%;
   overflow-x: hidden;
+}
+
+body {
+  list-style: none;
 }
