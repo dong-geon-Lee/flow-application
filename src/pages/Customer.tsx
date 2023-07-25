@@ -4,7 +4,6 @@ import {
   Box,
   Button,
   ButtonGroup,
-  Container,
   FormControl,
   FormLabel,
   Grid,
@@ -34,6 +33,7 @@ const Customer = () => {
       phoneNumber: cusInfo.phoneNumber,
       status: cusInfo.status,
     };
+
     setCusLists((prevState) => [...prevState, newCusItem]);
   };
 
@@ -41,12 +41,14 @@ const Customer = () => {
     const newLists = cusLists.filter(
       (cusList: CusProps) => cusList.id !== targetID
     );
+
     setCusLists(newLists);
   };
 
   const onSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault();
     handleCreateItem();
+
     setCusInfo({
       callerName: "",
       phoneNumber: "",
@@ -64,18 +66,10 @@ const Customer = () => {
   }, []);
 
   return (
-    <Container
-      sx={{
-        width: "100%",
-        m: "0 auto",
-      }}
-    >
+    <Box>
       <Grid
         container
-        mt={4}
-        p={2}
         sx={{
-          background: "#fff",
           width: "100%",
           borderRadius: "1rem",
         }}
@@ -84,24 +78,25 @@ const Customer = () => {
           Card 제작
         </Typography>
         {cusLists.map((cusList) => (
-          <Grid item xs={12} key={cusList.id} sx={{ borderRadius: "2rem" }}>
-            <Box
-              sx={{
-                p: 2,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "left",
-              }}
-            >
+          <Grid
+            item
+            xs={3}
+            sm={3}
+            lg={4}
+            xl={4}
+            container
+            alignItems="center"
+            justifyContent="center"
+            key={cusList.id}
+            sx={{ borderRadius: "2rem" }}
+          >
+            <Box>
               <Stack
                 spacing={3}
-                direction="row"
                 alignItems="center"
                 justifyContent="center"
                 sx={{
-                  background: "#f0f0f0",
-                  borderRadius: "2.6rem",
+                  background: "#fff",
                   p: 2,
                   ml: 3,
                   mr: 3,
@@ -226,7 +221,7 @@ const Customer = () => {
           </Grid>
         </Grid>
       </Grid>
-    </Container>
+    </Box>
   );
 };
 

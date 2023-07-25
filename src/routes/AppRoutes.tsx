@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import MiniDrawer from "components/MiniDrawer";
 import Profile from "pages/Profile";
 import Customer from "pages/Customer";
@@ -7,8 +7,15 @@ import Invoice from "pages/Invoice";
 import Ecommerce from "pages/Ecommerce";
 import Contact from "pages/Contact";
 import Pricing from "pages/Pricing";
+import { useEffect } from "react";
 
 const AppRoutes = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    navigate("/");
+  }, []);
+
   return (
     <Routes>
       <Route path="/" element={<MiniDrawer />}>

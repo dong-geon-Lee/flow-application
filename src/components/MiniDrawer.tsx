@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useState } from "react";
 import { styled, useTheme, Theme, CSSObject } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import MuiDrawer from "@mui/material/Drawer";
@@ -18,7 +18,9 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
 import MailIcon from "@mui/icons-material/Mail";
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
+import { Badge, Menu, MenuItem } from "@mui/material";
+import { Notifications, AccountCircle } from "@mui/icons-material";
 
 const drawerWidth = 240;
 
@@ -93,11 +95,8 @@ const Drawer = styled(MuiDrawer, {
 
 export const MiniDrawer = () => {
   const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
-
-  const navigate = useNavigate();
-  const location = useLocation();
-  console.log(location);
+  const [open, setOpen] = useState<boolean>(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -105,6 +104,14 @@ export const MiniDrawer = () => {
 
   const handleDrawerClose = () => {
     setOpen(false);
+  };
+
+  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
   };
 
   const hanldeCustomLinks = (link: string) => {
@@ -131,7 +138,7 @@ export const MiniDrawer = () => {
   };
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ display: "flex", width: "100vw", height: "100vh" }}>
       <CssBaseline />
       <AppBar position="fixed" open={open}>
         <Toolbar>
@@ -141,27 +148,75 @@ export const MiniDrawer = () => {
             onClick={handleDrawerOpen}
             edge="start"
             sx={{
-              marginRight: 5,
+              marginRight: 2,
               ...(open && { display: "none" }),
             }}
           >
             <MenuIcon />
           </IconButton>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            SonaViewer
+          </Typography>
           <Box
             sx={{
               display: "flex",
-              justifyContent: "space-between",
-              flexDirection: "row",
-              gap: "2rem",
               width: "100%",
+              justifyContent: "space-between",
+              alignItems: "center",
             }}
           >
-            <Typography variant="h6" noWrap component="div">
-              Sona Viewer
-            </Typography>
-            <Typography variant="h6" noWrap component="div">
-              LogIn
-            </Typography>
+            <Box sx={{ ml: "auto" }}>
+              <IconButton
+                size="small"
+                edge="start"
+                sx={{
+                  color: "inherit",
+                  ml: "auto",
+                  mr: 2,
+                }}
+              >
+                <Badge badgeContent={2} color="error">
+                  <MailIcon />
+                </Badge>
+              </IconButton>
+              <IconButton
+                size="small"
+                edge="start"
+                sx={{
+                  color: "inherit",
+                  ml: "auto",
+                  mr: 2,
+                }}
+              >
+                <Badge badgeContent={5} color="error">
+                  <Notifications />
+                </Badge>
+              </IconButton>
+              <IconButton
+                size="medium"
+                edge="start"
+                sx={{
+                  color: "inherit",
+                  ml: "auto",
+                  mr: 2,
+                }}
+                onClick={handleMenu}
+              >
+                <Badge color="error">
+                  <AccountCircle />
+                </Badge>
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+              >
+                <MenuItem onClick={handleClose}>Profile</MenuItem>
+                <MenuItem onClick={handleClose}>My account</MenuItem>
+              </Menu>
+            </Box>
+            <Typography variant="h6" noWrap component="div" />
           </Box>
         </Toolbar>
       </AppBar>
@@ -179,7 +234,11 @@ export const MiniDrawer = () => {
         <List>
           {["Dashboard", "Customer", "Profile", "Invoice"].map(
             (text, index) => (
-              <Link to={hanldeCustomLinks(text)} key={text}>
+              <Link
+                to={hanldeCustomLinks(text)}
+                key={text}
+                style={{ textDecoration: "none" }}
+              >
                 <ListItem key={text} disablePadding sx={{ display: "block" }}>
                   <ListItemButton
                     sx={{
@@ -199,7 +258,7 @@ export const MiniDrawer = () => {
                     </ListItemIcon>
                     <ListItemText
                       primary={text === "" ? "Dashboard" : text}
-                      sx={{ opacity: open ? 1 : 0 }}
+                      sx={{ opacity: open ? 1 : 0, color: "black" }}
                     />
                   </ListItemButton>
                 </ListItem>
@@ -211,7 +270,11 @@ export const MiniDrawer = () => {
 
         <List>
           {["E-commerce", "Contact US", "Pricing"].map((text, index) => (
-            <Link to={hanldeCustomLinks(text)} key={text}>
+            <Link
+              to={hanldeCustomLinks(text)}
+              key={text}
+              style={{ textDecoration: "none" }}
+            >
               <ListItem disablePadding sx={{ display: "block" }}>
                 <ListItemButton
                   sx={{
@@ -229,14 +292,17 @@ export const MiniDrawer = () => {
                   >
                     {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
                   </ListItemIcon>
-                  <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
+                  <ListItemText
+                    primary={text}
+                    sx={{ opacity: open ? 1 : 0, color: "black" }}
+                  />
                 </ListItemButton>
               </ListItem>
             </Link>
           ))}
         </List>
       </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      <Box component="main" sx={{ flexGrow: 1, background: "#fafafb" }}>
         <DrawerHeader />
         {/* //! 아웃렛 추가 */}
         <Outlet />
