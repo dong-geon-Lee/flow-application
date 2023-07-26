@@ -16,11 +16,17 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
 import MailIcon from "@mui/icons-material/Mail";
 import { Link, Outlet } from "react-router-dom";
 import { Badge, Menu, MenuItem } from "@mui/material";
 import { Notifications, AccountCircle } from "@mui/icons-material";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import SupportAgentIcon from "@mui/icons-material/SupportAgent";
+import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
+import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
+import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
+import PhoneEnabledOutlinedIcon from "@mui/icons-material/PhoneEnabledOutlined";
+import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlined";
 
 const drawerWidth = 240;
 
@@ -137,6 +143,29 @@ export const MiniDrawer = () => {
     }
   };
 
+  const handleCustomIcons = (link: string) => {
+    let linkText = link.toLowerCase();
+
+    switch (linkText) {
+      case "dashboard":
+        return <DashboardIcon />;
+      case "customer":
+        return <SupportAgentIcon />;
+      case "profile":
+        return <AccountCircleOutlinedIcon />;
+      case "invoice":
+        return <DescriptionOutlinedIcon />;
+      case "e-commerce":
+        return <ShoppingCartOutlinedIcon />;
+      case "contact us":
+        return <PhoneEnabledOutlinedIcon />;
+      case "pricing":
+        return <MonetizationOnOutlinedIcon />;
+      default:
+        return;
+    }
+  };
+
   return (
     <Box sx={{ display: "flex", width: "100vw", height: "100vh" }}>
       <CssBaseline />
@@ -232,39 +261,37 @@ export const MiniDrawer = () => {
         </DrawerHeader>
         <Divider />
         <List>
-          {["Dashboard", "Customer", "Profile", "Invoice"].map(
-            (text, index) => (
-              <Link
-                to={hanldeCustomLinks(text)}
-                key={text}
-                style={{ textDecoration: "none" }}
-              >
-                <ListItem key={text} disablePadding sx={{ display: "block" }}>
-                  <ListItemButton
+          {["Dashboard", "Customer", "Profile", "Invoice"].map((text) => (
+            <Link
+              to={hanldeCustomLinks(text)}
+              key={text}
+              style={{ textDecoration: "none" }}
+            >
+              <ListItem key={text} disablePadding sx={{ display: "block" }}>
+                <ListItemButton
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? "initial" : "center",
+                    px: 2.5,
+                  }}
+                >
+                  <ListItemIcon
                     sx={{
-                      minHeight: 48,
-                      justifyContent: open ? "initial" : "center",
-                      px: 2.5,
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
                     }}
                   >
-                    <ListItemIcon
-                      sx={{
-                        minWidth: 0,
-                        mr: open ? 3 : "auto",
-                        justifyContent: "center",
-                      }}
-                    >
-                      {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={text === "" ? "Dashboard" : text}
-                      sx={{ opacity: open ? 1 : 0, color: "black" }}
-                    />
-                  </ListItemButton>
-                </ListItem>
-              </Link>
-            )
-          )}
+                    {handleCustomIcons(text)}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={text === "" ? "Dashboard" : text}
+                    sx={{ opacity: open ? 1 : 0, color: "black" }}
+                  />
+                </ListItemButton>
+              </ListItem>
+            </Link>
+          ))}
         </List>
         <Divider />
 
@@ -290,7 +317,7 @@ export const MiniDrawer = () => {
                       justifyContent: "center",
                     }}
                   >
-                    {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                    {handleCustomIcons(text)}
                   </ListItemIcon>
                   <ListItemText
                     primary={text}
@@ -304,7 +331,7 @@ export const MiniDrawer = () => {
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, background: "#fafafb" }}>
         <DrawerHeader />
-        {/* //! 아웃렛 추가 */}
+        {/* //* outlet area */}
         <Outlet />
       </Box>
     </Box>

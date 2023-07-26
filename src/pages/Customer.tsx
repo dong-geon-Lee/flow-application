@@ -26,6 +26,8 @@ import MailOutlinedIcon from "@mui/icons-material/MailOutlined";
 import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
 import PhoneEnabledOutlinedIcon from "@mui/icons-material/PhoneEnabledOutlined";
 import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
+import CheckOutlinedIcon from "@mui/icons-material/CheckOutlined";
+import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined";
 
 const Customer = () => {
   const [cusLists, setCusLists] = useState<CusProps[]>([]);
@@ -33,7 +35,72 @@ const Customer = () => {
     callerName: "",
     phoneNumber: "",
     callNotes: "",
+    status: false,
   });
+
+  const [editMode, setEditMode] = useState(false);
+  const [editInfo, setEditInfo] = useState({
+    editName: "",
+    editPhone: "",
+  });
+
+  const handleEditMode = (id: number | undefined) => {
+    const newLists = cusLists.map((cusList: any) => {
+      if (cusList.id === id) {
+        setEditInfo({
+          ...editInfo,
+          editName: cusList.callerName,
+          editPhone: cusList.phoneNumber,
+        });
+        return { ...cusList, status: true };
+      } else {
+        return cusList;
+      }
+    });
+
+    setCusLists(newLists);
+    setEditMode(true);
+  };
+
+  const handleEditExit = (id: number | undefined) => {
+    const newLists = cusLists.map((cusList: any) => {
+      if (cusList.id === id) {
+        return { ...cusList, status: false };
+      } else {
+        return cusList;
+      }
+    });
+
+    setCusLists(newLists);
+    setEditMode(false);
+  };
+
+  const handleEditUpdate = (
+    id: number | undefined,
+    editName: string,
+    editPhone: string
+  ) => {
+    const newLists = cusLists.map((cusList: any) => {
+      if (cusList.id === id) {
+        return {
+          ...cusList,
+          callerName: editName,
+          phoneNumber: editPhone,
+          status: false,
+        };
+      } else {
+        return cusList;
+      }
+    });
+
+    setCusLists(newLists);
+    setEditMode(false);
+    setEditInfo({ editName: "", editPhone: "" });
+  };
+
+  const handleEditOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditInfo({ ...editInfo, [e.target.name]: e.target.value });
+  };
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCusInfo({ ...cusInfo, [e.target.name]: e.target.value });
@@ -61,7 +128,6 @@ const Customer = () => {
   const onSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault();
     handleCreateItem();
-
     setCusInfo({
       callerName: "",
       phoneNumber: "",
@@ -103,16 +169,7 @@ const Customer = () => {
       >
         <>
           {cusLists.map((cusList) => (
-            <Grid
-              item
-              xs={4}
-              sm={4}
-              md={4}
-              lg={4}
-              xl={4}
-              key={cusList.id}
-              width="100%"
-            >
+            <Grid key={cusList.id} width="100%">
               <Stack
                 height="20rem"
                 alignItems="center"
@@ -142,41 +199,110 @@ const Customer = () => {
                     <PersonPinIcon />
                   </Avatar>
                   <Grid container flexDirection="column" width="100%">
-                    <Stack direction="row" pt={1} pb={1}>
-                      <Typography
-                        variant="h6"
-                        component="p"
-                        fontSize="1rem"
-                        width="100%"
-                        noWrap
-                      >
-                        {cusList.callerName}
-                      </Typography>
+                    <Stack direction="row" pt={1} pb={1} alignItems="center">
+                      {cusList.status ? (
+                        <TextField
+                          type="text"
+                          label="이름"
+                          variant="standard"
+                          size="small"
+                          // defaultValue={cusList.callerName}
+                          name="editName"
+                          value={editInfo.editName}
+                          onChange={handleEditOnChange}
+                        />
+                      ) : (
+                        <Typography
+                          variant="h6"
+                          component="p"
+                          fontSize="1rem"
+                          width="100%"
+                          noWrap
+                        >
+                          {cusList.callerName}
+                        </Typography>
+                      )}
                     </Stack>
 
                     <Stack direction="row" spacing={1} alignItems="center">
-                      <Typography
-                        variant="caption"
-                        component="p"
-                        width="100%"
-                        noWrap
-                      >
-                        {cusList.phoneNumber}
-                      </Typography>
+                      {cusList.status ? (
+                        <TextField
+                          type="text"
+                          label="번호"
+                          variant="standard"
+                          size="medium"
+                          // defaultValue={cusList.phoneNumber}
+                          name="editPhone"
+                          value={editInfo.editPhone}
+                          onChange={handleEditOnChange}
+                        />
+                      ) : (
+                        <Typography
+                          variant="caption"
+                          component="p"
+                          width="100%"
+                          noWrap
+                        >
+                          {cusList.phoneNumber}
+                        </Typography>
+                      )}
                     </Stack>
                   </Grid>
 
                   <Stack direction="row">
-                    <Button
-                      onClick={() => handleDeleteItem(cusList.id)}
-                      color="error"
-                      sx={{ width: "100%", display: "inline-block" }}
-                    >
-                      <A.DeleteOutlineOutlinedIcon />
-                    </Button>
-                    <Button sx={{ width: "100%", display: "inline-block" }}>
-                      <EditIcon />
-                    </Button>
+                    {cusList.status ? (
+                      <>
+                        <Button
+                          sx={{ width: "100%", display: "inline-block" }}
+                          onClick={() => {
+                            console.log("편집 완료");
+                            handleEditUpdate(
+                              cusList.id,
+                              editInfo.editName,
+                              editInfo.editPhone
+                            );
+                          }}
+                        >
+                          <CheckOutlinedIcon />
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button
+                          sx={{ width: "100%", display: "inline-block" }}
+                          onClick={() => handleEditMode(cusList?.id)}
+                          disabled={editMode && !cusList.status ? true : false}
+                        >
+                          <EditIcon />
+                        </Button>
+                      </>
+                    )}
+
+                    {cusList.status ? (
+                      <>
+                        <Button
+                          onClick={() => {
+                            handleEditExit(cusList.id);
+                            // setEditMode(false);
+                          }}
+                          color="error"
+                          sx={{ width: "100%", display: "inline-block" }}
+                        >
+                          <ClearOutlinedIcon />
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button
+                          onClick={() => handleDeleteItem(cusList.id)}
+                          color="error"
+                          sx={{ width: "100%", display: "inline-block" }}
+                          disabled={editMode && !cusList.status ? true : false}
+                        >
+                          <A.DeleteOutlineOutlinedIcon />
+                        </Button>
+                      </>
+                    )}
                   </Stack>
                 </Stack>
 

@@ -13,7 +13,7 @@ const AppRoutes = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    navigate("/");
+    navigate("customer");
   }, []);
 
   return (
