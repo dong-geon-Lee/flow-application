@@ -5,7 +5,11 @@ import {
   Button,
   ButtonGroup,
   Container,
+  Dialog,
+  DialogContent,
+  DialogTitle,
   Divider,
+  Fab,
   FormControl,
   FormLabel,
   Grid,
@@ -28,6 +32,7 @@ import PhoneEnabledOutlinedIcon from "@mui/icons-material/PhoneEnabledOutlined";
 import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
 import CheckOutlinedIcon from "@mui/icons-material/CheckOutlined";
 import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined";
+import AddIcon from "@mui/icons-material/Add";
 
 const Customer = () => {
   const [cusLists, setCusLists] = useState<CusProps[]>([]);
@@ -42,7 +47,18 @@ const Customer = () => {
   const [editInfo, setEditInfo] = useState({
     editName: "",
     editPhone: "",
+    editNotes: "",
   });
+
+  const [open, setOpen] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const handleEditMode = (id: number | undefined) => {
     const newLists = cusLists.map((cusList: any) => {
@@ -51,6 +67,7 @@ const Customer = () => {
           ...editInfo,
           editName: cusList.callerName,
           editPhone: cusList.phoneNumber,
+          editNotes: cusList.callNotes,
         });
         return { ...cusList, status: true };
       } else {
@@ -78,7 +95,8 @@ const Customer = () => {
   const handleEditUpdate = (
     id: number | undefined,
     editName: string,
-    editPhone: string
+    editPhone: string,
+    editNotes: string
   ) => {
     const newLists = cusLists.map((cusList: any) => {
       if (cusList.id === id) {
@@ -86,6 +104,7 @@ const Customer = () => {
           ...cusList,
           callerName: editName,
           phoneNumber: editPhone,
+          callNotes: editNotes,
           status: false,
         };
       } else {
@@ -95,7 +114,7 @@ const Customer = () => {
 
     setCusLists(newLists);
     setEditMode(false);
-    setEditInfo({ editName: "", editPhone: "" });
+    setEditInfo({ editName: "", editPhone: "", editNotes: "" });
   };
 
   const handleEditOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -128,6 +147,7 @@ const Customer = () => {
   const onSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault();
     handleCreateItem();
+    handleClose();
     setCusInfo({
       callerName: "",
       phoneNumber: "",
@@ -146,7 +166,7 @@ const Customer = () => {
   }, []);
 
   return (
-    <Box sx={{ p: "1.2rem" }}>
+    <Box sx={{ position: "relative" }}>
       <Typography
         textAlign="left"
         component="p"
@@ -206,7 +226,6 @@ const Customer = () => {
                           label="이름"
                           variant="standard"
                           size="small"
-                          // defaultValue={cusList.callerName}
                           name="editName"
                           value={editInfo.editName}
                           onChange={handleEditOnChange}
@@ -231,7 +250,6 @@ const Customer = () => {
                           label="번호"
                           variant="standard"
                           size="medium"
-                          // defaultValue={cusList.phoneNumber}
                           name="editPhone"
                           value={editInfo.editPhone}
                           onChange={handleEditOnChange}
@@ -255,11 +273,11 @@ const Customer = () => {
                         <Button
                           sx={{ width: "100%", display: "inline-block" }}
                           onClick={() => {
-                            console.log("편집 완료");
                             handleEditUpdate(
                               cusList.id,
                               editInfo.editName,
-                              editInfo.editPhone
+                              editInfo.editPhone,
+                              editInfo.editNotes
                             );
                           }}
                         >
@@ -269,7 +287,10 @@ const Customer = () => {
                     ) : (
                       <>
                         <Button
-                          sx={{ width: "100%", display: "inline-block" }}
+                          sx={{
+                            width: "100%",
+                            display: "inline-block",
+                          }}
                           onClick={() => handleEditMode(cusList?.id)}
                           disabled={editMode && !cusList.status ? true : false}
                         >
@@ -281,10 +302,7 @@ const Customer = () => {
                     {cusList.status ? (
                       <>
                         <Button
-                          onClick={() => {
-                            handleEditExit(cusList.id);
-                            // setEditMode(false);
-                          }}
+                          onClick={() => handleEditExit(cusList.id)}
                           color="error"
                           sx={{ width: "100%", display: "inline-block" }}
                         >
@@ -296,7 +314,10 @@ const Customer = () => {
                         <Button
                           onClick={() => handleDeleteItem(cusList.id)}
                           color="error"
-                          sx={{ width: "100%", display: "inline-block" }}
+                          sx={{
+                            width: "100%",
+                            display: "inline-block",
+                          }}
                           disabled={editMode && !cusList.status ? true : false}
                         >
                           <A.DeleteOutlineOutlinedIcon />
@@ -309,7 +330,20 @@ const Customer = () => {
                 <Container>
                   <Stack direction="column" width="100%">
                     <Grid item>
-                      <Typography mb="1rem">{cusList.callNotes}</Typography>
+                      {cusList.status ? (
+                        <TextField
+                          type="text"
+                          label="설명"
+                          variant="outlined"
+                          size="medium"
+                          name="editNotes"
+                          value={editInfo.editNotes}
+                          onChange={handleEditOnChange}
+                          fullWidth
+                        />
+                      ) : (
+                        <Typography mb="1rem">{cusList.callNotes}</Typography>
+                      )}
                       <Divider />
                     </Grid>
                     <Box
@@ -373,94 +407,103 @@ const Customer = () => {
           ))}
         </>
       </Grid>
-      <Grid container p={8}>
-        <Grid item xs={12}>
-          <Box component="form" onSubmit={onSubmit}>
-            <Typography
-              variant="caption"
-              fontSize="1.6rem"
-              mb={2}
-              display="block"
-            >
-              카드 양식
-            </Typography>
-            <Stack
-              direction="column"
-              spacing={2}
-              sx={{
-                ".css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input": {
-                  p: 1.2,
-                },
-              }}
-            >
-              <FormControl>
-                <FormLabel sx={{ fontSize: "1.2rem", mb: "0.4rem" }}>
-                  이름
-                </FormLabel>
-                <TextField
-                  type="text"
-                  sx={{ p: 0 }}
-                  onChange={onChange}
-                  name="callerName"
-                  value={cusInfo.callerName}
-                  placeholder="이름을 작성하세요"
-                />
-              </FormControl>
 
-              <FormControl>
-                <FormLabel sx={{ fontSize: "1.2rem", mb: "0.4rem" }}>
-                  번호
-                </FormLabel>
-                <TextField
-                  type="text"
-                  sx={{ p: 0 }}
-                  onChange={onChange}
-                  name="phoneNumber"
-                  value={cusInfo.phoneNumber}
-                  placeholder="번호를 작성하세요"
-                />
-              </FormControl>
+      <Box sx={{ position: "fixed", bottom: "5%", right: "5%" }}>
+        <Fab color="primary" onClick={handleClickOpen}>
+          <AddIcon />
+        </Fab>
+      </Box>
 
-              <FormControl>
-                <FormLabel sx={{ fontSize: "1.2rem", mb: "0.4rem" }}>
-                  노트
-                </FormLabel>
-                <TextField
-                  type="text"
-                  sx={{ p: 0 }}
-                  onChange={onChange}
-                  name="callNotes"
-                  value={cusInfo.callNotes}
-                  placeholder="노트를 작성하세요"
-                />
-              </FormControl>
-            </Stack>
-            <ButtonGroup
-              sx={{
-                width: "100%",
-                display: "flex",
-                gap: "1.6rem",
-                mt: "2.4rem",
-              }}
-            >
-              <Button
-                type="button"
-                variant="text"
-                sx={{ flex: 1, fontSize: "1.2rem", width: "50%" }}
+      <Dialog open={open} onClose={handleClose} sx={{ position: "absolute" }}>
+        <Grid container p={8}>
+          <Grid item xs={12}>
+            <Box component="form" onSubmit={onSubmit}>
+              <DialogTitle
+                variant="caption"
+                fontSize="1.6rem"
+                mb={2}
+                display="block"
               >
-                취소
-              </Button>
-              <Button
-                type="submit"
-                variant="contained"
-                sx={{ flex: 1, fontSize: "1.2rem", width: "50%" }}
+                카드 양식
+              </DialogTitle>
+              <DialogContent
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "1.2rem",
+                  minWidth: "30rem",
+                }}
               >
-                제출
-              </Button>
-            </ButtonGroup>
-          </Box>
+                <FormControl>
+                  <FormLabel sx={{ fontSize: "1.2rem", mb: "0.4rem" }}>
+                    이름
+                  </FormLabel>
+                  <TextField
+                    type="text"
+                    sx={{ p: 0 }}
+                    onChange={onChange}
+                    name="callerName"
+                    value={cusInfo.callerName}
+                    placeholder="이름을 작성하세요"
+                  />
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel sx={{ fontSize: "1.2rem", mb: "0.4rem" }}>
+                    번호
+                  </FormLabel>
+                  <TextField
+                    type="text"
+                    sx={{ p: 0 }}
+                    onChange={onChange}
+                    name="phoneNumber"
+                    value={cusInfo.phoneNumber}
+                    placeholder="번호를 작성하세요"
+                  />
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel sx={{ fontSize: "1.2rem", mb: "0.4rem" }}>
+                    노트
+                  </FormLabel>
+                  <TextField
+                    type="text"
+                    sx={{ p: 0 }}
+                    onChange={onChange}
+                    name="callNotes"
+                    value={cusInfo.callNotes}
+                    placeholder="노트를 작성하세요"
+                  />
+                </FormControl>
+              </DialogContent>
+              <ButtonGroup
+                sx={{
+                  width: "100%",
+                  display: "flex",
+                  gap: "1.6rem",
+                  mt: "2.4rem",
+                }}
+              >
+                <Button
+                  type="button"
+                  variant="text"
+                  sx={{ flex: 1, fontSize: "1.2rem", width: "50%" }}
+                  onClick={handleClose}
+                >
+                  취소
+                </Button>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  sx={{ flex: 1, fontSize: "1.2rem", width: "50%" }}
+                >
+                  제출
+                </Button>
+              </ButtonGroup>
+            </Box>
+          </Grid>
         </Grid>
-      </Grid>
+      </Dialog>
     </Box>
   );
 };
