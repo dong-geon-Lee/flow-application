@@ -1,7 +1,7 @@
 import { Routes, Route, useNavigate } from "react-router-dom";
 import MiniDrawer from "components/MiniDrawer";
 import Profile from "pages/Profile";
-import Customer from "pages/Customer";
+import Customer from "pages/Customer/Customer";
 import Home from "pages/Dashboard";
 import Invoice from "pages/Invoice";
 import Ecommerce from "pages/Ecommerce";
