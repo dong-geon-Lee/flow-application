@@ -11,4 +11,5 @@ html {
 
 body {
   list-style: none;
+  grid-template-columns: repeat(2, 1fr);
 }

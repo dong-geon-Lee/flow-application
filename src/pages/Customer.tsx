@@ -4,22 +4,35 @@ import {
   Box,
   Button,
   ButtonGroup,
+  Container,
+  Divider,
   FormControl,
   FormLabel,
   Grid,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
 import * as A from "assets";
 import { CusProps } from "@types";
+import PersonPinIcon from "@mui/icons-material/PersonPin";
+import EditIcon from "@mui/icons-material/Edit";
+
+import MailOutlinedIcon from "@mui/icons-material/MailOutlined";
+import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
+import PhoneEnabledOutlinedIcon from "@mui/icons-material/PhoneEnabledOutlined";
+import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
 
 const Customer = () => {
   const [cusLists, setCusLists] = useState<CusProps[]>([]);
   const [cusInfo, setCusInfo] = useState<CusProps>({
     callerName: "",
     phoneNumber: "",
-    status: "",
+    callNotes: "",
   });
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,7 +44,7 @@ const Customer = () => {
       id: cusLists.length + 1,
       callerName: cusInfo.callerName,
       phoneNumber: cusInfo.phoneNumber,
-      status: cusInfo.status,
+      callNotes: cusInfo.callNotes,
     };
 
     setCusLists((prevState) => [...prevState, newCusItem]);
@@ -52,7 +65,7 @@ const Customer = () => {
     setCusInfo({
       callerName: "",
       phoneNumber: "",
-      status: "",
+      callNotes: "",
     });
   };
 
@@ -62,163 +75,264 @@ const Customer = () => {
       const datas = await response.json();
       setCusLists(datas);
     };
+
     fetchDatas();
   }, []);
 
   return (
-    <Box>
+    <Box sx={{ p: "1.2rem" }}>
+      <Typography
+        textAlign="left"
+        component="p"
+        variant="h5"
+        width="100%"
+        mt="2rem"
+        mb="2rem"
+        ml="1.6rem"
+      >
+        Cards
+      </Typography>
       <Grid
-        container
         sx={{
-          width: "100%",
-          borderRadius: "1rem",
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr 1fr",
+          gap: "2rem",
+          width: "96%",
+          margin: "0 auto",
         }}
       >
-        <Typography textAlign="center" component="p" variant="h4" width="100%">
-          Card 제작
-        </Typography>
-        {cusLists.map((cusList) => (
-          <Grid
-            item
-            xs={3}
-            sm={3}
-            lg={4}
-            xl={4}
-            container
-            alignItems="center"
-            justifyContent="center"
-            key={cusList.id}
-            sx={{ borderRadius: "2rem" }}
-          >
-            <Box>
+        <>
+          {cusLists.map((cusList) => (
+            <Grid
+              item
+              xs={4}
+              sm={4}
+              md={4}
+              lg={4}
+              xl={4}
+              key={cusList.id}
+              width="100%"
+            >
               <Stack
-                spacing={3}
+                height="20rem"
                 alignItems="center"
                 justifyContent="center"
                 sx={{
                   background: "#fff",
-                  p: 2,
-                  ml: 3,
-                  mr: 3,
-                  mt: 1,
-                }}
-              >
-                <Avatar sx={{ color: "black", background: "#fff" }}>
-                  <A.AdbIcon />
-                </Avatar>
-                <Grid container flexDirection="column">
-                  <Stack direction="row" pt={1} pb={1}>
-                    <Typography variant="h5" component="p">
-                      {`[ ${cusList.id} ]`} {cusList.callerName}
-                    </Typography>
-                  </Stack>
-                  <Stack direction="row" spacing={1} alignItems="center">
-                    <Typography variant="h6" component="p">
-                      {cusList.phoneNumber}
-                    </Typography>
-                    <Typography variant="h6" component="p" fontSize="1rem">
-                      {cusList.status}
-                    </Typography>
-                  </Stack>
-                </Grid>
-                <Button
-                  sx={{ display: "flex", m: 0, width: "40%" }}
-                  onClick={() => handleDeleteItem(cusList.id)}
-                >
-                  <A.DeleteOutlineOutlinedIcon />
-                </Button>
-              </Stack>
-            </Box>
-          </Grid>
-        ))}
-
-        <Grid container p={8}>
-          <Grid item xs={12}>
-            <Box component="form" onSubmit={onSubmit}>
-              <Typography
-                variant="caption"
-                fontSize="1.6rem"
-                mb={2}
-                display="block"
-              >
-                카드 양식
-              </Typography>
-              <Stack
-                direction="column"
-                spacing={2}
-                sx={{
-                  ".css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input": {
-                    p: 1.2,
-                  },
-                }}
-              >
-                <FormControl>
-                  <FormLabel sx={{ fontSize: "1.2rem", mb: "0.4rem" }}>
-                    이름
-                  </FormLabel>
-                  <TextField
-                    type="text"
-                    sx={{ p: 0 }}
-                    onChange={onChange}
-                    name="callerName"
-                    value={cusInfo.callerName}
-                    placeholder="이름을 작성하세요"
-                  />
-                </FormControl>
-
-                <FormControl>
-                  <FormLabel sx={{ fontSize: "1.2rem", mb: "0.4rem" }}>
-                    번호
-                  </FormLabel>
-                  <TextField
-                    type="text"
-                    sx={{ p: 0 }}
-                    onChange={onChange}
-                    name="phoneNumber"
-                    value={cusInfo.phoneNumber}
-                    placeholder="번호를 작성하세요"
-                  />
-                </FormControl>
-
-                <FormControl>
-                  <FormLabel sx={{ fontSize: "1.2rem", mb: "0.4rem" }}>
-                    상태
-                  </FormLabel>
-                  <TextField
-                    type="text"
-                    sx={{ p: 0 }}
-                    onChange={onChange}
-                    name="status"
-                    value={cusInfo.status}
-                    placeholder="상태를 작성하세요"
-                  />
-                </FormControl>
-              </Stack>
-              <ButtonGroup
-                sx={{
-                  width: "100%",
                   display: "flex",
-                  gap: "1.6rem",
-                  mt: "2.4rem",
+                  gap: "1rem",
+                  padding: "1.2rem",
                 }}
               >
-                <Button
-                  type="button"
-                  variant="text"
-                  sx={{ flex: 1, fontSize: "1.2rem", width: "50%" }}
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  justifyContent="start"
+                  sx={{ width: "100%" }}
+                  spacing={2}
                 >
-                  취소
-                </Button>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  sx={{ flex: 1, fontSize: "1.2rem", width: "50%" }}
-                >
-                  제출
-                </Button>
-              </ButtonGroup>
-            </Box>
-          </Grid>
+                  <Avatar
+                    sx={{
+                      color: "black",
+                      marginLeft: " 1.2rem",
+                      background: "#fff",
+                      ".MuiSvgIcon-fontSizeMedium": { fontSize: "2.4rem" },
+                    }}
+                  >
+                    <PersonPinIcon />
+                  </Avatar>
+                  <Grid container flexDirection="column" width="100%">
+                    <Stack direction="row" pt={1} pb={1}>
+                      <Typography
+                        variant="h6"
+                        component="p"
+                        fontSize="1rem"
+                        width="100%"
+                        noWrap
+                      >
+                        {cusList.callerName}
+                      </Typography>
+                    </Stack>
+
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <Typography
+                        variant="caption"
+                        component="p"
+                        width="100%"
+                        noWrap
+                      >
+                        {cusList.phoneNumber}
+                      </Typography>
+                    </Stack>
+                  </Grid>
+
+                  <Stack direction="row">
+                    <Button
+                      onClick={() => handleDeleteItem(cusList.id)}
+                      color="error"
+                      sx={{ width: "100%", display: "inline-block" }}
+                    >
+                      <A.DeleteOutlineOutlinedIcon />
+                    </Button>
+                    <Button sx={{ width: "100%", display: "inline-block" }}>
+                      <EditIcon />
+                    </Button>
+                  </Stack>
+                </Stack>
+
+                <Container>
+                  <Stack direction="column" width="100%">
+                    <Grid item>
+                      <Typography mb="1rem">{cusList.callNotes}</Typography>
+                      <Divider />
+                    </Grid>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "flex-start",
+                        alignItems: "center",
+                      }}
+                    >
+                      <List
+                        sx={{
+                          "& .css-cveggr-MuiListItemIcon-root": {
+                            minWidth: "34px",
+                          },
+                          display: "block",
+                          "& li": { p: 0, color: "#939393" },
+                          "& li:last-child": {
+                            color: "#3a9eff",
+                          },
+                        }}
+                      >
+                        <ListItem>
+                          <ListItemIcon>
+                            <MailOutlinedIcon />
+                          </ListItemIcon>
+                          <ListItemText primary="hug@gmail.com" />
+                        </ListItem>
+
+                        <ListItem>
+                          <ListItemIcon>
+                            <LocationOnOutlinedIcon />
+                          </ListItemIcon>
+                          <ListItemText primary="France" />
+                        </ListItem>
+
+                        <ListItem>
+                          <ListItemIcon>
+                            <PhoneEnabledOutlinedIcon />
+                          </ListItemIcon>
+                          <ListItemText primary="+1 (923) 392-3521" />
+                        </ListItem>
+
+                        <ListItem>
+                          <ListItemIcon>
+                            <ShareOutlinedIcon />
+                          </ListItemIcon>
+                          <ListItemText
+                            primary="https://thomas.en"
+                            sx={{
+                              cursor: "pointer",
+                              "&:hover": { textDecoration: "underline" },
+                            }}
+                          />
+                        </ListItem>
+                      </List>
+                    </Box>
+                  </Stack>
+                </Container>
+              </Stack>
+            </Grid>
+          ))}
+        </>
+      </Grid>
+      <Grid container p={8}>
+        <Grid item xs={12}>
+          <Box component="form" onSubmit={onSubmit}>
+            <Typography
+              variant="caption"
+              fontSize="1.6rem"
+              mb={2}
+              display="block"
+            >
+              카드 양식
+            </Typography>
+            <Stack
+              direction="column"
+              spacing={2}
+              sx={{
+                ".css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input": {
+                  p: 1.2,
+                },
+              }}
+            >
+              <FormControl>
+                <FormLabel sx={{ fontSize: "1.2rem", mb: "0.4rem" }}>
+                  이름
+                </FormLabel>
+                <TextField
+                  type="text"
+                  sx={{ p: 0 }}
+                  onChange={onChange}
+                  name="callerName"
+                  value={cusInfo.callerName}
+                  placeholder="이름을 작성하세요"
+                />
+              </FormControl>
+
+              <FormControl>
+                <FormLabel sx={{ fontSize: "1.2rem", mb: "0.4rem" }}>
+                  번호
+                </FormLabel>
+                <TextField
+                  type="text"
+                  sx={{ p: 0 }}
+                  onChange={onChange}
+                  name="phoneNumber"
+                  value={cusInfo.phoneNumber}
+                  placeholder="번호를 작성하세요"
+                />
+              </FormControl>
+
+              <FormControl>
+                <FormLabel sx={{ fontSize: "1.2rem", mb: "0.4rem" }}>
+                  노트
+                </FormLabel>
+                <TextField
+                  type="text"
+                  sx={{ p: 0 }}
+                  onChange={onChange}
+                  name="callNotes"
+                  value={cusInfo.callNotes}
+                  placeholder="노트를 작성하세요"
+                />
+              </FormControl>
+            </Stack>
+            <ButtonGroup
+              sx={{
+                width: "100%",
+                display: "flex",
+                gap: "1.6rem",
+                mt: "2.4rem",
+              }}
+            >
+              <Button
+                type="button"
+                variant="text"
+                sx={{ flex: 1, fontSize: "1.2rem", width: "50%" }}
+              >
+                취소
+              </Button>
+              <Button
+                type="submit"
+                variant="contained"
+                sx={{ flex: 1, fontSize: "1.2rem", width: "50%" }}
+              >
+                제출
+              </Button>
+            </ButtonGroup>
+          </Box>
         </Grid>
       </Grid>
     </Box>
