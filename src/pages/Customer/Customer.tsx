@@ -91,6 +91,7 @@ const Customer = () => {
     setCusLists(newLists);
     setEditMode(false);
     setEditInfo({ editName: "", editPhone: "", editNotes: "" });
+    alert("편집이 완료되었습니다!");
   };
 
   const handleEditOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
