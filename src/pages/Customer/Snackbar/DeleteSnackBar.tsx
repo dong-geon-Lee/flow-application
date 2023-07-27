@@ -1,30 +1,32 @@
 import * as M from "@mui/material";
 
-const SnackBar = ({ snackBarOpen, handleSnackbarClose }: any) => {
+const DeleteSnackBar = ({
+  snackbarDeleteOpen,
+  handleDeleteSnackBarClose,
+}: any) => {
   return (
     <M.Snackbar
-      open={snackBarOpen}
+      open={snackbarDeleteOpen}
       autoHideDuration={5000}
-      onClose={handleSnackbarClose}
+      onClose={handleDeleteSnackBarClose}
       anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       sx={{ p: "2rem" }}
     >
       <M.Alert
-        onClose={handleSnackbarClose}
-        severity="success"
+        onClose={handleDeleteSnackBarClose}
+        severity="error"
         sx={{
           width: "100%",
-          p: "1.2rem",
           display: "flex",
           alignItems: "center",
           borderRadius: "1rem",
           fontWeight: "500",
         }}
       >
-        Customer Card를 추가하였습니다.
+        Customer Card가 삭제되었습니다.
       </M.Alert>
     </M.Snackbar>
   );
 };
 
-export default SnackBar;
+export default DeleteSnackBar;

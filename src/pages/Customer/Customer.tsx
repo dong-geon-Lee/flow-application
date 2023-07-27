@@ -4,7 +4,11 @@ import * as M from "@mui/material";
 import * as I from "@mui/icons-material";
 import * as T from "@types";
 
-import SnackBar from "./SnackBar";
+import SnackBar from "./Snackbar/SnackBar";
+import EditandCompleteBtn from "./ActionButton/EditAndCompleteBtn";
+import DeleteAndClearBtn from "./ActionButton/DeleteAndClearBtn";
+import UserInfo from "./UserField/UserInfo";
+import UserInput from "./UserField/UserInput";
 
 const Customer = () => {
   const [cusLists, setCusLists] = useState<T.CusProps[]>([]);
@@ -24,11 +28,15 @@ const Customer = () => {
 
   const [open, setOpen] = useState(false);
   const [snackBarOpen, setSnackBarOpen] = useState(false);
+  const [snackbarDeleteOpen, setSnackbarDeleteOpen] = useState(false);
 
   const handleClickOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+
   const handleSnackbarOpen = () => setSnackBarOpen(true);
   const handleSnackbarClose = () => setSnackBarOpen(false);
+  const handleDeleteSnackBarOpen = () => setSnackbarDeleteOpen(true);
+  const handleDeleteSnackBarClose = () => setSnackbarDeleteOpen(false);
 
   const handleEditMode = (id: number | undefined) => {
     const newLists = cusLists.map((cusList: T.CusProps) => {
@@ -189,190 +197,37 @@ const Customer = () => {
                 >
                   <I.PersonPin />
                 </M.Avatar>
-                <M.Grid container flexDirection="column" width="100%">
-                  <M.Stack direction="row" pt={1} pb={1} alignItems="center">
-                    {cusList.status ? (
-                      <M.TextField
-                        type="text"
-                        label="이름"
-                        variant="standard"
-                        size="small"
-                        name="editName"
-                        value={editInfo.editName}
-                        onChange={handleEditOnChange}
-                      />
-                    ) : (
-                      <M.Typography
-                        variant="h6"
-                        component="p"
-                        fontSize="1rem"
-                        width="100%"
-                        noWrap
-                      >
-                        {cusList.callerName}
-                      </M.Typography>
-                    )}
-                  </M.Stack>
-
-                  <M.Stack direction="row" spacing={1} alignItems="center">
-                    {cusList.status ? (
-                      <M.TextField
-                        type="text"
-                        label="번호"
-                        variant="standard"
-                        size="medium"
-                        name="editPhone"
-                        value={editInfo.editPhone}
-                        onChange={handleEditOnChange}
-                      />
-                    ) : (
-                      <M.Typography
-                        variant="caption"
-                        component="p"
-                        width="100%"
-                        noWrap
-                      >
-                        {cusList.phoneNumber}
-                      </M.Typography>
-                    )}
-                  </M.Stack>
-                </M.Grid>
-
+                <UserInput
+                  cusList={cusList}
+                  editInfo={editInfo}
+                  handleEditOnChange={handleEditOnChange}
+                />
                 <M.Stack direction="row">
-                  {cusList.status ? (
-                    <>
-                      <M.Button
-                        sx={{ width: "100%", display: "inline-block" }}
-                        onClick={() => {
-                          handleEditUpdate(
-                            cusList.id,
-                            editInfo.editName,
-                            editInfo.editPhone,
-                            editInfo.editNotes
-                          );
-                        }}
-                      >
-                        <I.CheckOutlined />
-                      </M.Button>
-                    </>
-                  ) : (
-                    <>
-                      <M.Button
-                        sx={{
-                          width: "100%",
-                          display: "inline-block",
-                        }}
-                        onClick={() => handleEditMode(cusList?.id)}
-                        disabled={editMode && !cusList.status ? true : false}
-                      >
-                        <I.Edit />
-                      </M.Button>
-                    </>
-                  )}
-
-                  {cusList.status ? (
-                    <>
-                      <M.Button
-                        onClick={() => handleEditExit(cusList.id)}
-                        color="error"
-                        sx={{ width: "100%", display: "inline-block" }}
-                      >
-                        <I.ClearOutlined />
-                      </M.Button>
-                    </>
-                  ) : (
-                    <>
-                      <M.Button
-                        onClick={() => handleDeleteItem(cusList.id)}
-                        color="error"
-                        sx={{
-                          width: "100%",
-                          display: "inline-block",
-                        }}
-                        disabled={editMode && !cusList.status ? true : false}
-                      >
-                        <I.DeleteOutlineOutlined />
-                      </M.Button>
-                    </>
-                  )}
+                  <EditandCompleteBtn
+                    handleEditUpdate={handleEditUpdate}
+                    handleEditMode={handleEditMode}
+                    status={cusList.status}
+                    cusList={cusList}
+                    editInfo={editInfo}
+                    editMode={editMode}
+                  />
+                  <DeleteAndClearBtn
+                    handleEditExit={handleEditExit}
+                    handleDeleteItem={handleDeleteItem}
+                    handleDeleteSnackBarOpen={handleDeleteSnackBarOpen}
+                    snackbarDeleteOpen={snackbarDeleteOpen}
+                    handleDeleteSnackBarClose={handleDeleteSnackBarClose}
+                    status={cusList.status}
+                    cusList={cusList}
+                    editMode={editMode}
+                  />
                 </M.Stack>
               </M.Stack>
-
-              <M.Container>
-                <M.Stack direction="column" width="100%">
-                  <M.Grid item>
-                    {cusList.status ? (
-                      <M.TextField
-                        type="text"
-                        label="설명"
-                        variant="outlined"
-                        size="medium"
-                        name="editNotes"
-                        value={editInfo.editNotes}
-                        onChange={handleEditOnChange}
-                        fullWidth
-                      />
-                    ) : (
-                      <M.Typography mb="1rem">{cusList.callNotes}</M.Typography>
-                    )}
-                    <M.Divider />
-                  </M.Grid>
-                  <M.Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "flex-start",
-                      alignItems: "center",
-                    }}
-                  >
-                    <M.List
-                      sx={{
-                        "& .css-cveggr-MuiListItemIcon-root": {
-                          minWidth: "34px",
-                        },
-                        display: "block",
-                        "& li": { p: 0, color: "#939393" },
-                        "& li:last-child": {
-                          color: "#3a9eff",
-                        },
-                      }}
-                    >
-                      <M.ListItem>
-                        <M.ListItemIcon>
-                          <I.MailOutlined />
-                        </M.ListItemIcon>
-                        <M.ListItemText primary="hug@gmail.com" />
-                      </M.ListItem>
-
-                      <M.ListItem>
-                        <M.ListItemIcon>
-                          <I.LocationOnOutlined />
-                        </M.ListItemIcon>
-                        <M.ListItemText primary="France" />
-                      </M.ListItem>
-
-                      <M.ListItem>
-                        <M.ListItemIcon>
-                          <I.PhoneEnabledOutlined />
-                        </M.ListItemIcon>
-                        <M.ListItemText primary="+1 (923) 392-3521" />
-                      </M.ListItem>
-
-                      <M.ListItem>
-                        <M.ListItemIcon>
-                          <I.ShareOutlined />
-                        </M.ListItemIcon>
-                        <M.ListItemText
-                          primary="https://thomas.en"
-                          sx={{
-                            cursor: "pointer",
-                            "&:hover": { textDecoration: "underline" },
-                          }}
-                        />
-                      </M.ListItem>
-                    </M.List>
-                  </M.Box>
-                </M.Stack>
-              </M.Container>
+              <UserInfo
+                cusList={cusList}
+                editInfo={editInfo}
+                handleEditOnChange={handleEditOnChange}
+              />
             </M.Stack>
           </M.Grid>
         ))}
@@ -383,7 +238,6 @@ const Customer = () => {
           <I.Add />
         </M.Fab>
       </M.Box>
-
       <M.Dialog open={open} onClose={handleClose} sx={{ position: "absolute" }}>
         <M.Grid container p={8}>
           <M.Grid item xs={12}>
