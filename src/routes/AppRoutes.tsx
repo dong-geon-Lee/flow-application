@@ -8,6 +8,7 @@ import Ecommerce from "pages/Ecommerce";
 import Contact from "pages/Contact";
 import Pricing from "pages/Pricing";
 import { useEffect } from "react";
+import Free from "pages/Free";
 
 const AppRoutes = () => {
   const navigate = useNavigate();
@@ -26,6 +27,7 @@ const AppRoutes = () => {
         <Route path="ecommerce" element={<Ecommerce />} />
         <Route path="contact" element={<Contact />} />
         <Route path="pricing" element={<Pricing />} />
+        <Route path="free" element={<Free />} />
       </Route>
     </Routes>
   );
