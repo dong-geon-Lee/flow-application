@@ -17,8 +17,8 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import MailIcon from "@mui/icons-material/Mail";
-import { Link, Outlet } from "react-router-dom";
-import { Badge, Menu, MenuItem } from "@mui/material";
+import { Link, Outlet, useLocation } from "react-router-dom";
+import { Badge, Menu, MenuItem, Stack } from "@mui/material";
 import {
   Notifications,
   AccountCircle,
@@ -33,6 +33,18 @@ import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import PhoneEnabledOutlinedIcon from "@mui/icons-material/PhoneEnabledOutlined";
 import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlined";
 import { TreeItem, TreeView } from "@mui/lab";
+
+const StyledTreeView = styled(TreeView)`
+  .MuiTreeItem-group {
+    margin-left: 0;
+  }
+`;
+
+const StyledTreeItem = styled(TreeItem)`
+  .MuiTreeItem-iconContainer {
+    display: none;
+  }
+`;
 
 const drawerWidth = 240;
 
@@ -110,6 +122,8 @@ export const MiniDrawer = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
+  const location = useLocation();
+
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -156,7 +170,11 @@ export const MiniDrawer = () => {
       case "dashboard":
         return <DashboardIcon />;
       case "customer":
-        return <SupportAgentIcon />;
+        return (
+          <>
+            <SupportAgentIcon />
+          </>
+        );
       case "profile":
         return <AccountCircleOutlinedIcon />;
       case "invoice":
@@ -290,7 +308,9 @@ export const MiniDrawer = () => {
                   >
                     {handleCustomIcons(text)}
                   </ListItemIcon>
+
                   <ListItemText
+                    //! 편집
                     primary={text === "" ? "Dashboard" : text}
                     sx={{ opacity: open ? 1 : 0, color: "black" }}
                   />
@@ -302,7 +322,7 @@ export const MiniDrawer = () => {
         <Divider />
 
         <List>
-          {["E-commerce", "Contact US", "Pricing"].map((text, index) => (
+          {["E-commerce", "Contact US", "Pricing"].map((text) => (
             <Link
               to={hanldeCustomLinks(text)}
               key={text}
@@ -325,6 +345,7 @@ export const MiniDrawer = () => {
                   >
                     {handleCustomIcons(text)}
                   </ListItemIcon>
+
                   <ListItemText
                     primary={text}
                     sx={{ opacity: open ? 1 : 0, color: "black" }}
@@ -333,6 +354,74 @@ export const MiniDrawer = () => {
               </ListItem>
             </Link>
           ))}
+        </List>
+
+        {/* 독립적으로 구분해서 진행하는중 
+        //* 자연스럽게 텍스트가 나열안되어 임의로 free 컴포넌트 세팅하고 실험 중 
+        */}
+        <List sx={{ ".css-m69qwo-MuiStack-root": { width: "100%" } }}>
+          <Link
+            to="free"
+            style={{
+              textDecoration: "none",
+            }}
+          >
+            <ListItem disablePadding sx={{ display: "block" }}>
+              <ListItemButton
+                sx={{
+                  minHeight: 48,
+                  justifyContent: open ? "initial" : "center",
+                  px: 2.5,
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <Stack direction="row">
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <AccountCircleOutlinedIcon />
+                  </ListItemIcon>
+
+                  <ListItemText
+                    primary="free"
+                    sx={{
+                      opacity: open ? 1 : 0,
+                      color: "black",
+                      margin: "0 auto",
+                      textAlign: "left",
+                      width: "100%",
+                    }}
+                  />
+                </Stack>
+                {open && location.pathname === "/free" && (
+                  <StyledTreeView aria-label="tree" sx={{ width: "100%" }}>
+                    <StyledTreeItem
+                      nodeId="1"
+                      label="free information"
+                      sx={{ textDecoration: "none", color: "black" }}
+                    >
+                      <StyledTreeItem nodeId="2" label="free 1-1" />
+                    </StyledTreeItem>
+                    <StyledTreeItem
+                      nodeId="5"
+                      label="free action"
+                      sx={{ textDecoration: "none", color: "black" }}
+                    >
+                      <StyledTreeItem nodeId="10" label="Subitem 1-1" />
+                      <StyledTreeItem nodeId="6" label="Subitem 1-2">
+                        <StyledTreeItem nodeId="8" label="Subitem 1-2-(1)" />
+                      </StyledTreeItem>
+                    </StyledTreeItem>
+                  </StyledTreeView>
+                )}
+              </ListItemButton>
+            </ListItem>
+          </Link>
         </List>
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, background: "#fafafb" }}>
