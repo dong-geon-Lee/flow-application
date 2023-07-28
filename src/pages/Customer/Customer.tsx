@@ -42,6 +42,7 @@ const Customer = () => {
   const [open, setOpen] = useState(false);
   const [snackBarOpen, setSnackBarOpen] = useState(false);
   const [snackbarDeleteOpen, setSnackbarDeleteOpen] = useState(false);
+  const [snackbarEditOpen, setSnackbarEditOpen] = useState(false);
 
   const handleClickOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -50,6 +51,8 @@ const Customer = () => {
   const handleSnackbarClose = () => setSnackBarOpen(false);
   const handleDeleteSnackBarOpen = () => setSnackbarDeleteOpen(true);
   const handleDeleteSnackBarClose = () => setSnackbarDeleteOpen(false);
+  const handleUpdateSnackBarOpen = () => setSnackbarEditOpen(true);
+  const handleUpdateSnackBarClose = () => setSnackbarEditOpen(false);
 
   const handleEditMode = (id: T.IDProps) => {
     const newLists = customer.cusLists.map((cusList: T.CusProps) => {
@@ -99,7 +102,6 @@ const Customer = () => {
     });
 
     dispatch(editCustomer(newLists));
-    // alert("편집이 완료되었습니다!");
     setEditInfo({ editName: "", editPhone: "", editNotes: "" });
   };
 
@@ -137,7 +139,6 @@ const Customer = () => {
     handleCreateItem();
     handleClose();
     handleSnackbarOpen();
-
     setCusInfo({
       callerName: "",
       phoneNumber: "",
@@ -215,6 +216,9 @@ const Customer = () => {
                     cusList={cusList}
                     editInfo={editInfo}
                     editMode={customer.editMode}
+                    snackbarEditOpen={snackbarEditOpen}
+                    handleUpdateSnackBarOpen={handleUpdateSnackBarOpen}
+                    handleUpdateSnackBarClose={handleUpdateSnackBarClose}
                   />
                   <DeleteAndClearBtn
                     handleEditExit={handleEditExit}
