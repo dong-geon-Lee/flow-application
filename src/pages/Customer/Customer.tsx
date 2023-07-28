@@ -11,8 +11,21 @@ import UserInfo from "./UserField/UserInfo";
 import UserInput from "./UserField/UserInput";
 import CardDialog from "./Modals/CardDialog";
 
+import { fetchCustomerData } from "api";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "app/store";
+import {
+  addCustomer,
+  customerEditExit,
+  customerEditMode,
+  deleteCustomer,
+  editCustomer,
+} from "app/features/customer/customerSlice";
+
 const Customer = () => {
-  const [cusLists, setCusLists] = useState<T.CusProps[]>([]);
+  const customer = useSelector((state: RootState) => state.customer);
+  const dispatch = useDispatch();
+
   const [cusInfo, setCusInfo] = useState<T.CusProps>({
     callerName: "",
     phoneNumber: "",
@@ -20,7 +33,6 @@ const Customer = () => {
     status: false,
   });
 
-  const [editMode, setEditMode] = useState(false);
   const [editInfo, setEditInfo] = useState<T.EditProps>({
     editName: "",
     editPhone: "",
@@ -39,8 +51,8 @@ const Customer = () => {
   const handleDeleteSnackBarOpen = () => setSnackbarDeleteOpen(true);
   const handleDeleteSnackBarClose = () => setSnackbarDeleteOpen(false);
 
-  const handleEditMode = (id: number | undefined) => {
-    const newLists = cusLists.map((cusList: T.CusProps) => {
+  const handleEditMode = (id: T.IDProps) => {
+    const newLists = customer.cusLists.map((cusList: T.CusProps) => {
       if (cusList.id === id) {
         setEditInfo({
           ...editInfo,
@@ -54,18 +66,16 @@ const Customer = () => {
       }
     });
 
-    setCusLists(newLists);
-    setEditMode(true);
+    dispatch(customerEditMode(newLists));
   };
 
   const handleEditExit = (id: number | undefined) => {
-    const newLists = cusLists.map((cusList: T.CusProps) => {
+    const newLists = customer.cusLists.map((cusList: T.CusProps) => {
       if (cusList.id === id) return { ...cusList, status: false };
       else return cusList;
     });
 
-    setCusLists(newLists);
-    setEditMode(false);
+    dispatch(customerEditExit(newLists));
   };
 
   const handleEditUpdate = (
@@ -74,7 +84,7 @@ const Customer = () => {
     editPhone: string,
     editNotes: string
   ) => {
-    const newLists = cusLists.map((cusList: T.CusProps) => {
+    const newLists = customer.cusLists.map((cusList: T.CusProps) => {
       if (cusList.id === id) {
         return {
           ...cusList,
@@ -88,10 +98,9 @@ const Customer = () => {
       }
     });
 
-    setCusLists(newLists);
-    setEditMode(false);
+    dispatch(editCustomer(newLists));
+    // alert("편집이 완료되었습니다!");
     setEditInfo({ editName: "", editPhone: "", editNotes: "" });
-    alert("편집이 완료되었습니다!");
   };
 
   const handleEditOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,22 +113,22 @@ const Customer = () => {
 
   const handleCreateItem = () => {
     const newCusItem: T.CusProps = {
-      id: cusLists.length + 1,
+      id: customer.cusLists.length + 1,
       callerName: cusInfo.callerName,
       phoneNumber: cusInfo.phoneNumber,
       callNotes: cusInfo.callNotes,
       status: cusInfo.status,
     };
 
-    setCusLists((prevState) => [...prevState, newCusItem]);
+    dispatch(addCustomer(newCusItem));
   };
 
   const handleDeleteItem = (targetID: number | undefined) => {
-    const newLists = cusLists.filter(
+    const newLists = customer.cusLists.filter(
       (cusList: T.CusProps) => cusList.id !== targetID
     );
 
-    setCusLists(newLists);
+    dispatch(deleteCustomer(newLists));
   };
 
   const onSubmit = (e: React.SyntheticEvent) => {
@@ -138,14 +147,8 @@ const Customer = () => {
   };
 
   useEffect(() => {
-    const fetchDatas = async () => {
-      const response = await fetch("/mock_data.json");
-      const datas = await response.json();
-      setCusLists(datas);
-    };
-
-    fetchDatas();
-  }, []);
+    dispatch(fetchCustomerData());
+  }, [dispatch]);
 
   return (
     <M.Box sx={{ position: "relative" }}>
@@ -169,7 +172,7 @@ const Customer = () => {
           margin: "0 auto",
         }}
       >
-        {cusLists.map((cusList: T.CusProps) => (
+        {customer.cusLists?.map((cusList: T.CusProps) => (
           <M.Grid key={cusList.id} width="100%">
             <M.Stack
               height="20rem"
@@ -211,7 +214,7 @@ const Customer = () => {
                     status={cusList.status}
                     cusList={cusList}
                     editInfo={editInfo}
-                    editMode={editMode}
+                    editMode={customer.editMode}
                   />
                   <DeleteAndClearBtn
                     handleEditExit={handleEditExit}
@@ -221,7 +224,7 @@ const Customer = () => {
                     handleDeleteSnackBarClose={handleDeleteSnackBarClose}
                     status={cusList.status}
                     cusList={cusList}
-                    editMode={editMode}
+                    editMode={customer.editMode}
                   />
                 </M.Stack>
               </M.Stack>
