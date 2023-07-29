@@ -4,7 +4,6 @@ import * as M from "@mui/material";
 import * as I from "@mui/icons-material";
 import * as T from "@types";
 
-import SnackBar from "./Snackbar/SnackBar";
 import EditandCompleteBtn from "./ActionButton/EditAndCompleteBtn";
 import DeleteAndClearBtn from "./ActionButton/DeleteAndClearBtn";
 import UserInfo from "./UserField/UserInfo";
@@ -21,6 +20,8 @@ import {
   deleteCustomer,
   editCustomer,
 } from "app/features/customer/customerSlice";
+
+import { useSnackbar } from "hooks/useSnackBar";
 
 const Customer = () => {
   const customer = useSelector((state: RootState) => state.customer);
@@ -115,7 +116,7 @@ const Customer = () => {
 
   const handleCreateItem = () => {
     const newCusItem: T.CusProps = {
-      id: customer.cusLists.length + 1,
+      id: customer.cusLists.length + 5,
       callerName: cusInfo.callerName,
       phoneNumber: cusInfo.phoneNumber,
       callNotes: cusInfo.callNotes,
@@ -146,6 +147,13 @@ const Customer = () => {
       status: false,
     });
   };
+
+  const CreateSnackbar = useSnackbar(
+    snackBarOpen,
+    handleSnackbarClose,
+    "success",
+    "Customer Card를 추가하였습니다."
+  );
 
   useEffect(() => {
     dispatch(fetchCustomerData());
@@ -249,10 +257,8 @@ const Customer = () => {
         onChange={onChange}
         cusInfo={cusInfo}
       />
-      <SnackBar
-        snackBarOpen={snackBarOpen}
-        handleSnackbarClose={handleSnackbarClose}
-      />
+
+      {CreateSnackbar}
     </M.Box>
   );
 };

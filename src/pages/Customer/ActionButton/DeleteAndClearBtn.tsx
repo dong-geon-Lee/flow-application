@@ -1,6 +1,7 @@
 import * as M from "@mui/material";
 import * as I from "@mui/icons-material";
-import DeleteSnackBar from "../Snackbar/DeleteSnackBar";
+
+import { useSnackbar } from "hooks/useSnackBar";
 
 const DeleteAndClearBtn = ({
   status,
@@ -12,6 +13,13 @@ const DeleteAndClearBtn = ({
   handleEditExit,
   editMode,
 }: any) => {
+  const AppDeleteSnackBar = useSnackbar(
+    snackbarDeleteOpen,
+    handleDeleteSnackBarClose,
+    "error",
+    "Customer Card가 삭제되었습니다."
+  );
+
   return (
     <>
       {status ? (
@@ -40,10 +48,7 @@ const DeleteAndClearBtn = ({
           >
             <I.DeleteOutlineOutlined />
           </M.Button>
-          <DeleteSnackBar
-            snackbarDeleteOpen={snackbarDeleteOpen}
-            handleDeleteSnackBarClose={handleDeleteSnackBarClose}
-          />
+          {AppDeleteSnackBar}
         </>
       )}
     </>

@@ -1,6 +1,7 @@
 import * as M from "@mui/material";
 import * as I from "@mui/icons-material";
-import EditSnackBar from "../Snackbar/EditSnackBar";
+
+import { useSnackbar } from "hooks/useSnackBar";
 
 const EditAndCompleteBtn = ({
   status,
@@ -13,6 +14,13 @@ const EditAndCompleteBtn = ({
   handleUpdateSnackBarOpen,
   handleUpdateSnackBarClose,
 }: any) => {
+  const AppEditSnackBar = useSnackbar(
+    snackbarEditOpen,
+    handleUpdateSnackBarClose,
+    "info",
+    "Customer Card 편집완료!"
+  );
+
   return (
     <>
       {status ? (
@@ -39,10 +47,7 @@ const EditAndCompleteBtn = ({
           >
             <I.Edit />
           </M.Button>
-          <EditSnackBar
-            snackbarEditOpen={snackbarEditOpen}
-            handleUpdateSnackBarClose={handleUpdateSnackBarClose}
-          />
+          {AppEditSnackBar}
         </>
       )}
     </>

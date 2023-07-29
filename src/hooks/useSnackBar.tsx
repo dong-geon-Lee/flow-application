@@ -1,17 +1,22 @@
 import * as M from "@mui/material";
 
-const EditSnackBar = ({ snackbarEditOpen, handleUpdateSnackBarClose }: any) => {
+export const useSnackbar = (
+  snackBarOpen: any,
+  handleSnackbarClose: any,
+  status: any,
+  text: string
+) => {
   return (
     <M.Snackbar
-      open={snackbarEditOpen}
+      open={snackBarOpen}
       autoHideDuration={5000}
-      onClose={handleUpdateSnackBarClose}
+      onClose={handleSnackbarClose}
       anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       sx={{ p: "2rem" }}
     >
       <M.Alert
-        onClose={handleUpdateSnackBarClose}
-        severity="info"
+        onClose={handleSnackbarClose}
+        severity={status}
         sx={{
           width: "100%",
           display: "flex",
@@ -20,10 +25,8 @@ const EditSnackBar = ({ snackbarEditOpen, handleUpdateSnackBarClose }: any) => {
           fontWeight: "500",
         }}
       >
-        Customer Card 편집완료!
+        {text}
       </M.Alert>
     </M.Snackbar>
   );
 };
-
-export default EditSnackBar;
