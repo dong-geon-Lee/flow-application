@@ -1,6 +1,12 @@
 import Checkbox from "@mui/material/Checkbox";
-import { ThemeProvider, createTheme, styled } from "@mui/material/styles";
+import {
+  ThemeProvider,
+  createTheme,
+  styled,
+  useTheme,
+} from "@mui/material/styles";
 import { blue, green, orange } from "@mui/material/colors";
+import { Typography } from "@mui/material";
 
 //* palette는 타입 선언이 필요없음
 const theme = createTheme({
@@ -15,10 +21,18 @@ const CustomCheckbox = styled(Checkbox)(({ theme }) => ({
 }));
 
 const Free = () => {
+  //* 루트 Theme와 컴포넌트 Theme 간의 nesting Theme 사용하기
+  const rootTheme = useTheme();
+
+  const Title = styled(Typography)(() => ({
+    color: rootTheme.status.warn,
+  }));
+
   return (
     <ThemeProvider theme={theme}>
       <Checkbox defaultChecked color="primary" />
       <CustomCheckbox defaultChecked />
+      <Title>나는 root Theme를 사용하고 있습니다</Title>
     </ThemeProvider>
   );
 };
