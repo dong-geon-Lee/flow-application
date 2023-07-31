@@ -28,6 +28,7 @@ declare module "@mui/material/styles" {
     status: {
       danger: string;
       info: string;
+      warn: string;
     };
   }
 
@@ -35,6 +36,7 @@ declare module "@mui/material/styles" {
     status?: {
       danger?: string;
       info?: string;
+      warn?: string;
     };
   }
 }

@@ -3,16 +3,19 @@ import { green } from "@mui/material/colors";
 import { useTheme } from "@mui/material/styles";
 
 const Pricing = () => {
+  //* useTheme()
   const theme = useTheme();
 
+  //* createTheme()
+  const InnerTheme = createTheme({
+    palette: { primary: { main: green[500] } },
+  });
+
+  //* styled & Components
   const H2 = styled(Typography)(() => ({
     fontSize: "2rem",
     color: theme.status.info,
   }));
-
-  const InnerTheme = createTheme({
-    palette: { primary: { main: green[500] } },
-  });
 
   const H3 = styled(Typography)(({ theme }) => ({
     color: theme.palette.primary.main,
