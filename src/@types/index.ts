@@ -23,7 +23,18 @@ export interface IDProps {
   id?: number | undefined;
 }
 
-// id: number | undefined,
-// editName: string,
-// editPhone: string,
-// editNotes: string
+declare module "@mui/material/styles" {
+  interface Theme {
+    status: {
+      danger: string;
+      info: string;
+    };
+  }
+
+  interface ThemeOptions {
+    status?: {
+      danger?: string;
+      info?: string;
+    };
+  }
+}
