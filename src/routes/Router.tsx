@@ -1,20 +1,25 @@
-import { Routes, Route, useNavigate } from "react-router-dom";
-import MiniDrawer from "components/MiniDrawer";
-import Profile from "pages/Profile";
-import Customer from "pages/Customer/Customer";
-import Home from "pages/Dashboard";
-import Invoice from "pages/Invoice";
-import Ecommerce from "pages/Ecommerce";
-import Contact from "pages/Contact";
-import Pricing from "pages/Pricing";
 import { useEffect } from "react";
-import Free from "pages/Free";
+import { Routes, Route, useNavigate } from "react-router-dom";
+
+import {
+  Login,
+  Contact,
+  Free,
+  Pricing,
+  Ecommerce,
+  Invoice,
+  Home,
+  Profile,
+  Customer,
+} from "pages/@index";
+
+import MiniDrawer from "components/MiniDrawer";
 
 const AppRoutes = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    navigate("pricing");
+    navigate("/login");
   }, []);
 
   return (
@@ -28,6 +33,7 @@ const AppRoutes = () => {
         <Route path="contact" element={<Contact />} />
         <Route path="pricing" element={<Pricing />} />
         <Route path="free" element={<Free />} />
+        <Route path="login" element={<Login />} />
       </Route>
     </Routes>
   );

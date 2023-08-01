@@ -1,21 +1,7 @@
-import AppRoutes from "routes/AppRoutes";
-import { ThemeProvider, createTheme } from "@mui/material";
-import { blue, orange, yellow } from "@mui/material/colors";
+import Router from "routes/Router";
 
 const App = () => {
-  const theme = createTheme({
-    status: {
-      danger: orange[500],
-      info: blue[500],
-      warn: yellow[500],
-    },
-  });
-
-  return (
-    <ThemeProvider theme={theme}>
-      <AppRoutes />
-    </ThemeProvider>
-  );
+  return <Router />;
 };
 
 export default App;

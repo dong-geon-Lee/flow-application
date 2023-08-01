@@ -1,17 +1,22 @@
 import { useState } from "react";
 
 import {
+  Button,
   ThemeProvider,
   createTheme,
   styled,
   useTheme,
-} from "@mui/material/styles";
+} from "@mui/material";
 
 import { blue, green, orange, red, purple } from "@mui/material/colors";
-import { Slider, Typography, Checkbox } from "@mui/material";
-
-import Tooltip, { TooltipProps } from "@mui/material/Tooltip";
-import { CheckboxProps } from "@mui/material/Checkbox";
+import {
+  Tooltip,
+  Slider,
+  Typography,
+  Checkbox,
+  CheckboxProps,
+  TooltipProps,
+} from "@mui/material";
 
 interface AProps {
   active: boolean;

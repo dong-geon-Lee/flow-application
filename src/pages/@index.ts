@@ -1,0 +1,9 @@
+export { default as Contact } from "./Contact";
+export { default as Profile } from "./Profile";
+export { default as Home } from "./Dashboard";
+export { default as Invoice } from "./Invoice";
+export { default as Ecommerce } from "./Ecommerce";
+export { default as Pricing } from "./Pricing";
+export { default as Free } from "./Free";
+export { default as Login } from "./Auth/Login/Login";
+export { default as Customer } from "./Customer/Customer";
