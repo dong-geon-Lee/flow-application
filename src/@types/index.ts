@@ -30,6 +30,7 @@ declare module "@mui/material/styles" {
       info: string;
       warn: string;
     };
+    tonalOffset: number;
   }
 
   interface ThemeOptions {
@@ -38,5 +39,32 @@ declare module "@mui/material/styles" {
       info?: string;
       warn?: string;
     };
+    tonalOffset?: number;
+  }
+}
+
+declare module "@mui/material/styles" {
+  interface Palette {
+    ochre: Palette["primary"];
+  }
+
+  interface PaletteOptions {
+    ochre?: PaletteOptions["primary"];
+  }
+}
+
+declare module "@mui/material/styles" {
+  interface PaletteColor {
+    darker?: string;
+  }
+
+  interface SimplePaletteColorOptions {
+    darker?: string;
+  }
+}
+
+declare module "@mui/material/Button" {
+  interface ButtonPropsColorOverrides {
+    ochre: true;
   }
 }
