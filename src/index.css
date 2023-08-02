@@ -5,11 +5,10 @@
 }
 
 html {
-  font-size: 100%;
+  font-size: 62.5%;
   overflow-x: hidden;
 }
 
 body {
   list-style: none;
-  grid-template-columns: repeat(2, 1fr);
 }

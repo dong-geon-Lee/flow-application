@@ -2,6 +2,12 @@ import { useState } from "react";
 
 import {
   Button,
+  Collapse,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
   ThemeProvider,
   createTheme,
   styled,
@@ -17,9 +23,16 @@ import {
   CheckboxProps,
   TooltipProps,
 } from "@mui/material";
+import {
+  DownloadOutlined,
+  LayersOutlined,
+  RadioButtonUncheckedSharp,
+  SettingsOutlined,
+  UpdateOutlined,
+} from "@mui/icons-material";
 
 interface AProps {
-  active: boolean;
+  active: boolean | string;
 }
 
 //* palette는 타입 선언이 필요없음
@@ -100,6 +113,8 @@ const CustomizedSlider = styled(Slider)`
 //todo Portal 이용하기
 const Free = () => {
   const [active, setActive] = useState(false);
+  const [open, setOpen] = useState("sample");
+  const [openChild, setOpenChild] = useState("list1");
 
   //* useTheme()
   const theme = useTheme();
@@ -194,51 +209,162 @@ const Free = () => {
     }
   `;
 
+  const handleClick = (item: any) => {
+    setOpen((prevOpen) => (prevOpen === item ? null : item));
+  };
+
+  const handleChildClick = (item: any) => {
+    setOpenChild((prevOpen) => (prevOpen === item ? null : item));
+  };
+
   return (
-    <ThemeProvider theme={theme}>
-      <hr />
-      <h1>테스트</h1>
-      <Checkbox color="info" defaultChecked />
-      <StyledCheckbox defaultChecked />
-      <hr />
+    <>
+      <ThemeProvider theme={theme}>
+        <hr />
+        <h1>테스트</h1>
+        <Checkbox color="info" defaultChecked />
+        <StyledCheckbox defaultChecked />
+        <hr />
 
-      <Checkbox defaultChecked color="primary" />
-      <CustomCheckbox defaultChecked />
-      <Title>나는 root Theme를 사용하고 있습니다</Title>
+        <Checkbox defaultChecked color="primary" />
+        <CustomCheckbox defaultChecked />
+        <Title>나는 root Theme를 사용하고 있습니다</Title>
 
-      <ThemeProvider theme={subTheme}>
-        {/* <CustomButton variant="contained" color="secondary">
+        <ThemeProvider theme={subTheme}>
+          {/* <CustomButton variant="contained" color="secondary">
           커스텀 버튼
         </CustomButton> */}
+        </ThemeProvider>
+        <DarkerText>야 더더</DarkerText>
+
+        <Slider
+          defaultValue={30}
+          sx={{
+            width: 300,
+            color: "success.main",
+            // "& .MuiSlider-thumb": {
+            //   borderRadius: "1px",
+            // },
+            "& .MuiSlider-thumb": { borderRadius: "1px" },
+          }}
+        />
+        <CustomizedSlider defaultValue={10} />
+
+        <H2>Pricing</H2>
+        <ThemeProvider theme={InnerTheme}>
+          <H3> 녹색</H3>
+          <Title>별도의 주제</Title>
+          <Button>버튼</Button>
+
+          <Main>
+            <Text
+              active={active && active.toString()}
+              onClick={() => setActive(!active)}
+            >
+              Text
+            </Text>
+          </Main>
+        </ThemeProvider>
       </ThemeProvider>
-      <DarkerText>야 더더</DarkerText>
 
-      <Slider
-        defaultValue={30}
-        sx={{
-          width: 300,
-          color: "success.main",
-          // "& .MuiSlider-thumb": {
-          //   borderRadius: "1px",
-          // },
-          "& .MuiSlider-thumb": { borderRadius: "1px" },
-        }}
-      />
-      <CustomizedSlider defaultValue={10} />
+      <List sx={{ p: 0 }}>
+        <ListItem disablePadding divider>
+          <ListItemButton onClick={() => handleClick("sample")}>
+            <ListItemIcon>
+              <LayersOutlined />
+            </ListItemIcon>
 
-      <H2>Pricing</H2>
-      <ThemeProvider theme={InnerTheme}>
-        <H3> 녹색</H3>
-        <Title>별도의 주제</Title>
-        <Button>버튼</Button>
+            <ListItemText primary="Sample" />
 
-        <Main>
-          <Text active={active} onClick={() => setActive(!active)}>
-            Text
-          </Text>
-        </Main>
-      </ThemeProvider>
-    </ThemeProvider>
+            {open === "sample" ? (
+              <DownloadOutlined style={{ fontSize: "0.75rem" }} />
+            ) : (
+              <UpdateOutlined style={{ fontSize: "0.75rem" }} />
+            )}
+          </ListItemButton>
+        </ListItem>
+
+        <Collapse in={open === "sample"} timeout="auto" unmountOnExit>
+          <List
+            component="div"
+            disablePadding
+            sx={{ bgcolor: "secondary.100" }}
+          >
+            <ListItemButton sx={{ pl: 5 }}>
+              <ListItemText primary="List item 01" />
+            </ListItemButton>
+
+            <ListItemButton
+              sx={{ pl: 5 }}
+              onClick={() => handleChildClick("list1")}
+            >
+              <ListItemText primary="List item 02" />
+              {openChild === "list1" ? (
+                <DownloadOutlined style={{ fontSize: "0.75rem" }} />
+              ) : (
+                <UpdateOutlined style={{ fontSize: "0.75rem" }} />
+              )}
+            </ListItemButton>
+
+            <Collapse in={openChild === "list1"} timeout="auto" unmountOnExit>
+              <List
+                component="div"
+                disablePadding
+                sx={{ bgcolor: "secondary.lighter" }}
+              >
+                <ListItemButton sx={{ pl: 7 }}>
+                  <ListItemText primary="List item 05" />
+                </ListItemButton>
+
+                <ListItemButton sx={{ pl: 7 }}>
+                  <ListItemText primary="List item 06" />
+                </ListItemButton>
+              </List>
+            </Collapse>
+          </List>
+        </Collapse>
+
+        <ListItem disablePadding divider>
+          <ListItemButton onClick={() => handleClick("settings")}>
+            <ListItemIcon>
+              <SettingsOutlined />
+            </ListItemIcon>
+            <ListItemText primary="Settings" />
+            {open === "settings" ? (
+              <DownloadOutlined style={{ fontSize: "0.75rem" }} />
+            ) : (
+              <UpdateOutlined style={{ fontSize: "0.75rem" }} />
+            )}
+          </ListItemButton>
+        </ListItem>
+
+        <Collapse in={open === "settings"} timeout="auto" unmountOnExit>
+          {open === "settings" && (
+            <List
+              component="div"
+              disablePadding
+              sx={{ bgcolor: "secondary.100" }}
+            >
+              <ListItemButton sx={{ pl: 5 }}>
+                <ListItemText primary="List item 03" />
+              </ListItemButton>
+              <ListItemButton sx={{ pl: 5 }}>
+                <ListItemText primary="List item 04" />
+              </ListItemButton>
+            </List>
+          )}
+        </Collapse>
+
+        <ListItem disablePadding>
+          <ListItemButton>
+            <ListItemIcon>
+              <RadioButtonUncheckedSharp />
+            </ListItemIcon>
+            <ListItemText primary="UI Elements" />
+          </ListItemButton>
+        </ListItem>
+      </List>
+    </>
   );
 };
 

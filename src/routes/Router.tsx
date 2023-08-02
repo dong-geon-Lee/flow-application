@@ -14,14 +14,9 @@ import {
 } from "pages/@index";
 
 import MiniDrawer from "components/MiniDrawer";
+import Register from "pages/Auth/Register/Register";
 
 const AppRoutes = () => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    navigate("/login");
-  }, []);
-
   return (
     <Routes>
       <Route path="/" element={<MiniDrawer />}>
@@ -33,8 +28,10 @@ const AppRoutes = () => {
         <Route path="contact" element={<Contact />} />
         <Route path="pricing" element={<Pricing />} />
         <Route path="free" element={<Free />} />
-        <Route path="login" element={<Login />} />
       </Route>
+
+      <Route path="login" element={<Login />} />
+      <Route path="register" element={<Register />} />
     </Routes>
   );
 };
