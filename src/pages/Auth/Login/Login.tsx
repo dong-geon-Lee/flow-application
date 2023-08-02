@@ -144,7 +144,11 @@ const Login = () => {
               <Link to="/register" style={{ color: "black" }}>
                 <Typography
                   variant="caption"
-                  sx={{ fontSize: "1.3rem", fontWeight: "400" }}
+                  sx={{
+                    fontSize: "1.3rem",
+                    fontWeight: "400",
+                    "&:hover": { textDecoration: "underline" },
+                  }}
                 >
                   비밀번호를 잊어버렸나요?
                 </Typography>
@@ -300,30 +304,3 @@ const Login = () => {
 };
 
 export default Login;
-
-/* <InputBox>
-                <TextField
-                  type="text"
-                  label="Email Address"
-                  sx={{
-                    width: "100%",
-                    "& .MuiInputBase-formControl": {
-                      fontSize: "1.2rem",
-                      width: "100%",
-                      height: "4.6rem",
-                      display: "block",
-                    },
-                    "& .MuiInputLabel-formControl": {
-                      fontSize: "1.2rem",
-                      display: "block",
-                    },
-
-                    "& .MuiOutlinedInput-input": {
-                      padding: "1.4rem",
-                      fontSize: "2rem",
-                    },
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                />
-              </InputBox> */
