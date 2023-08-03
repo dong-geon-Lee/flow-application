@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Bottom,
   Container,
@@ -29,19 +29,81 @@ import { Google, Twitter, Facebook } from "@mui/icons-material";
 import AuthBackground from "../AuthBackground";
 import logo from "assets/images/logo.png";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { useState } from "react";
-import { blue, pink } from "@mui/material/colors";
+import { useEffect, useState } from "react";
+import { blue } from "@mui/material/colors";
+
+import { getAuthUserList } from "api";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "app/store";
+import { authUserLogin, refreshUserLists } from "app/features/auth/authSlice";
+
+interface UserProps {
+  email: string;
+  password: any;
+}
 
 const Login = () => {
+  const [userInfo, setUserInfo] = useState<UserProps>({
+    email: "",
+    password: "",
+  });
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleClickShowPassword = () => setShowPassword((show) => !show);
+  const { userLists } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleClickShowPassword = () => {
+    setShowPassword((show) => !show);
+  };
 
   const handleMouseDownPassword = (
     event: React.MouseEvent<HTMLButtonElement>
   ) => {
     event.preventDefault();
   };
+
+  const onChange = (e: any) => {
+    setUserInfo({ ...userInfo, [e.target.name]: e.target.value });
+  };
+
+  const onSubmit = async (e: any) => {
+    e.preventDefault();
+
+    try {
+      const [seletedValidUser] = userLists.filter((userList: any) => {
+        if (
+          userInfo.email === userList.email &&
+          parseInt(userInfo.password) === userList.password
+        )
+          return userList;
+      });
+
+      if (seletedValidUser.hasOwnProperty("username")) {
+        const newUserInfo = { ...seletedValidUser, authStatus: true };
+        dispatch(authUserLogin(newUserInfo));
+
+        const newAuthUserLists = userLists.map((userList: any) => {
+          if (userList.email === newUserInfo.email) {
+            return newUserInfo;
+          } else {
+            return userList;
+          }
+        });
+
+        dispatch(refreshUserLists(newAuthUserLists));
+        navigate("/");
+      }
+    } catch (error: any) {
+      console.log("존재하지않는 유저입니다");
+    }
+
+    setUserInfo({ email: "", password: "" });
+  };
+
+  useEffect(() => {
+    dispatch(getAuthUserList());
+  }, [dispatch]);
 
   return (
     <Container sx={{ zIndex: 2 }}>
@@ -64,6 +126,7 @@ const Login = () => {
           </Stack>
 
           <Form
+            onSubmit={onSubmit}
             autoComplete="off"
             sx={{
               width: "100%",
@@ -82,6 +145,9 @@ const Login = () => {
                 type="text"
                 label="Email"
                 sx={{ fontSize: "1.2rem", height: "4.6rem" }}
+                name="email"
+                value={userInfo.email}
+                onChange={onChange}
                 placeholder="이메일을 입력해주세요"
               />
             </FormControl>
@@ -103,6 +169,9 @@ const Login = () => {
                 }
                 label="Password"
                 sx={{ fontSize: "1.2rem", height: "4.6rem" }}
+                name="password"
+                value={userInfo.password}
+                onChange={onChange}
                 placeholder="비밀번호를 입력해주세요"
               />
             </FormControl>
@@ -156,6 +225,7 @@ const Login = () => {
             </Stack>
 
             <Button
+              type="submit"
               variant="contained"
               color="primary"
               sx={{
