@@ -1,14 +1,27 @@
 import { useState } from "react";
 
 import {
+  AppBar,
   Button,
   Collapse,
+  FormControl,
+  FormControlLabel,
+  FormGroup,
+  FormLabel,
+  InputLabel,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  MenuItem,
+  Radio,
+  RadioGroup,
+  Select,
+  Tabs,
+  Tab,
   ThemeProvider,
+  Toolbar,
   createTheme,
   styled,
   useTheme,
@@ -24,12 +37,14 @@ import {
   TooltipProps,
 } from "@mui/material";
 import {
+  CheckBox,
   DownloadOutlined,
   LayersOutlined,
   RadioButtonUncheckedSharp,
   SettingsOutlined,
   UpdateOutlined,
 } from "@mui/icons-material";
+import { Link } from "react-router-dom";
 
 interface AProps {
   active: boolean | string;
@@ -116,6 +131,18 @@ const Free = () => {
   const [open, setOpen] = useState("sample");
   const [openChild, setOpenChild] = useState("list1");
 
+  const [inputStatus, setInputStatus] = useState(false);
+  const [age, setAge] = useState(10);
+  const [gender, setGender] = useState("gender");
+
+  const handleChange = (e: any) => {
+    setAge(e.target.value);
+  };
+
+  const handleOnChange = (e: any) => {
+    setGender(e.target.value);
+  };
+
   //* useTheme()
   const theme = useTheme();
 
@@ -158,7 +185,7 @@ const Free = () => {
     border: "1px solid red",
   }));
 
-  const Button = styled("button")`
+  const Button1 = styled("button")`
     padding: 1.2rem 2rem;
     border: none;
     border-radius: 1rem;
@@ -219,7 +246,7 @@ const Free = () => {
 
   return (
     <>
-      <ThemeProvider theme={theme}>
+      {/* <ThemeProvider theme={theme}>
         <hr />
         <h1>테스트</h1>
         <Checkbox color="info" defaultChecked />
@@ -230,11 +257,7 @@ const Free = () => {
         <CustomCheckbox defaultChecked />
         <Title>나는 root Theme를 사용하고 있습니다</Title>
 
-        <ThemeProvider theme={subTheme}>
-          {/* <CustomButton variant="contained" color="secondary">
-          커스텀 버튼
-        </CustomButton> */}
-        </ThemeProvider>
+        <ThemeProvider theme={subTheme}></ThemeProvider>
         <DarkerText>야 더더</DarkerText>
 
         <Slider
@@ -242,9 +265,7 @@ const Free = () => {
           sx={{
             width: 300,
             color: "success.main",
-            // "& .MuiSlider-thumb": {
-            //   borderRadius: "1px",
-            // },
+
             "& .MuiSlider-thumb": { borderRadius: "1px" },
           }}
         />
@@ -265,35 +286,27 @@ const Free = () => {
             </Text>
           </Main>
         </ThemeProvider>
-      </ThemeProvider>
+      </ThemeProvider> */}
 
-      <List sx={{ p: 0 }}>
-        <ListItem disablePadding divider>
-          <ListItemButton onClick={() => handleClick("sample")}>
-            <ListItemIcon>
-              <LayersOutlined />
-            </ListItemIcon>
-
-            <ListItemText primary="Sample" />
-
-            {open === "sample" ? (
-              <DownloadOutlined style={{ fontSize: "0.75rem" }} />
-            ) : (
-              <UpdateOutlined style={{ fontSize: "0.75rem" }} />
-            )}
-          </ListItemButton>
-        </ListItem>
-
-        <Collapse in={open === "sample"} timeout="auto" unmountOnExit>
-          <List
-            component="div"
-            disablePadding
-            sx={{ bgcolor: "secondary.100" }}
-          >
+      <List sx={{ p: 0, mb: "5rem" }}>
+        <List component="div" disablePadding>
+          <ListItem disablePadding divider>
+            <ListItemButton onClick={() => handleClick("sample")}>
+              <ListItemIcon>
+                <LayersOutlined />
+              </ListItemIcon>
+              <ListItemText primary="Sample" />
+              {open === "sample" ? (
+                <DownloadOutlined style={{ fontSize: "0.75rem" }} />
+              ) : (
+                <UpdateOutlined style={{ fontSize: "0.75rem" }} />
+              )}
+            </ListItemButton>
+          </ListItem>
+          <Collapse in={open === "sample"} timeout="auto" unmountOnExit>
             <ListItemButton sx={{ pl: 5 }}>
               <ListItemText primary="List item 01" />
             </ListItemButton>
-
             <ListItemButton
               sx={{ pl: 5 }}
               onClick={() => handleChildClick("list1")}
@@ -305,65 +318,137 @@ const Free = () => {
                 <UpdateOutlined style={{ fontSize: "0.75rem" }} />
               )}
             </ListItemButton>
-
             <Collapse in={openChild === "list1"} timeout="auto" unmountOnExit>
-              <List
-                component="div"
-                disablePadding
-                sx={{ bgcolor: "secondary.lighter" }}
-              >
-                <ListItemButton sx={{ pl: 7 }}>
-                  <ListItemText primary="List item 05" />
-                </ListItemButton>
+              <ListItemButton sx={{ pl: 7 }}>
+                <ListItemText primary="List item 05" />
+              </ListItemButton>
 
-                <ListItemButton sx={{ pl: 7 }}>
-                  <ListItemText primary="List item 06" />
-                </ListItemButton>
-              </List>
+              <ListItemButton sx={{ pl: 7 }}>
+                <ListItemText primary="List item 06" />
+              </ListItemButton>
             </Collapse>
-          </List>
-        </Collapse>
+          </Collapse>
+        </List>
 
-        <ListItem disablePadding divider>
-          <ListItemButton onClick={() => handleClick("settings")}>
-            <ListItemIcon>
-              <SettingsOutlined />
-            </ListItemIcon>
-            <ListItemText primary="Settings" />
-            {open === "settings" ? (
-              <DownloadOutlined style={{ fontSize: "0.75rem" }} />
-            ) : (
-              <UpdateOutlined style={{ fontSize: "0.75rem" }} />
-            )}
-          </ListItemButton>
-        </ListItem>
-
-        <Collapse in={open === "settings"} timeout="auto" unmountOnExit>
-          {open === "settings" && (
-            <List
-              component="div"
-              disablePadding
-              sx={{ bgcolor: "secondary.100" }}
-            >
+        <List component="div" disablePadding>
+          <ListItem disablePadding divider>
+            <ListItemButton onClick={() => handleClick("ui")}>
+              <ListItemIcon>
+                <RadioButtonUncheckedSharp />
+              </ListItemIcon>
+              <ListItemText primary="User" />
+              {open === "ui" ? (
+                <DownloadOutlined style={{ fontSize: "0.75rem" }} />
+              ) : (
+                <UpdateOutlined style={{ fontSize: "0.75rem" }} />
+              )}
+            </ListItemButton>
+          </ListItem>
+          <Collapse in={open === "ui"} timeout="auto" unmountOnExit>
+            <Link to="/profile">
               <ListItemButton sx={{ pl: 5 }}>
-                <ListItemText primary="List item 03" />
+                <ListItemText primary="Profile" />
               </ListItemButton>
+            </Link>
+            <Link to="/profile">
               <ListItemButton sx={{ pl: 5 }}>
-                <ListItemText primary="List item 04" />
+                <ListItemText primary="Product" />
               </ListItemButton>
-            </List>
-          )}
-        </Collapse>
+            </Link>
+          </Collapse>
+        </List>
 
-        <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <RadioButtonUncheckedSharp />
-            </ListItemIcon>
-            <ListItemText primary="UI Elements" />
-          </ListItemButton>
-        </ListItem>
+        <List component="div" disablePadding>
+          <ListItem disablePadding divider>
+            <ListItemButton onClick={() => handleClick("auth")}>
+              <ListItemIcon>
+                <RadioButtonUncheckedSharp />
+              </ListItemIcon>
+              <ListItemText primary="Auth" />
+              {open === "auth" ? (
+                <DownloadOutlined style={{ fontSize: "0.75rem" }} />
+              ) : (
+                <UpdateOutlined style={{ fontSize: "0.75rem" }} />
+              )}
+            </ListItemButton>
+          </ListItem>
+          <Collapse in={open === "auth"} timeout="auto" unmountOnExit>
+            <Link to="/">
+              <ListItemButton sx={{ pl: 5 }}>
+                <ListItemText primary="authentication" />
+              </ListItemButton>
+            </Link>
+            <Link to="/">
+              <ListItemButton sx={{ pl: 5 }}>
+                <ListItemText primary="userInterface" />
+              </ListItemButton>
+            </Link>
+          </Collapse>
+        </List>
       </List>
+
+      {/* //* #0 TextField */}
+      {/* 텍스트를 표현하는 방법은 이거 하나다. */}
+      <Typography variant="h6">form은 별도의 태그가 없다</Typography>
+
+      {/* //* #1 Checkbox */}
+      {/* 체크박스로 상태 관리 하는 방법  */}
+      <FormGroup>
+        <FormControlLabel
+          control={<Checkbox onChange={() => setInputStatus(!inputStatus)} />}
+          label="체크박스"
+        />
+      </FormGroup>
+
+      {/* //* #2 Select  */}
+      {/* 셀렉트로 상태 관리 하는 방법  */}
+      <FormControl>
+        <InputLabel>Agea</InputLabel>
+        <Select value={age} onChange={handleChange}>
+          <MenuItem value={10}>Ten</MenuItem>
+          <MenuItem value={20}>Twenty</MenuItem>
+          <MenuItem value={30}>Thirty</MenuItem>
+        </Select>
+      </FormControl>
+
+      {/* //* #3 Radio  */}
+      {/* 레디오로 상태 관리 하는 방법 */}
+      <FormControl>
+        <FormLabel>Gender</FormLabel>
+        <RadioGroup
+          defaultValue="female"
+          name="radio-buttons-group"
+          value={gender}
+          onChange={handleOnChange}
+        >
+          <FormControlLabel value="female" control={<Radio />} label="Female" />
+          <FormControlLabel value="male" control={<Radio />} label="Male" />
+          <FormControlLabel value="other" control={<Radio />} label="Other" />
+        </RadioGroup>
+      </FormControl>
+
+      {/* //* #4 Appbar */}
+      {/* Appbar는 기본적으로 Toolbar 내부에서 콘텐츠를 작성해 나간다 */}
+      <AppBar sx={{ zIndex: 5000 }}>
+        <Toolbar>
+          <Typography>LOGO</Typography>
+          <Button
+            sx={{ marginLeft: "auto" }}
+            color="warning"
+            variant="contained"
+          >
+            Hello
+          </Button>
+        </Toolbar>
+      </AppBar>
+
+      {/* //* #5 Tabs */}
+      {/* 다른 onChange와 차이점은 사용자가 받는 값을 2번쨰 인자로 처리 할 수 있다는 점이다. 이것을 의미하는 것은 */}
+      <Tabs value={0}>
+        <Tab label="First" />
+        <Tab label="First2" />
+        <Tab label="First3" />
+      </Tabs>
     </>
   );
 };

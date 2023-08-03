@@ -1,4 +1,3 @@
-import { useTheme } from "@mui/material/styles";
 import { Box } from "@mui/material";
 
 const AuthBackground = () => {
