@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "username": "이동건",
+    "email": "donggeon.lee@sonutech.com",
+    "password": 1111,
+    "authStatus": false
+  },
+  {
+    "id": 2,
+    "username": "김선미",
+    "email": "smkim@sonutech.com",
+    "password": 2222,
+    "authStatus": false
+  },
+  {
+    "id": 3,
+    "username": "최영준",
+    "email": "yjchoi@sonutech.com",
+    "password": 3333,
+    "authStatus": false
+  },
+  {
+    "id": 4,
+    "username": "이철인",
+    "email": "chulin.lee@sonutech.com",
+    "password": 4444,
+    "authStatus": false
+  }
+]
