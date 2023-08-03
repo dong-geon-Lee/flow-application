@@ -23,6 +23,16 @@ export interface IDProps {
   id?: number | undefined;
 }
 
+export interface AuthProps {
+  username: string;
+  email: string;
+  password: any;
+  authStatus: boolean;
+  message: string;
+  userLists: AuthProps[];
+  userInfo: any;
+}
+
 declare module "@mui/material/styles" {
   interface Theme {
     status: {
