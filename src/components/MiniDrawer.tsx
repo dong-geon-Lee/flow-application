@@ -422,6 +422,69 @@ export const MiniDrawer = () => {
               </ListItemButton>
             </ListItem>
           </Link>
+
+          <Link
+            to="freevalid"
+            style={{
+              textDecoration: "none",
+            }}
+          >
+            <ListItem disablePadding sx={{ display: "block" }}>
+              <ListItemButton
+                sx={{
+                  minHeight: 48,
+                  justifyContent: open ? "initial" : "center",
+                  px: 2.5,
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <Stack direction="row">
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <AccountCircleOutlinedIcon />
+                  </ListItemIcon>
+
+                  <ListItemText
+                    primary="free"
+                    sx={{
+                      opacity: open ? 1 : 0,
+                      color: "black",
+                      margin: "0 auto",
+                      textAlign: "left",
+                      width: "100%",
+                    }}
+                  />
+                </Stack>
+                {open && location.pathname === "/free" && (
+                  <StyledTreeView aria-label="tree" sx={{ width: "100%" }}>
+                    <StyledTreeItem
+                      nodeId="1"
+                      label="free information"
+                      sx={{ textDecoration: "none", color: "black" }}
+                    >
+                      <StyledTreeItem nodeId="2" label="free 1-1" />
+                    </StyledTreeItem>
+                    <StyledTreeItem
+                      nodeId="5"
+                      label="free action"
+                      sx={{ textDecoration: "none", color: "black" }}
+                    >
+                      <StyledTreeItem nodeId="10" label="Subitem 1-1" />
+                      <StyledTreeItem nodeId="6" label="Subitem 1-2">
+                        <StyledTreeItem nodeId="8" label="Subitem 1-2-(1)" />
+                      </StyledTreeItem>
+                    </StyledTreeItem>
+                  </StyledTreeView>
+                )}
+              </ListItemButton>
+            </ListItem>
+          </Link>
         </List>
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, background: "#fafafb" }}>
