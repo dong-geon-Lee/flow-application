@@ -22,6 +22,9 @@ import {
   Checkbox,
   Divider,
   Chip,
+  Backdrop,
+  CircularProgress,
+  FormHelperText,
 } from "@mui/material";
 
 import { Google, Twitter, Facebook } from "@mui/icons-material";
@@ -48,10 +51,18 @@ const Login = () => {
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [backdropStatus, setBackdropStatus] = useState(false);
+  const [inputError, setInputError] = useState(false);
 
-  const { userLists } = useSelector((state: RootState) => state.auth);
+  const { userLists, userInfo: userinfo } = useSelector(
+    (state: RootState) => state.auth
+  );
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const handleBackdrop = () => {
+    setBackdropStatus(true);
+  };
 
   const handleClickShowPassword = () => {
     setShowPassword((show) => !show);
@@ -70,6 +81,9 @@ const Login = () => {
   const onSubmit = async (e: any) => {
     e.preventDefault();
 
+    handleBackdrop();
+    setInputError(false);
+
     try {
       const [seletedValidUser] = userLists.filter((userList: any) => {
         if (
@@ -79,7 +93,7 @@ const Login = () => {
           return userList;
       });
 
-      if (seletedValidUser.hasOwnProperty("username")) {
+      if (seletedValidUser.hasOwnProperty("email")) {
         const newUserInfo = { ...seletedValidUser, authStatus: true };
         dispatch(authUserLogin(newUserInfo));
 
@@ -92,10 +106,11 @@ const Login = () => {
         });
 
         dispatch(refreshUserLists(newAuthUserLists));
-        navigate("/");
       }
     } catch (error: any) {
-      console.log("존재하지않는 유저입니다");
+      setBackdropStatus(false);
+      setInputError(true);
+      return alert("이메일 또는 비밀번호가 존재하지않거나 잘못되었습니다");
     }
 
     setUserInfo({ email: "", password: "" });
@@ -103,11 +118,28 @@ const Login = () => {
 
   useEffect(() => {
     dispatch(getAuthUserList());
-  }, [dispatch]);
+    if (userinfo.authStatus === true && backdropStatus === true) {
+      setTimeout(() => {
+        setBackdropStatus(false);
+        navigate("/");
+      }, 1500);
+    } else if (userinfo.authStatus === true) {
+      navigate("/");
+    }
+  }, [dispatch, userinfo.authStatus]);
 
   return (
-    <Container sx={{ zIndex: 2 }}>
-      <AuthBackground />
+    <Container sx={{ zIndex: 2, position: "relative" }}>
+      {backdropStatus && (
+        <Backdrop
+          open={backdropStatus}
+          sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        >
+          <CircularProgress color="inherit" />
+        </Backdrop>
+      )}
+      {/* <AuthBackground /> */}
+
       <LogoBox>
         <Img src={logo} alt="logo" />
       </LogoBox>
@@ -139,21 +171,29 @@ const Login = () => {
                 mb: "3.2rem",
               }}
               variant="outlined"
+              error={inputError ?? true}
             >
-              <InputLabel sx={{ fontSize: "1.2rem" }}>이메일</InputLabel>
+              <InputLabel sx={{ fontSize: "1.2rem" }}>Email</InputLabel>
               <OutlinedInput
                 type="text"
                 label="Email"
-                sx={{ fontSize: "1.2rem", height: "4.6rem" }}
+                sx={{ fontSize: "1.2rem" }}
                 name="email"
                 value={userInfo.email}
                 onChange={onChange}
                 placeholder="이메일을 입력해주세요"
               />
+              {inputError && (
+                <FormHelperText>이메일을 다시 입력해주세요.</FormHelperText>
+              )}
             </FormControl>
 
-            <FormControl sx={{ width: "100%" }} variant="outlined">
-              <InputLabel sx={{ fontSize: "1.2rem" }}>비밀번호</InputLabel>
+            <FormControl
+              sx={{ width: "100%" }}
+              variant="outlined"
+              error={inputError ?? true}
+            >
+              <InputLabel sx={{ fontSize: "1.2rem" }}>Password</InputLabel>
               <OutlinedInput
                 type={showPassword ? "text" : "password"}
                 endAdornment={
@@ -168,12 +208,15 @@ const Login = () => {
                   </InputAdornment>
                 }
                 label="Password"
-                sx={{ fontSize: "1.2rem", height: "4.6rem" }}
+                sx={{ fontSize: "1.2rem" }}
                 name="password"
                 value={userInfo.password}
                 onChange={onChange}
-                placeholder="비밀번호를 입력해주세요"
+                placeholder="패스워드를 입력해주세요"
               />
+              {inputError && (
+                <FormHelperText>패스워드를 다시 입력해주세요.</FormHelperText>
+              )}
             </FormControl>
 
             <Stack

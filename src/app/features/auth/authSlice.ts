@@ -13,10 +13,7 @@ export const authSlice = createSlice({
   initialState,
   reducers: {
     logout(state, action) {
-      state.username = "";
-      state.email = "";
-      state.password = "";
-      state.authStatus = false;
+      state.userInfo = [];
       state.message = action.payload;
     },
     authUserLogin(state, action) {
