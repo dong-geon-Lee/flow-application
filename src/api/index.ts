@@ -18,6 +18,8 @@ export const getAuthUserList: any = createAsyncThunk(
   async (_, thunkApi) => {
     try {
       const response = await axios.get("/fake_user.json");
+      localStorage.setItem("users", JSON.stringify(response.data));
+
       return response.data;
     } catch (error) {
       return thunkApi.rejectWithValue("존재하지 않는 유저입니다");

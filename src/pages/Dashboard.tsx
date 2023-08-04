@@ -1,27 +1,34 @@
-import { logout } from "app/features/auth/authSlice";
-import { RootState } from "app/store";
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useCallback, useEffect } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+
+import { logout } from "app/features/auth/authSlice";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     dispatch(logout("로그아웃되었습니다"));
     navigate("/login");
-  };
 
-  // const { userInfo } = useSelector((state: RootState) => state.auth);
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("users");
+    localStorage.removeItem("singleUser");
+  }, [dispatch, navigate]);
+
+  // * MDN 에서 더 공부하고 사용하기
+  // const handleEvent = () => {
+  //   window.history.pushState(null, "", window.location.href);
+  // };
 
   // useEffect(() => {
-  //   if (userInfo.authStatus) {
-  //     navigate("/");
-  //   } else {
-  //     navigate("/login");
-  //   }
-  // }, [userInfo]);
+  //   window.history.pushState(null, "", window.location.href);
+  //   window.addEventListener("popstate", handleEvent);
+  //   return () => {
+  //     window.removeEventListener("popstate", handleEvent);
+  //   };
+  // }, []);
 
   return (
     <div>

@@ -2,10 +2,16 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { getAuthUserList } from "api";
 import * as T from "@types";
 
+const orderedUsers = JSON.parse(localStorage.getItem("users") || "[]");
+const orderedUserInfo = JSON.parse(localStorage.getItem("singleUser") || "[]");
+
 const initialState: any = {
-  userLists: [],
-  userInfo: [],
+  userLists: orderedUsers ? orderedUsers : [],
+  userInfo: orderedUserInfo ? orderedUserInfo : [],
   message: "",
+  token: localStorage.getItem("authToken")
+    ? localStorage.getItem("authToken")
+    : null,
 };
 
 export const authSlice = createSlice({
@@ -18,9 +24,11 @@ export const authSlice = createSlice({
     },
     authUserLogin(state, action) {
       state.userInfo = action.payload;
+      state.token = localStorage.getItem("authToken");
     },
     refreshUserLists(state, action) {
       state.userLists = action.payload;
+      state.token = localStorage.getItem("authToken");
     },
   },
   extraReducers: (builder) => {

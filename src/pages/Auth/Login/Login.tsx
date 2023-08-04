@@ -46,6 +46,9 @@ interface UserProps {
 }
 
 const Login = () => {
+  const token = localStorage.getItem("authToken");
+  const users = localStorage.getItem("userLists");
+
   const [userInfo, setUserInfo] = useState<UserProps>({
     email: "",
     password: "",
@@ -96,6 +99,7 @@ const Login = () => {
       if (seletedValidUser.hasOwnProperty("email")) {
         const newUserInfo = { ...seletedValidUser, authStatus: true };
         dispatch(authUserLogin(newUserInfo));
+        localStorage.setItem("singleUser", JSON.stringify(newUserInfo));
 
         const newAuthUserLists = userLists.map((userList: any) => {
           if (userList.email === newUserInfo.email) {
@@ -106,6 +110,8 @@ const Login = () => {
         });
 
         dispatch(refreshUserLists(newAuthUserLists));
+        localStorage.setItem("users", JSON.stringify(newAuthUserLists));
+        localStorage.setItem("authToken", "get token!");
       }
     } catch (error: any) {
       setBackdropStatus(false);
@@ -117,16 +123,22 @@ const Login = () => {
   };
 
   useEffect(() => {
-    dispatch(getAuthUserList());
     if (userinfo.authStatus === true && backdropStatus === true) {
-      setTimeout(() => {
+      let timeoutID = setTimeout(() => {
         setBackdropStatus(false);
         navigate("/");
       }, 1500);
+
+      return () => clearTimeout(timeoutID);
     } else if (userinfo.authStatus === true) {
       navigate("/");
     }
-  }, [dispatch, userinfo.authStatus]);
+    if (token && userinfo.authStatus) navigate("/");
+  }, [userinfo.authStatus, backdropStatus, navigate, token]);
+
+  useEffect(() => {
+    dispatch(getAuthUserList());
+  }, []);
 
   return (
     <Container sx={{ zIndex: 2, position: "relative" }}>
