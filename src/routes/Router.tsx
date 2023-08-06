@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 import {
   Login,
@@ -12,22 +12,24 @@ import {
   Customer,
 } from "pages/@index";
 
-import MiniDrawer from "components/MiniDrawer";
 import Register from "pages/Auth/Register/Register";
 import FreeValid from "pages/FreeValid";
-import PrivateRoutes from "utils";
+
+import MiniDrawer from "components/MiniDrawer";
 import NotFound from "components/NotFound";
-import { useCallback } from "react";
+
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+
+import { getAuthUserList } from "api";
+import PrivateRoutes from "utils";
 
 const AppRoutes = () => {
-  const token = localStorage.getItem("authToken");
+  const dispatch = useDispatch();
 
-  const PublicRoute = useCallback(
-    (Components: any) => {
-      return token ? <Navigate to="/" /> : <Components />;
-    },
-    [token]
-  );
+  useEffect(() => {
+    dispatch(getAuthUserList());
+  }, [dispatch]);
 
   return (
     <Routes>
@@ -45,8 +47,8 @@ const AppRoutes = () => {
         </Route>
       </Route>
 
-      <Route path="login" element={PublicRoute(Login)} />
-      <Route path="register" element={PublicRoute(Register)} />
+      <Route path="login" element={<Login />} />
+      <Route path="register" element={<Register />} />
       <Route path="/*" element={<NotFound />} />
     </Routes>
   );

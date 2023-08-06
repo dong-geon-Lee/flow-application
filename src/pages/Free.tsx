@@ -386,69 +386,6 @@ const Free = () => {
           </Collapse>
         </List>
       </List>
-
-      {/* //* #0 TextField */}
-      {/* 텍스트를 표현하는 방법은 이거 하나다. */}
-      <Typography variant="h6">form은 별도의 태그가 없다</Typography>
-
-      {/* //* #1 Checkbox */}
-      {/* 체크박스로 상태 관리 하는 방법  */}
-      <FormGroup>
-        <FormControlLabel
-          control={<Checkbox onChange={() => setInputStatus(!inputStatus)} />}
-          label="체크박스"
-        />
-      </FormGroup>
-
-      {/* //* #2 Select  */}
-      {/* 셀렉트로 상태 관리 하는 방법  */}
-      <FormControl>
-        <InputLabel>Agea</InputLabel>
-        <Select value={age} onChange={handleChange}>
-          <MenuItem value={10}>Ten</MenuItem>
-          <MenuItem value={20}>Twenty</MenuItem>
-          <MenuItem value={30}>Thirty</MenuItem>
-        </Select>
-      </FormControl>
-
-      {/* //* #3 Radio  */}
-      {/* 레디오로 상태 관리 하는 방법 */}
-      <FormControl>
-        <FormLabel>Gender</FormLabel>
-        <RadioGroup
-          defaultValue="female"
-          name="radio-buttons-group"
-          value={gender}
-          onChange={handleOnChange}
-        >
-          <FormControlLabel value="female" control={<Radio />} label="Female" />
-          <FormControlLabel value="male" control={<Radio />} label="Male" />
-          <FormControlLabel value="other" control={<Radio />} label="Other" />
-        </RadioGroup>
-      </FormControl>
-
-      {/* //* #4 Appbar */}
-      {/* Appbar는 기본적으로 Toolbar 내부에서 콘텐츠를 작성해 나간다 */}
-      <AppBar sx={{ zIndex: 5000 }}>
-        <Toolbar>
-          <Typography>LOGO</Typography>
-          <Button
-            sx={{ marginLeft: "auto" }}
-            color="warning"
-            variant="contained"
-          >
-            Hello
-          </Button>
-        </Toolbar>
-      </AppBar>
-
-      {/* //* #5 Tabs */}
-      {/* 다른 onChange와 차이점은 사용자가 받는 값을 2번쨰 인자로 처리 할 수 있다는 점이다. 이것을 의미하는 것은 */}
-      <Tabs value={0}>
-        <Tab label="First" />
-        <Tab label="First2" />
-        <Tab label="First3" />
-      </Tabs>
     </>
   );
 };

@@ -1,4 +1,7 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+
 import {
   Bottom,
   Container,
@@ -9,6 +12,7 @@ import {
   LogoBox,
   Section,
 } from "./styles";
+
 import {
   FormControl,
   IconButton,
@@ -26,19 +30,15 @@ import {
   CircularProgress,
   FormHelperText,
 } from "@mui/material";
-
 import { Google, Twitter, Facebook } from "@mui/icons-material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { blue } from "@mui/material/colors";
+
+import { RootState } from "app/store";
+import { authUserLogin, refreshUserLists } from "app/features/auth/authSlice";
 
 import AuthBackground from "../AuthBackground";
 import logo from "assets/images/logo.png";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { useEffect, useState } from "react";
-import { blue } from "@mui/material/colors";
-
-import { getAuthUserList } from "api";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "app/store";
-import { authUserLogin, refreshUserLists } from "app/features/auth/authSlice";
 
 interface UserProps {
   email: string;
@@ -47,7 +47,6 @@ interface UserProps {
 
 const Login = () => {
   const token = localStorage.getItem("authToken");
-  const users = localStorage.getItem("userLists");
 
   const [userInfo, setUserInfo] = useState<UserProps>({
     email: "",
@@ -60,8 +59,12 @@ const Login = () => {
   const { userLists, userInfo: userinfo } = useSelector(
     (state: RootState) => state.auth
   );
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const publicPath = location.pathname === "/login";
 
   const handleBackdrop = () => {
     setBackdropStatus(true);
@@ -123,22 +126,16 @@ const Login = () => {
   };
 
   useEffect(() => {
-    if (userinfo.authStatus === true && backdropStatus === true) {
+    if (userinfo.authStatus === true && backdropStatus === true && token) {
       let timeoutID = setTimeout(() => {
         setBackdropStatus(false);
         navigate("/");
       }, 1500);
-
       return () => clearTimeout(timeoutID);
-    } else if (userinfo.authStatus === true) {
-      navigate("/");
     }
-    if (token && userinfo.authStatus) navigate("/");
-  }, [userinfo.authStatus, backdropStatus, navigate, token]);
 
-  useEffect(() => {
-    dispatch(getAuthUserList());
-  }, []);
+    if (token && publicPath) navigate("/");
+  }, [userinfo.authStatus, token, backdropStatus, navigate, publicPath]);
 
   return (
     <Container sx={{ zIndex: 2, position: "relative" }}>
@@ -150,7 +147,7 @@ const Login = () => {
           <CircularProgress color="inherit" />
         </Backdrop>
       )}
-      {/* <AuthBackground /> */}
+      <AuthBackground />
 
       <LogoBox>
         <Img src={logo} alt="logo" />

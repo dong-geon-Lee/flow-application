@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { styled, useTheme, Theme, CSSObject } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import MuiDrawer from "@mui/material/Drawer";
@@ -17,13 +17,16 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import MailIcon from "@mui/icons-material/Mail";
-import { Link, Outlet, useLocation } from "react-router-dom";
-import { Badge, Menu, MenuItem, Stack } from "@mui/material";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Badge, Button, Collapse, Menu, MenuItem, Stack } from "@mui/material";
 import {
   Notifications,
   AccountCircle,
   ExpandMore,
   ChevronRight,
+  DownloadOutlined,
+  UpdateOutlined,
+  RadioButtonUncheckedSharp,
 } from "@mui/icons-material";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
@@ -33,6 +36,11 @@ import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import PhoneEnabledOutlinedIcon from "@mui/icons-material/PhoneEnabledOutlined";
 import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlined";
 import { TreeItem, TreeView } from "@mui/lab";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { useDispatch } from "react-redux";
+import { logout } from "app/features/auth/authSlice";
 
 const StyledTreeView = styled(TreeView)`
   .MuiTreeItem-group {
@@ -119,8 +127,11 @@ const Drawer = styled(MuiDrawer, {
 
 export const MiniDrawer = () => {
   const theme = useTheme();
-  const [open, setOpen] = useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(true);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const [drawerTap, setDrawerTap] = useState("sample");
+  const [drawerChildTap, setDrawerChildTap] = useState("list1");
 
   const location = useLocation();
 
@@ -163,6 +174,8 @@ export const MiniDrawer = () => {
     }
   };
 
+  // import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
   const handleCustomIcons = (link: string) => {
     let linkText = link.toLowerCase();
 
@@ -190,6 +203,20 @@ export const MiniDrawer = () => {
     }
   };
 
+  const handleClick = (item: any) => {
+    setDrawerTap((prevOpen) => (prevOpen === item ? null : item));
+  };
+
+  const dispatch = useDispatch();
+
+  const handleLogout = useCallback(() => {
+    dispatch(logout("로그아웃되었습니다"));
+
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("users");
+    localStorage.removeItem("singleUser");
+  }, [dispatch]);
+
   return (
     <Box sx={{ display: "flex", width: "100vw", height: "100vh" }}>
       <CssBaseline />
@@ -210,6 +237,20 @@ export const MiniDrawer = () => {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             SonaViewer
           </Typography>
+          <Button
+            variant="contained"
+            sx={{
+              background: "green",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              p: "0.4rem",
+              ml: "2rem",
+            }}
+            onClick={() => handleLogout()}
+          >
+            로그아웃
+          </Button>
           <Box
             sx={{
               display: "flex",
@@ -451,7 +492,7 @@ export const MiniDrawer = () => {
                   </ListItemIcon>
 
                   <ListItemText
-                    primary="free"
+                    primary="freevalid"
                     sx={{
                       opacity: open ? 1 : 0,
                       color: "black",
@@ -461,30 +502,39 @@ export const MiniDrawer = () => {
                     }}
                   />
                 </Stack>
-                {open && location.pathname === "/free" && (
-                  <StyledTreeView aria-label="tree" sx={{ width: "100%" }}>
-                    <StyledTreeItem
-                      nodeId="1"
-                      label="free information"
-                      sx={{ textDecoration: "none", color: "black" }}
-                    >
-                      <StyledTreeItem nodeId="2" label="free 1-1" />
-                    </StyledTreeItem>
-                    <StyledTreeItem
-                      nodeId="5"
-                      label="free action"
-                      sx={{ textDecoration: "none", color: "black" }}
-                    >
-                      <StyledTreeItem nodeId="10" label="Subitem 1-1" />
-                      <StyledTreeItem nodeId="6" label="Subitem 1-2">
-                        <StyledTreeItem nodeId="8" label="Subitem 1-2-(1)" />
-                      </StyledTreeItem>
-                    </StyledTreeItem>
-                  </StyledTreeView>
-                )}
               </ListItemButton>
             </ListItem>
           </Link>
+
+          <List component="div" disablePadding>
+            <ListItem disablePadding divider>
+              <Link to="/freevalid" style={{ width: "100%" }}>
+                <ListItemButton onClick={() => open && handleClick("auth")}>
+                  <ListItemIcon>
+                    <LockOutlinedIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Auth" />
+                  {drawerTap === "auth" ? (
+                    <ExpandMoreIcon style={{ fontSize: "0.75rem" }} />
+                  ) : (
+                    <KeyboardArrowRightIcon style={{ fontSize: "0.75rem" }} />
+                  )}
+                </ListItemButton>
+              </Link>
+            </ListItem>
+            <Collapse in={drawerTap === "auth"} timeout="auto" unmountOnExit>
+              <Link to="/">
+                <ListItemButton sx={{ pl: 5 }}>
+                  <ListItemText primary="Dashboard" />
+                </ListItemButton>
+              </Link>
+              <Link to="/customer">
+                <ListItemButton sx={{ pl: 5 }}>
+                  <ListItemText primary="Customer" />
+                </ListItemButton>
+              </Link>
+            </Collapse>
+          </List>
         </List>
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, background: "#fafafb" }}>

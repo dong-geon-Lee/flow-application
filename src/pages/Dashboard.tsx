@@ -8,14 +8,14 @@ const Dashboard = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleLogout = useCallback(() => {
-    dispatch(logout("로그아웃되었습니다"));
-    navigate("/login");
+  // const handleLogout = useCallback(() => {
+  //   dispatch(logout("로그아웃되었습니다"));
+  //   navigate("/login");
 
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("users");
-    localStorage.removeItem("singleUser");
-  }, [dispatch, navigate]);
+  //   localStorage.removeItem("authToken");
+  //   localStorage.removeItem("users");
+  //   localStorage.removeItem("singleUser");
+  // }, [dispatch, navigate]);
 
   // * MDN 에서 더 공부하고 사용하기
   // const handleEvent = () => {
@@ -33,9 +33,9 @@ const Dashboard = () => {
   return (
     <div>
       <h1>Dashboard</h1>
-      <button onClick={handleLogout} style={{ padding: "1.2rem" }}>
+      {/* <button onClick={handleLogout} style={{ padding: "1.2rem" }}>
         로그아웃
-      </button>
+      </button> */}
     </div>
   );
 };
