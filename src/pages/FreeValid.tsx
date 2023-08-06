@@ -47,6 +47,13 @@ import {
   Drawer,
   Alert,
   AlertTitle,
+  Snackbar,
+  CircularProgress,
+  LinearProgress,
+  Rating,
+  ImageList,
+  ImageListItem,
+  ImageListItemBar,
 } from "@mui/material";
 
 import { Typography, Checkbox } from "@mui/material";
@@ -60,6 +67,79 @@ const top100Films = [
   { label: "The Godfather: Part II", year: 1974 },
   { label: "The Dark Knight", year: 2008 },
   { label: "12 Angry Men", year: 1957 },
+];
+const itemData = [
+  {
+    img: "https://images.unsplash.com/photo-1551963831-b3b1ca40c98e",
+    title: "Breakfast",
+    author: "@bkristastucchio",
+    rows: 2,
+    cols: 2,
+    featured: true,
+  },
+  {
+    img: "https://images.unsplash.com/photo-1551782450-a2132b4ba21d",
+    title: "Burger",
+    author: "@rollelflex_graphy726",
+  },
+  {
+    img: "https://images.unsplash.com/photo-1522770179533-24471fcdba45",
+    title: "Camera",
+    author: "@helloimnik",
+  },
+  {
+    img: "https://images.unsplash.com/photo-1444418776041-9c7e33cc5a9c",
+    title: "Coffee",
+    author: "@nolanissac",
+    cols: 2,
+  },
+  {
+    img: "https://images.unsplash.com/photo-1533827432537-70133748f5c8",
+    title: "Hats",
+    author: "@hjrc33",
+    cols: 2,
+  },
+  {
+    img: "https://images.unsplash.com/photo-1558642452-9d2a7deb7f62",
+    title: "Honey",
+    author: "@arwinneil",
+    rows: 2,
+    cols: 2,
+    featured: true,
+  },
+  {
+    img: "https://images.unsplash.com/photo-1516802273409-68526ee1bdd6",
+    title: "Basketball",
+    author: "@tjdragotta",
+  },
+  {
+    img: "https://images.unsplash.com/photo-1518756131217-31eb79b20e8f",
+    title: "Fern",
+    author: "@katie_wasserman",
+  },
+  {
+    img: "https://images.unsplash.com/photo-1597645587822-e99fa5d45d25",
+    title: "Mushrooms",
+    author: "@silverdalex",
+    rows: 2,
+    cols: 2,
+  },
+  {
+    img: "https://images.unsplash.com/photo-1567306301408-9b74779a11af",
+    title: "Tomato basil",
+    author: "@shelleypauls",
+  },
+  {
+    img: "https://images.unsplash.com/photo-1471357674240-e1a485acb3e1",
+    title: "Sea star",
+    author: "@peterlaster",
+  },
+  {
+    img: "https://images.unsplash.com/photo-1589118949245-7d38baf380d6",
+    title: "Bike",
+    author: "@southside_customs",
+    cols: 2,
+  },
 ];
 
 const FreeValid = () => {
@@ -87,6 +167,10 @@ const FreeValid = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const [show, setShow] = useState(false);
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+  const [ratingValue, setRatingValue] = useState(0);
 
   const handleChange = (e: any) => {
     setAge(e.target.value);
@@ -347,8 +431,8 @@ const FreeValid = () => {
           <List
             sx={{ width: 300, background: "beige", mt: "2rem", mb: "2rem" }}
           >
-            {arrayData.map((item) => (
-              <ListItem divider>
+            {arrayData.map((item, index) => (
+              <ListItem divider key={index}>
                 <ListItemButton>
                   <ListItemIcon>{">"}</ListItemIcon>
                   <ListItemText primary={item} />
@@ -404,6 +488,7 @@ const FreeValid = () => {
         inputValue={autoCompleteInputValue}
         onInputChange={(e, inputValue) => setAutoCompleteInputValue(inputValue)}
         renderInput={(params) => <TextField {...params} label="영화리스트" />}
+        isOptionEqualToValue={() => true}
       />
 
       {/* //* #15 Drawer */}
@@ -414,8 +499,8 @@ const FreeValid = () => {
         onClose={() => setDrawerOpen(false)}
       >
         <List>
-          {arrayData.map((data) => (
-            <ListItemButton onClick={() => setDrawerOpen(false)}>
+          {arrayData.map((data, index) => (
+            <ListItemButton key={index} onClick={() => setDrawerOpen(false)}>
               <ListItemText primary={data} />
             </ListItemButton>
           ))}
@@ -434,6 +519,45 @@ const FreeValid = () => {
           <AlertTitle>정보를 알려주고 싶습니다.</AlertTitle>
         </Alert>
       )}
+
+      {/* //* #17 Snackbar */}
+      <Button onClick={() => setSnackbarOpen(true)}>스낵바버튼</Button>
+      <Snackbar
+        open={snackbarOpen}
+        onClose={() => setSnackbarOpen(false)}
+        autoHideDuration={3000}
+      >
+        <Alert severity="success">제출이 완료되었습니다!</Alert>
+      </Snackbar>
+
+      {/* //* #18 Progress */}
+      <CircularProgress variant="determinate" value={50} color="secondary" />
+      <LinearProgress variant="determinate" value={30} color="info" />
+
+      {/* //* #19 Rating */}
+      <Rating
+        precision={0.5}
+        value={ratingValue}
+        onChange={(e, val: any) => setRatingValue(val)}
+        size="small"
+      />
+      <Typography>
+        Rated {ratingValue !== undefined ? ratingValue : 0} Starts
+      </Typography>
+
+      {/* //* #20 imageList */}
+      <ImageList variant="standard" sx={{ width: 400, height: 400 }} cols={3}>
+        {itemData.map((image, index) => (
+          <ImageListItem key={index}>
+            <img src={image.img} alt={image.title} loading="lazy" />
+            <ImageListItemBar
+              position="below"
+              title={image.title}
+              subtitle={<p>{image.author}</p>}
+            />
+          </ImageListItem>
+        ))}
+      </ImageList>
     </>
   );
 };

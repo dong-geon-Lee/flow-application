@@ -25,6 +25,13 @@ import {
   createTheme,
   styled,
   useTheme,
+  Grid,
+  TableContainer,
+  TableHead,
+  Table,
+  TableRow,
+  TableCell,
+  TableBody,
 } from "@mui/material";
 
 import { blue, green, orange, red, purple } from "@mui/material/colors";
@@ -244,6 +251,12 @@ const Free = () => {
     setOpenChild((prevOpen) => (prevOpen === item ? null : item));
   };
 
+  const dummyDatas = [
+    { id: 1, name: "리", role: "개발자", skills: "소프트 스킬" },
+    { id: 2, name: "수", role: "사업가", skills: "커리어 스킬" },
+    { id: 3, name: "루", role: "작가", skills: "넥스트 스킬" },
+  ];
+
   return (
     <>
       {/* <ThemeProvider theme={theme}>
@@ -288,7 +301,7 @@ const Free = () => {
         </ThemeProvider>
       </ThemeProvider> */}
 
-      <List sx={{ p: 0, mb: "5rem" }}>
+      {/* <List sx={{ p: 0, mb: "5rem" }}>
         <List component="div" disablePadding>
           <ListItem disablePadding divider>
             <ListItemButton onClick={() => handleClick("sample")}>
@@ -385,7 +398,33 @@ const Free = () => {
             </Link>
           </Collapse>
         </List>
-      </List>
+      </List> */}
+
+      <TableContainer sx={{ xs: 12, sm: 8, md: 6, lg: 3, xl: 2 }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell sx={{ marginBottom: { xs: 22, sm: 11, md: 5 } }}>
+                ID
+              </TableCell>
+              <TableCell>이름</TableCell>
+              <TableCell>역할</TableCell>
+              <TableCell>스킬</TableCell>
+            </TableRow>
+          </TableHead>
+
+          <TableBody>
+            {dummyDatas.map((data) => (
+              <TableRow key={data.id}>
+                <TableCell>{data.id}</TableCell>
+                <TableCell>{data.name}</TableCell>
+                <TableCell>{data.role}</TableCell>
+                <TableCell>{data.skills}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </>
   );
 };

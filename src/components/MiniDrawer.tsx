@@ -17,17 +17,9 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import MailIcon from "@mui/icons-material/Mail";
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import { Badge, Button, Collapse, Menu, MenuItem, Stack } from "@mui/material";
-import {
-  Notifications,
-  AccountCircle,
-  ExpandMore,
-  ChevronRight,
-  DownloadOutlined,
-  UpdateOutlined,
-  RadioButtonUncheckedSharp,
-} from "@mui/icons-material";
+import { Notifications, AccountCircle } from "@mui/icons-material";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
