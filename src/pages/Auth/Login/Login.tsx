@@ -30,40 +30,37 @@ import {
   CircularProgress,
   FormHelperText,
 } from "@mui/material";
+
 import { Google, Twitter, Facebook } from "@mui/icons-material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { blue } from "@mui/material/colors";
 
 import { RootState } from "app/store";
-import { authUserLogin, refreshUserLists } from "app/features/auth/authSlice";
+import { loginUser } from "app/features/auth/authSlice";
 
 import AuthBackground from "../AuthBackground";
 import logo from "assets/images/logo.png";
 
-interface UserProps {
-  email: string;
-  password: any;
-}
+import { UserProps } from "@types";
+import { handleAuthUserAPI } from "api";
 
 const Login = () => {
-  const token = localStorage.getItem("authToken");
-
   const [userInfo, setUserInfo] = useState<UserProps>({
     email: "",
     password: "",
   });
+
   const [showPassword, setShowPassword] = useState(false);
   const [backdropStatus, setBackdropStatus] = useState(false);
   const [inputError, setInputError] = useState(false);
 
-  const { userLists, userInfo: userinfo } = useSelector(
-    (state: RootState) => state.auth
-  );
+  const { authUser } = useSelector((state: RootState) => state.auth);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
 
+  const token = localStorage.getItem("token");
   const publicPath = location.pathname === "/login";
 
   const handleBackdrop = () => {
@@ -91,42 +88,30 @@ const Login = () => {
     setInputError(false);
 
     try {
-      const [seletedValidUser] = userLists.filter((userList: any) => {
-        if (
-          userInfo.email === userList.email &&
-          parseInt(userInfo.password) === userList.password
-        )
-          return userList;
+      const authUserInfo: any = await handleAuthUserAPI({
+        userName: userInfo.email,
+        password: userInfo.password,
       });
 
-      if (seletedValidUser.hasOwnProperty("email")) {
-        const newUserInfo = { ...seletedValidUser, authStatus: true };
-        dispatch(authUserLogin(newUserInfo));
-        localStorage.setItem("singleUser", JSON.stringify(newUserInfo));
+      const { userName, token }: any = authUserInfo;
 
-        const newAuthUserLists = userLists.map((userList: any) => {
-          if (userList.email === newUserInfo.email) {
-            return newUserInfo;
-          } else {
-            return userList;
-          }
-        });
+      if (userName && token) {
+        dispatch(loginUser(authUserInfo));
 
-        dispatch(refreshUserLists(newAuthUserLists));
-        localStorage.setItem("users", JSON.stringify(newAuthUserLists));
-        localStorage.setItem("authToken", "get token!");
+        localStorage.setItem("authUser", JSON.stringify(authUserInfo));
+        localStorage.setItem("token", JSON.stringify(token));
       }
     } catch (error: any) {
       setBackdropStatus(false);
       setInputError(true);
-      return alert("이메일 또는 비밀번호가 존재하지않거나 잘못되었습니다");
+      return alert(error.response.data);
     }
 
     setUserInfo({ email: "", password: "" });
   };
 
   useEffect(() => {
-    if (userinfo.authStatus === true && backdropStatus === true && token) {
+    if (authUser?.userName && backdropStatus && token) {
       let timeoutID = setTimeout(() => {
         setBackdropStatus(false);
         navigate("/");
@@ -135,7 +120,7 @@ const Login = () => {
     }
 
     if (token && publicPath) navigate("/");
-  }, [userinfo.authStatus, token, backdropStatus, navigate, publicPath]);
+  }, [backdropStatus, navigate, publicPath, authUser?.userName, token]);
 
   return (
     <Container sx={{ zIndex: 2, position: "relative" }}>
