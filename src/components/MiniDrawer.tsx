@@ -17,7 +17,7 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import MailIcon from "@mui/icons-material/Mail";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Badge, Button, Collapse, Menu, MenuItem, Stack } from "@mui/material";
 import { Notifications, AccountCircle } from "@mui/icons-material";
 import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -200,14 +200,15 @@ export const MiniDrawer = () => {
   };
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleLogout = useCallback(() => {
-    dispatch(logout("로그아웃되었습니다"));
+    dispatch(logout());
 
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("users");
-    localStorage.removeItem("singleUser");
-  }, [dispatch]);
+    localStorage.removeItem("token");
+    localStorage.removeItem("authUser");
+    navigate("/");
+  }, [dispatch, navigate]);
 
   return (
     <Box sx={{ display: "flex", width: "100vw", height: "100vh" }}>
