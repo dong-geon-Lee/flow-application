@@ -13,16 +13,10 @@ export const fetchCustomerData: any = createAsyncThunk(
   }
 );
 
-export const getAuthUserList: any = createAsyncThunk(
-  "auth/GET",
-  async (_, thunkApi) => {
-    try {
-      const response = await axios.get("/fake_user.json");
-      localStorage.setItem("users", JSON.stringify(response.data));
-
-      return response.data;
-    } catch (error) {
-      return thunkApi.rejectWithValue("존재하지 않는 유저입니다");
-    }
-  }
-);
+export const handleAuthUserAPI = async (userInfo: any) => {
+  const response: any = await axios.post(
+    "http://192.168.11.164:8080/Code/GetTokenBearer",
+    { userName: userInfo.userName, password: userInfo.password }
+  );
+  return response.data;
+};
