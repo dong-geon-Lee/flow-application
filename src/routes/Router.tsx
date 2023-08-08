@@ -18,19 +18,10 @@ import FreeValid from "pages/FreeValid";
 import MiniDrawer from "components/MiniDrawer";
 import NotFound from "components/NotFound";
 
-import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-
-import { getAuthUserList } from "api";
 import PrivateRoutes from "utils";
+import Test from "pages/Test";
 
 const AppRoutes = () => {
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(getAuthUserList());
-  }, [dispatch]);
-
   return (
     <Routes>
       <Route element={<PrivateRoutes />}>
@@ -44,9 +35,9 @@ const AppRoutes = () => {
           <Route path="pricing" element={<Pricing />} />
           <Route path="free" element={<Free />} />
           <Route path="freevalid" element={<FreeValid />} />
+          <Route path="freetest" element={<Test />} />
         </Route>
       </Route>
-
       <Route path="login" element={<Login />} />
       <Route path="register" element={<Register />} />
       <Route path="/*" element={<NotFound />} />
