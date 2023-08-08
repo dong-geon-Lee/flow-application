@@ -216,7 +216,7 @@ const FreeValid = () => {
           mt: "2rem",
         }}
       >
-        {/* //* #0 TextField */}
+        {/* //* #0 Typography */}
         {/* 텍스트를 표현하는 방법은 이거 하나다. */}
         <Typography variant="h6" sx={{ mb: "2.2rem" }}>
           form은 별도의 태그가 없다
