@@ -33,6 +33,11 @@ export interface AuthProps {
   userInfo: any;
 }
 
+export interface UserProps {
+  email: string;
+  password: string;
+}
+
 declare module "@mui/material/styles" {
   interface Theme {
     status: {
