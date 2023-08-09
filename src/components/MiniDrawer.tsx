@@ -458,7 +458,7 @@ export const MiniDrawer = () => {
           </Link>
 
           <Link
-            to="freevalid"
+            to="code"
             style={{
               textDecoration: "none",
             }}
@@ -485,7 +485,7 @@ export const MiniDrawer = () => {
                   </ListItemIcon>
 
                   <ListItemText
-                    primary="freevalid"
+                    primary="code"
                     sx={{
                       opacity: open ? 1 : 0,
                       color: "black",
@@ -501,12 +501,19 @@ export const MiniDrawer = () => {
 
           <List component="div" disablePadding>
             <ListItem disablePadding divider>
-              <Link to="/freevalid" style={{ width: "100%" }}>
+              <Link
+                to="/code"
+                style={{
+                  width: "100%",
+                  textDecoration: "none",
+                  color: "inherit",
+                }}
+              >
                 <ListItemButton onClick={() => open && handleClick("auth")}>
                   <ListItemIcon>
                     <LockOutlinedIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Auth" />
+                  <ListItemText primary="코드관리" />
                   {drawerTap === "auth" ? (
                     <ExpandMoreIcon style={{ fontSize: "0.75rem" }} />
                   ) : (
@@ -516,14 +523,28 @@ export const MiniDrawer = () => {
               </Link>
             </ListItem>
             <Collapse in={drawerTap === "auth"} timeout="auto" unmountOnExit>
-              <Link to="/">
+              <Link
+                to="/code"
+                style={{
+                  width: "100%",
+                  textDecoration: "none",
+                  color: "inherit",
+                }}
+              >
                 <ListItemButton sx={{ pl: 5 }}>
-                  <ListItemText primary="Dashboard" />
+                  <ListItemText primary="그룹코드" />
                 </ListItemButton>
               </Link>
-              <Link to="/customer">
+              <Link
+                to="/customer"
+                style={{
+                  width: "100%",
+                  textDecoration: "none",
+                  color: "inherit",
+                }}
+              >
                 <ListItemButton sx={{ pl: 5 }}>
-                  <ListItemText primary="Customer" />
+                  <ListItemText primary="코드목록" />
                 </ListItemButton>
               </Link>
             </Collapse>

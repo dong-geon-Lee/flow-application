@@ -142,7 +142,7 @@ const itemData = [
   },
 ];
 
-const FreeValid = () => {
+const Pratice = () => {
   const [inputStatus, setInputStatus] = useState(false);
 
   const [age, setAge] = useState(10);
@@ -562,4 +562,4 @@ const FreeValid = () => {
   );
 };
 
-export default FreeValid;
+export default Pratice;
