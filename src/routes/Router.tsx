@@ -13,7 +13,7 @@ import {
 } from "pages/@index";
 
 import Register from "pages/Auth/Register/Register";
-import FreeValid from "pages/FreeValid";
+import CodeMange from "pages/CodeMange";
 
 import MiniDrawer from "components/MiniDrawer";
 import NotFound from "components/NotFound";
@@ -34,7 +34,7 @@ const AppRoutes = () => {
           <Route path="contact" element={<Contact />} />
           <Route path="pricing" element={<Pricing />} />
           <Route path="free" element={<Free />} />
-          <Route path="freevalid" element={<FreeValid />} />
+          <Route path="code" element={<CodeMange />} />
           <Route path="freetest" element={<Test />} />
         </Route>
       </Route>
