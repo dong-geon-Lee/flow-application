@@ -1,0 +1,68 @@
+[
+  {
+    "Id": 1,
+    "Code": "a01",
+    "CodeName": "a1",
+    "IsDeleted": false,
+    "GroupCode": "A01",
+    "CreateUserId": "user1",
+    "CreateDate": "2023-07-13T15:08:18.243",
+    "UpdateUserId": "string",
+    "UpdateDate": "2023-07-17T00:00:00"
+  },
+  {
+    "Id": 2,
+    "Code": "a02",
+    "CodeName": "a2",
+    "IsDeleted": false,
+    "GroupCode": "A01",
+    "CreateUserId": "user1",
+    "CreateDate": "2023-07-13T15:08:18.243",
+    "UpdateUserId": "string",
+    "UpdateDate": "2023-07-17T00:00:00"
+  },
+  {
+    "Id": 3,
+    "Code": "a03",
+    "CodeName": "a3",
+    "IsDeleted": false,
+    "GroupCode": "A02",
+    "CreateUserId": "user1",
+    "CreateDate": "2023-07-13T15:09:23.113",
+    "UpdateUserId": "string",
+    "UpdateDate": "2023-07-17T00:00:00"
+  },
+  {
+    "Id": 4,
+    "Code": "a04",
+    "CodeName": "a4",
+    "IsDeleted": false,
+    "GroupCode": "A02",
+    "CreateUserId": "user1",
+    "CreateDate": "2023-07-13T15:09:23.113",
+    "UpdateUserId": "string",
+    "UpdateDate": "2023-07-17T00:00:00"
+  },
+  {
+    "Id": 5,
+    "Code": "a05",
+    "CodeName": "a5",
+    "IsDeleted": false,
+    "GroupCode": "A02",
+    "CreateUserId": "user1",
+    "CreateDate": "2023-07-13T15:09:23.113",
+    "UpdateUserId": "string",
+    "UpdateDate": "2023-07-17T00:00:00"
+  },
+  {
+    "Id": 10002,
+    "Code": "a06",
+    "CodeName": "a6",
+    "IsDeleted": true,
+    "GroupCode": "A03",
+    "CreateUserId": "swtest",
+    "CreateDate": "2023-07-17T00:00:00",
+    "UpdateUserId": "string",
+    "UpdateDate": "2023-07-17T00:00:00"
+  }
+]

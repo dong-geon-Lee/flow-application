@@ -1,0 +1,42 @@
+[
+  {
+    "Id": 1,
+    "GroupCode": "A01",
+    "GroupCodeName": "A1",
+    "IsDeleted": false,
+    "CreateUserId": "user1",
+    "CreateDate": "2023-07-13T15:05:35.03",
+    "UpdateUserId": "",
+    "UpdateDate": "2023-07-17T00:00:00"
+  },
+  {
+    "Id": 2,
+    "GroupCode": "A02",
+    "GroupCodeName": "A2",
+    "IsDeleted": false,
+    "CreateUserId": "user2",
+    "CreateDate": "2023-07-13T15:06:35.603",
+    "UpdateUserId": "",
+    "UpdateDate": "2023-07-17T00:00:00"
+  },
+  {
+    "Id": 10002,
+    "GroupCode": "A03",
+    "GroupCodeName": "A3",
+    "IsDeleted": true,
+    "CreateUserId": "swtester",
+    "CreateDate": "2023-07-17T00:00:00",
+    "UpdateUserId": "",
+    "UpdateDate": "2023-07-17T00:00:00"
+  },
+  {
+    "Id": 20002,
+    "GroupCode": "a06",
+    "GroupCodeName": "test6",
+    "IsDeleted": false,
+    "CreateUserId": "string",
+    "CreateDate": "2023-08-08T00:00:00",
+    "UpdateUserId": null,
+    "UpdateDate": null
+  }
+]
