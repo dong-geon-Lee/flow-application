@@ -14,9 +14,35 @@ export const fetchCustomerData: any = createAsyncThunk(
 );
 
 export const handleAuthUserAPI = async (userInfo: any) => {
-  const response: any = await axios.post(
-    "http://192.168.11.164:8080/Code/GetTokenBearer",
-    { userName: userInfo.userName, password: userInfo.password }
-  );
-  return response.data;
+  try {
+    const response: any = await axios.post(
+      "http://192.168.11.164:8080/Code/GetTokenBearer",
+      { userName: userInfo.userName, password: userInfo.password }
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const fetchGroupCodeAPI = async () => {
+  try {
+    const response = await axios.get(
+      "http://192.168.11.164:8080/Code/GroupCodelist"
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const fetchCodeListAPI = async () => {
+  try {
+    const response = await axios.get(
+      "http://192.168.11.164:8080/Code/codelist"
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 };
