@@ -88,7 +88,7 @@ const Customer = () => {
     editPhone: string,
     editNotes: string
   ) => {
-    const newLists = customer.cusLists.map((cusList: T.CusProps) => {
+    const newLists = customer?.cusLists.map((cusList: T.CusProps) => {
       if (cusList.id === id) {
         return {
           ...cusList,

@@ -1,10 +1,6 @@
 import {
   Box,
   Button,
-  Container,
-  FormControl,
-  FormControlLabel,
-  FormLabel,
   Grid,
   MenuItem,
   Paper,
@@ -20,21 +16,22 @@ import {
   Typography,
 } from "@mui/material";
 import { fetchCodeListAPI, fetchGroupCodeAPI } from "api";
-import { getCodeList } from "app/features/codeMange/codeMangeSlice";
+import {
+  getCodeList,
+  getResultsList,
+  getSubCodeList,
+  selectSingleCodeList,
+} from "app/features/codeMange/codeMangeSlice";
 import { RootState } from "app/store";
+import axios from "axios";
 
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-// * /Code/GroupCodelist => 그룹코드전체출력
-// * /Code/GroupCodelist/{id} => 특정그룹코드출력
-// * /Code/CodelistbyGroup/{groupcode} => 그룹별개별코드출력
-// * /Code/Codelist => 코드전체출력
-// * /Code/Codelist/{id} => 특정코드출력
-
 const CodeMange = () => {
   const [selectCode, setSelectCode] = useState("전체");
-  const [subCodeList, setSubCodeList] = useState([]);
+  const [firstClick, setFirstClick] = useState(false);
+  const [codeInfo, setCodeInfo] = useState<any>({});
 
   const dispatch = useDispatch();
 
@@ -42,29 +39,107 @@ const CodeMange = () => {
     setSelectCode(e.target.value);
   };
 
-  const { codeList } = useSelector((state: RootState) => state.code);
+  const { codeList, subCodeList, resultLists, selectedGroupCode } = useSelector(
+    (state: RootState) => state.code
+  );
 
-  console.log(codeList);
-  console.log(subCodeList);
+  const handleCodeListFilter = (row: any) => {
+    const { Id, GroupCode } = row;
+
+    // deleteCodeGroupData(Id, GroupCode);
+    dispatch(selectSingleCodeList({ Id, GroupCode }));
+
+    const newList: any = codeList?.map((code: any) => {
+      if (code.Id === Id) {
+        setCodeInfo(code);
+        return { ...code, activeCode: true };
+      }
+      return { ...code, activeCode: false };
+    });
+
+    dispatch(getCodeList(newList));
+
+    const selectedLists = subCodeList.filter(
+      (subcode: any) => subcode.GroupCode === GroupCode
+    );
+
+    dispatch(getResultsList(selectedLists));
+    setFirstClick(true);
+  };
+
+  //? 임시 json 데이터
+  // const handleDummy = async () => {
+  //   const dummyDataList = await axios.get("/code_group.json");
+  //   return dummyDataList.data;
+  // };
+
+  //? 임시 json 데이터
+  // const handleDummySubCode = async () => {
+  //   const dummyDataList = await axios.get("/code_list.json");
+  //   return dummyDataList.data;
+  // };
+
+  const fetchData = async () => {
+    try {
+      const codeDataInfo = await fetchGroupCodeAPI();
+      dispatch(getCodeList(codeDataInfo));
+
+      const data = await fetchCodeListAPI();
+      dispatch(getSubCodeList(data));
+    } catch (error: any) {
+      return error.response.data;
+    }
+  };
+
+  const deleteCodeGroupData = async () => {
+    const { Id, GroupCode } = selectedGroupCode;
+    console.log(Id, GroupCode, "삭제시도");
+
+    await axios.delete(
+      `http://192.168.11.164:8080/Code/GroupCodelist/delete?id=${Id}&strGroupCode=${GroupCode}`
+    );
+  };
+
+  // * 원본 useEffect
+  // useEffect(() => {
+  //   const handleFetchData = async () => {
+  //     try {
+  //       //* 원본코드
+  //       // const codeDataInfo = await fetchGroupCodeAPI();
+  //       // dispatch(getCodeList(codeDataInfo));
+
+  //       //? 임시 json 데이터
+  //       const codeDataInfo: any = await handleDummy();
+  //       dispatch(getCodeList(codeDataInfo));
+  //     } catch (error: any) {
+  //       return error.response.data;
+  //     }
+  //   };
+
+  //   const handleData = async () => {
+  //     //* 원본코드
+  //     // const data = await fetchCodeListAPI();
+  //     // setSubCodeList(data);
+
+  //     //? 임시 json 데이터
+  //     const data: any = await handleDummySubCode();
+  //     dispatch(getSubCodeList(data));
+  //   };
+
+  //   handleFetchData();
+  //   handleData();
+  // }, [dispatch]);
+
+  const displayedResults = firstClick ? resultLists : subCodeList;
 
   useEffect(() => {
-    const handleFetchData = async () => {
-      try {
-        const codeDataInfo = await fetchGroupCodeAPI();
-        dispatch(getCodeList(codeDataInfo));
-      } catch (error: any) {
-        return error.response.data;
-      }
-    };
+    fetchData();
+  }, []);
 
-    const handleData = async () => {
-      const data = await fetchCodeListAPI();
-      setSubCodeList(data);
-    };
+  /*   
 
-    handleFetchData();
-    handleData();
-  }, [dispatch]);
+
+   */
 
   return (
     <div
@@ -75,12 +150,6 @@ const CodeMange = () => {
         height: "100%",
         background: "#fafafa",
       }}
-      // sx={{ height: "100%" }}
-      // sx={{ background: "#e6e6e6" }}
-      // sx={{
-      //   position: "relative",
-      //   "& .MuiContainer-maxWidthLg": { height: "100%" },
-      // }}
     >
       <Typography
         variant="h4"
@@ -172,16 +241,21 @@ const CodeMange = () => {
               <TableBody sx={{ overflowY: "scroll", height: "10rem" }}>
                 {codeList?.map((row: any) => (
                   <TableRow
+                    onClick={() => {
+                      handleCodeListFilter(row);
+                    }}
                     key={row.Id}
                     sx={{
                       "&:hover": {
-                        background: "#f4f4f4",
+                        background: row.activeCode ? "#fbf9ee" : "#f4f4f4",
                       },
                       cursor: "pointer",
                       "&:last-child td, &:last-child th": {
                         border: 0,
                         borderRight: "1px solid #d3d3d3",
                       },
+                      background:
+                        firstClick && row.activeCode ? "#fbf9ee" : "inherit",
                     }}
                   >
                     <TableCell sx={{ borderRight: "1px solid #d3d3d3" }}>
@@ -192,30 +266,6 @@ const CodeMange = () => {
                     </TableCell>
                   </TableRow>
                 )) || []}
-
-                {/* //* 스크롤 보고 싶을 떄 아래 코드 추가하기 */}
-                {/* {codeList?.map((row: any) => (
-                <TableRow
-                  key={row.Id}
-                  sx={{
-                    "&:hover": {
-                      background: "#f4f4f4",
-                    },
-                    cursor: "pointer",
-                    "&:last-child td, &:last-child th": {
-                      border: 0,
-                      borderRight: "1px solid #d3d3d3",
-                    },
-                  }}
-                >
-                  <TableCell sx={{ borderRight: "1px solid #d3d3d3" }}>
-                    {row.GroupCode}
-                  </TableCell>
-                  <TableCell sx={{ borderRight: "1px solid #d3d3d3" }}>
-                    {row.GroupCodeName}
-                  </TableCell>
-                </TableRow>
-              )) || []} */}
               </TableBody>
             </Table>
           </TableContainer>
@@ -268,7 +318,7 @@ const CodeMange = () => {
                   height: "20rem",
                 }}
               >
-                {subCodeList?.map((subcode: any) => (
+                {displayedResults?.map((subcode: any) => (
                   <TableRow
                     key={subcode.Id}
                     sx={{
@@ -293,33 +343,6 @@ const CodeMange = () => {
                     </TableCell>
                   </TableRow>
                 )) || []}
-
-                {/* //* 스크롤 보고 싶을 떄 아래 코드 추가하기 */}
-                {/* {subCodeList?.map((subcode: any) => (
-                <TableRow
-                  key={subcode.Id}
-                  sx={{
-                    "&:hover": {
-                      background: "#f4f4f4",
-                    },
-                    cursor: "pointer",
-                    "&:last-child td, &:last-child th": {
-                      border: 0,
-                      borderRight: "1px solid #d3d3d3",
-                    },
-                  }}
-                >
-                  <TableCell sx={{ borderRight: "1px solid #d3d3d3" }}>
-                    {subcode.GroupCode}
-                  </TableCell>
-                  <TableCell sx={{ borderRight: "1px solid #d3d3d3" }}>
-                    {subcode.Code}
-                  </TableCell>
-                  <TableCell sx={{ borderRight: "1px solid #d3d3d3" }}>
-                    {subcode.CodeName}
-                  </TableCell>
-                </TableRow>
-              )) || []} */}
               </TableBody>
             </Table>
           </TableContainer>
@@ -331,7 +354,7 @@ const CodeMange = () => {
           sx={{
             border: "1px solid #d0d0d0",
             width: "100%",
-            margin: "auto",
+            margin: "1rem 0",
             position: "relative",
             display: "block",
             p: "1rem 2rem",
@@ -350,6 +373,7 @@ const CodeMange = () => {
               편집
             </Button>
             <Button
+              onClick={deleteCodeGroupData}
               sx={{
                 fontSize: "1rem",
                 color: "black",
@@ -372,6 +396,7 @@ const CodeMange = () => {
               추가
             </Button>
             <Button
+              onClick={() => setFirstClick(false)}
               sx={{
                 fontSize: "1rem",
                 color: "black",
@@ -413,6 +438,9 @@ const CodeMange = () => {
                   flex: "1",
                   ".MuiInputBase-input": { padding: "5px 14px" },
                 }}
+                value={codeInfo.GroupCode || ""}
+                name="GroupCode"
+                // onChange={onCodeListChange}
               />
             </Stack>
 
@@ -425,6 +453,9 @@ const CodeMange = () => {
                   flex: "1",
                   ".MuiInputBase-input": { padding: "5px 14px" },
                 }}
+                value={codeInfo.GroupCodeName || ""}
+                name="GroupCodeName"
+                // onChange={onCodeListChange}
               />
             </Stack>
 
@@ -437,6 +468,9 @@ const CodeMange = () => {
                   flex: "1",
                   ".MuiInputBase-input": { padding: "5px 14px" },
                 }}
+                value={codeInfo.CreateUserId || ""}
+                name="CreateUserId"
+                // onChange={onCodeListChange}
               />
             </Stack>
 
@@ -449,6 +483,9 @@ const CodeMange = () => {
                   flex: "1",
                   ".MuiInputBase-input": { padding: "5px 14px" },
                 }}
+                value={codeInfo?.IsDeleted ? "Y" : "N"}
+                name="IsDeleted"
+                // onChange={onCodeListChange}
               />
             </Stack>
           </Grid>

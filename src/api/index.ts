@@ -30,6 +30,7 @@ export const fetchGroupCodeAPI = async () => {
     const response = await axios.get(
       "http://192.168.11.164:8080/Code/GroupCodelist"
     );
+
     return response.data;
   } catch (error) {
     throw error;
