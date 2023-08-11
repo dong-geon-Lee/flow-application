@@ -32,16 +32,23 @@ const CodeMange = () => {
   const [selectCode, setSelectCode] = useState("전체");
   const [firstClick, setFirstClick] = useState(false);
   const [codeInfo, setCodeInfo] = useState<any>({});
+  const [createCodeGroup, setCreateCodeGroup] = useState({
+    code: "",
+    codeName: "",
+    isDeleted: false,
+    groupCode: "",
+    createUserId: "",
+    updateUserId: "",
+  });
 
+  const { codeList, subCodeList, resultLists, selectedGroupCode } = useSelector(
+    (state: RootState) => state.code
+  );
   const dispatch = useDispatch();
 
   const onSelectChange = (e: any) => {
     setSelectCode(e.target.value);
   };
-
-  const { codeList, subCodeList, resultLists, selectedGroupCode } = useSelector(
-    (state: RootState) => state.code
-  );
 
   const handleCodeListFilter = (row: any) => {
     const { Id, GroupCode } = row;
@@ -93,11 +100,24 @@ const CodeMange = () => {
 
   const deleteCodeGroupData = async () => {
     const { Id, GroupCode } = selectedGroupCode;
-    console.log(Id, GroupCode, "삭제시도");
 
-    await axios.delete(
-      `http://192.168.11.164:8080/Code/GroupCodelist/delete?id=${Id}&strGroupCode=${GroupCode}`
-    );
+    try {
+      await axios.delete(
+        `http://192.168.11.164:8080/Code/GroupCodelist/delete?id=${Id}&strGroupCode=${GroupCode}`
+      );
+
+      const [targetLists] = subCodeList.filter(
+        (x: any) => x.GroupCode === GroupCode
+      );
+
+      const codeDataInfo = codeList.filter(
+        (x: any) => x.GroupCode !== targetLists.GroupCode
+      );
+
+      dispatch(getCodeList(codeDataInfo));
+    } catch (error: any) {
+      return error.response.data;
+    }
   };
 
   // * 원본 useEffect
@@ -135,11 +155,6 @@ const CodeMange = () => {
   useEffect(() => {
     fetchData();
   }, []);
-
-  /*   
-
-
-   */
 
   return (
     <div
