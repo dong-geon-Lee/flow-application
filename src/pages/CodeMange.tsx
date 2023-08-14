@@ -32,13 +32,14 @@ const CodeMange = () => {
   const [selectCode, setSelectCode] = useState("전체");
   const [firstClick, setFirstClick] = useState(false);
   const [codeInfo, setCodeInfo] = useState<any>({});
+
+  const [groupCodeCreateMode, setGroupCodeCreateMode] = useState(false);
+  const [groupCodeUpdateMode, setGroupCodeUpdateMode] = useState(false);
   const [createCodeGroup, setCreateCodeGroup] = useState({
-    code: "",
-    codeName: "",
-    isDeleted: false,
     groupCode: "",
+    groupCodeName: "",
     createUserId: "",
-    updateUserId: "",
+    isDeleted: false,
   });
 
   const { codeList, subCodeList, resultLists, selectedGroupCode } = useSelector(
@@ -50,10 +51,13 @@ const CodeMange = () => {
     setSelectCode(e.target.value);
   };
 
+  const onGroupCodeChange = (e: any) => {
+    setCreateCodeGroup({ ...createCodeGroup, [e.target.name]: e.target.value });
+  };
+
   const handleCodeListFilter = (row: any) => {
     const { Id, GroupCode } = row;
 
-    // deleteCodeGroupData(Id, GroupCode);
     dispatch(selectSingleCodeList({ Id, GroupCode }));
 
     const newList: any = codeList?.map((code: any) => {
@@ -86,11 +90,35 @@ const CodeMange = () => {
   //   return dummyDataList.data;
   // };
 
+  const createCodeGroupData = async (createCodeGroup: any) => {
+    await axios.post(
+      "http://192.168.11.164:8080/Code/GroupCodelist/new",
+      createCodeGroup
+    );
+
+    fetchData();
+    createButtonState();
+  };
+
+  const createButtonState = () => {
+    setGroupCodeCreateMode((prevState) => !prevState);
+  };
+
+  const editCodeGroupData = () => {
+    updateButtonState();
+  };
+
+  const updateButtonState = () => {
+    setGroupCodeUpdateMode((prevState) => !prevState);
+  };
+
   const fetchData = async () => {
     try {
+      // const codeDataInfo = await handleDummy();
       const codeDataInfo = await fetchGroupCodeAPI();
       dispatch(getCodeList(codeDataInfo));
 
+      // const data = await handleDummySubCode();
       const data = await fetchCodeListAPI();
       dispatch(getSubCodeList(data));
     } catch (error: any) {
@@ -101,15 +129,18 @@ const CodeMange = () => {
   const deleteCodeGroupData = async () => {
     const { Id, GroupCode } = selectedGroupCode;
 
+    if (!Id || !GroupCode) {
+      alert("그룹코드 또는 그룹코드명을 선택해주세요");
+      return;
+    }
+
     try {
       await axios.delete(
         `http://192.168.11.164:8080/Code/GroupCodelist/delete?id=${Id}&strGroupCode=${GroupCode}`
       );
-
       const [targetLists] = subCodeList.filter(
         (x: any) => x.GroupCode === GroupCode
       );
-
       const codeDataInfo = codeList.filter(
         (x: any) => x.GroupCode !== targetLists.GroupCode
       );
@@ -118,37 +149,9 @@ const CodeMange = () => {
     } catch (error: any) {
       return error.response.data;
     }
+
+    window.location.reload();
   };
-
-  // * 원본 useEffect
-  // useEffect(() => {
-  //   const handleFetchData = async () => {
-  //     try {
-  //       //* 원본코드
-  //       // const codeDataInfo = await fetchGroupCodeAPI();
-  //       // dispatch(getCodeList(codeDataInfo));
-
-  //       //? 임시 json 데이터
-  //       const codeDataInfo: any = await handleDummy();
-  //       dispatch(getCodeList(codeDataInfo));
-  //     } catch (error: any) {
-  //       return error.response.data;
-  //     }
-  //   };
-
-  //   const handleData = async () => {
-  //     //* 원본코드
-  //     // const data = await fetchCodeListAPI();
-  //     // setSubCodeList(data);
-
-  //     //? 임시 json 데이터
-  //     const data: any = await handleDummySubCode();
-  //     dispatch(getSubCodeList(data));
-  //   };
-
-  //   handleFetchData();
-  //   handleData();
-  // }, [dispatch]);
 
   const displayedResults = firstClick ? resultLists : subCodeList;
 
@@ -377,6 +380,8 @@ const CodeMange = () => {
         >
           <Stack direction="row" width="100%" justifyContent="right" gap="1rem">
             <Button
+              onClick={editCodeGroupData}
+              disabled={groupCodeCreateMode}
               sx={{
                 fontSize: "1rem",
                 color: "black",
@@ -385,9 +390,10 @@ const CodeMange = () => {
                 minWidth: "5rem",
               }}
             >
-              편집
+              {groupCodeUpdateMode ? "취소" : "편집"}
             </Button>
             <Button
+              disabled={groupCodeCreateMode || groupCodeUpdateMode}
               onClick={deleteCodeGroupData}
               sx={{
                 fontSize: "1rem",
@@ -407,10 +413,13 @@ const CodeMange = () => {
                 border: "1px solid #aaa",
                 minWidth: "5rem",
               }}
+              onClick={createButtonState}
+              disabled={groupCodeUpdateMode}
             >
-              추가
+              {groupCodeCreateMode ? "취소" : "생성"}
             </Button>
             <Button
+              disabled={groupCodeCreateMode || groupCodeUpdateMode}
               onClick={() => setFirstClick(false)}
               sx={{
                 fontSize: "1rem",
@@ -444,65 +453,141 @@ const CodeMange = () => {
               p: "1rem 2rem",
             }}
           >
-            <Stack direction="row" alignItems="center" justifyContent="center">
+            <Stack direction="row" alignItems="center">
               <label style={{ flex: 0.2 }}>그룹코드</label>
-              <TextField
-                fullWidth
-                type="text"
-                sx={{
-                  flex: "1",
-                  ".MuiInputBase-input": { padding: "5px 14px" },
-                }}
-                value={codeInfo.GroupCode || ""}
-                name="GroupCode"
-                // onChange={onCodeListChange}
-              />
+              {groupCodeCreateMode ? (
+                <TextField
+                  type="text"
+                  value={createCodeGroup.groupCode}
+                  name="groupCode"
+                  onChange={onGroupCodeChange}
+                  placeholder="그룹코드를 입력해주세요"
+                />
+              ) : groupCodeUpdateMode ? (
+                <>
+                  <input type="text" />
+                </>
+              ) : (
+                <TextField
+                  fullWidth
+                  type="text"
+                  sx={{
+                    flex: "1",
+                    ".MuiInputBase-input": { padding: "5px 14px" },
+                  }}
+                  value={codeInfo.GroupCode || ""}
+                  name="GroupCode"
+                />
+              )}
             </Stack>
 
             <Stack direction="row" alignItems="center">
               <label style={{ flex: 0.2 }}>그룹명</label>
-              <TextField
-                fullWidth
-                type="text"
-                sx={{
-                  flex: "1",
-                  ".MuiInputBase-input": { padding: "5px 14px" },
-                }}
-                value={codeInfo.GroupCodeName || ""}
-                name="GroupCodeName"
-                // onChange={onCodeListChange}
-              />
+              {groupCodeCreateMode ? (
+                <TextField
+                  type="text"
+                  value={createCodeGroup.groupCodeName}
+                  name="groupCodeName"
+                  onChange={onGroupCodeChange}
+                  placeholder="그룹명을 입력해주세요"
+                />
+              ) : groupCodeUpdateMode ? (
+                <>
+                  <input type="text" />
+                </>
+              ) : (
+                <TextField
+                  fullWidth
+                  type="text"
+                  sx={{
+                    flex: "1",
+                    ".MuiInputBase-input": { padding: "5px 14px" },
+                  }}
+                  value={codeInfo.GroupCodeName || ""}
+                  name="GroupCodeName"
+                />
+              )}
             </Stack>
 
             <Stack direction="row" alignItems="center">
-              <label style={{ flex: 0.2 }}>설명</label>
-              <TextField
-                fullWidth
-                type="text"
-                sx={{
-                  flex: "1",
-                  ".MuiInputBase-input": { padding: "5px 14px" },
-                }}
-                value={codeInfo.CreateUserId || ""}
-                name="CreateUserId"
-                // onChange={onCodeListChange}
-              />
+              <label style={{ flex: 0.2 }}>사용자</label>
+              {groupCodeCreateMode ? (
+                <TextField
+                  type="text"
+                  value={createCodeGroup.createUserId}
+                  name="createUserId"
+                  onChange={onGroupCodeChange}
+                  placeholder="사용자를 입력해주세요"
+                />
+              ) : groupCodeUpdateMode ? (
+                <div>
+                  <input type="text" />
+                </div>
+              ) : (
+                <TextField
+                  fullWidth
+                  type="text"
+                  sx={{
+                    flex: "1",
+                    ".MuiInputBase-input": { padding: "5px 14px" },
+                  }}
+                  value={codeInfo.CreateUserId || ""}
+                  name="CreateUserId"
+                />
+              )}
             </Stack>
 
             <Stack direction="row" alignItems="center">
-              <label style={{ flex: 0.2 }}>사용여부</label>
-              <TextField
-                fullWidth
-                type="text"
-                sx={{
-                  flex: "1",
-                  ".MuiInputBase-input": { padding: "5px 14px" },
-                }}
-                value={codeInfo?.IsDeleted ? "Y" : "N"}
-                name="IsDeleted"
-                // onChange={onCodeListChange}
-              />
+              {groupCodeCreateMode ? (
+                <>
+                  {/* <label style={{ flex: 0.2 }}>새로운 유저</label>
+                  <TextField
+                    type="text"
+                    value={createCodeGroup.updateUserId}
+                    name="updateUserId"
+                    onChange={onGroupCodeChange}
+                    placeholder="유저ID를 입력해주세요"
+                  /> */}
+                </>
+              ) : groupCodeUpdateMode ? (
+                <></>
+              ) : (
+                <>
+                  <label style={{ flex: 0.2 }}>사용 여부</label>
+                  <TextField
+                    fullWidth
+                    type="text"
+                    sx={{
+                      flex: "1",
+                      ".MuiInputBase-input": { padding: "5px 14px" },
+                    }}
+                    value={codeInfo?.IsDeleted ? "Y" : "N"}
+                    name="IsDeleted"
+                  />
+                </>
+              )}
             </Stack>
+
+            {groupCodeCreateMode && (
+              <Button
+                variant="text"
+                color="warning"
+                size="large"
+                onClick={() => setGroupCodeCreateMode(false)}
+              >
+                취소하기
+              </Button>
+            )}
+            {groupCodeCreateMode && (
+              <Button
+                variant="contained"
+                color="success"
+                size="large"
+                onClick={() => createCodeGroupData(createCodeGroup)}
+              >
+                추가하기
+              </Button>
+            )}
           </Grid>
         </Box>
       </form>

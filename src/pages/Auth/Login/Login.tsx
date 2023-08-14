@@ -97,7 +97,6 @@ const Login = () => {
 
       if (userName && token) {
         dispatch(loginUser(authUserInfo));
-
         localStorage.setItem("authUser", JSON.stringify(authUserInfo));
         localStorage.setItem("token", JSON.stringify(token));
       }
