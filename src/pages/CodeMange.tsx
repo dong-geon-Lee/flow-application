@@ -15,7 +15,13 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { fetchCodeListAPI, fetchGroupCodeAPI } from "api";
+
+import {
+  createCodeAPI,
+  deleteCodeAPI,
+  fetchCodeListAPI,
+  fetchGroupCodeAPI,
+} from "api";
 import {
   getCodeList,
   getResultsList,
@@ -23,10 +29,41 @@ import {
   selectSingleCodeList,
 } from "app/features/codeMange/codeMangeSlice";
 import { RootState } from "app/store";
+
 import axios from "axios";
 
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+
+// import { SnackbarProvider, VariantType, useSnackbar } from 'notistack';
+
+// function MyApp() {
+//   const { enqueueSnackbar } = useSnackbar();
+
+//   const handleClick = () => {
+//     enqueueSnackbar('I love snacks.');
+//   };
+
+//   const handleClickVariant = (variant: VariantType) => () => {
+//     // variant could be success, error, warning, info, or default
+//     enqueueSnackbar('This is a success message!', { variant });
+//   };
+
+//   return (
+//     <React.Fragment>
+//       <Button onClick={handleClick}>Show snackbar</Button>
+//       <Button onClick={handleClickVariant('success')}>Show success snackbar</Button>
+//     </React.Fragment>
+//   );
+// }
+
+// export default function IntegrationNotistack() {
+//   return (
+//     <SnackbarProvider maxSnack={3}>
+//       <MyApp />
+//     </SnackbarProvider>
+//   );
+// }
 
 const CodeMange = () => {
   const [selectCode, setSelectCode] = useState("전체");
@@ -42,9 +79,17 @@ const CodeMange = () => {
     isDeleted: false,
   });
 
+  const [editCodeGroup, setEditCodeGroup] = useState({
+    groupCode: "",
+    groupCodeName: "",
+    createUserId: "",
+    isDeleted: false,
+  });
+
   const { codeList, subCodeList, resultLists, selectedGroupCode } = useSelector(
     (state: RootState) => state.code
   );
+
   const dispatch = useDispatch();
 
   const onSelectChange = (e: any) => {
@@ -55,10 +100,16 @@ const CodeMange = () => {
     setCreateCodeGroup({ ...createCodeGroup, [e.target.name]: e.target.value });
   };
 
-  const handleCodeListFilter = (row: any) => {
-    const { Id, GroupCode } = row;
+  const onEditCodeGroupChange = (e: any) => {
+    setEditCodeGroup({ ...editCodeGroup, [e.target.name]: e.target.value });
+  };
 
-    dispatch(selectSingleCodeList({ Id, GroupCode }));
+  const handleCodeListFilter = (row: any) => {
+    const { Id, GroupCode, GroupCodeName, CreateUserId } = row;
+
+    dispatch(
+      selectSingleCodeList({ Id, GroupCode, GroupCodeName, CreateUserId })
+    );
 
     const newList: any = codeList?.map((code: any) => {
       if (code.Id === Id) {
@@ -91,21 +142,53 @@ const CodeMange = () => {
   // };
 
   const createCodeGroupData = async (createCodeGroup: any) => {
-    await axios.post(
-      "http://192.168.11.164:8080/Code/GroupCodelist/new",
-      createCodeGroup
-    );
+    try {
+      await createCodeAPI(createCodeGroup);
+      fetchData();
+      createButtonState();
+    } catch (error: any) {
+      return error.response.data;
+    }
+  };
 
-    fetchData();
-    createButtonState();
+  const editCodeGroupData = () => {
+    const { GroupCode, GroupCodeName, CreateUserId } = selectedGroupCode;
+
+    if (!GroupCode || !GroupCodeName || !CreateUserId) {
+      alert("편집 대상을 선택해주세요");
+      return;
+    }
+
+    setEditCodeGroup({
+      groupCode: GroupCode,
+      groupCodeName: GroupCodeName,
+      createUserId: CreateUserId,
+      isDeleted: false,
+    });
+
+    console.log(editCodeGroup);
+
+    updateButtonState();
+  };
+
+  const editCodeDisplay = async () => {
+    const { Id } = selectedGroupCode;
+
+    try {
+      await axios.put(
+        `http://192.168.11.31:8080/Code/GroupCodelist/modify/${Id}`,
+        editCodeGroup
+      );
+
+      updateButtonState();
+      fetchData();
+    } catch (error: any) {
+      return error.response.data;
+    }
   };
 
   const createButtonState = () => {
     setGroupCodeCreateMode((prevState) => !prevState);
-  };
-
-  const editCodeGroupData = () => {
-    updateButtonState();
   };
 
   const updateButtonState = () => {
@@ -135,9 +218,8 @@ const CodeMange = () => {
     }
 
     try {
-      await axios.delete(
-        `http://192.168.11.164:8080/Code/GroupCodelist/delete?id=${Id}&strGroupCode=${GroupCode}`
-      );
+      await deleteCodeAPI(Id, GroupCode);
+
       const [targetLists] = subCodeList.filter(
         (x: any) => x.GroupCode === GroupCode
       );
@@ -158,6 +240,11 @@ const CodeMange = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  /*
+   * Edit 제작 순서
+   * 1. defaultValue를 보이게 해라
+   */
 
   return (
     <div
@@ -233,7 +320,7 @@ const CodeMange = () => {
           >
             <Table>
               <TableHead>
-                <TableRow sx={{ background: "#e6e6e6" }}>
+                <TableRow sx={{ background: "#e6e6e6", height: "100%" }}>
                   <TableCell
                     sx={{
                       borderRight: "1px solid #d3d3d3",
@@ -332,8 +419,9 @@ const CodeMange = () => {
               </TableHead>
               <TableBody
                 sx={{
-                  overflowY: "scroll",
-                  height: "20rem",
+                  // overflowY: "scroll",
+                  height: "100%",
+                  // maxHeight: "10rem",
                 }}
               >
                 {displayedResults?.map((subcode: any) => (
@@ -348,15 +436,29 @@ const CodeMange = () => {
                         border: 0,
                         borderRight: "1px solid #d3d3d3",
                       },
+                      borderRight: "1px solid #d3d3d3",
+                      // overflowY: "scroll",
                     }}
                   >
-                    <TableCell sx={{ borderRight: "1px solid #d3d3d3" }}>
+                    <TableCell
+                      sx={{
+                        borderRight: "1px solid #d3d3d3",
+                      }}
+                    >
                       {subcode.GroupCode}
                     </TableCell>
-                    <TableCell sx={{ borderRight: "1px solid #d3d3d3" }}>
+                    <TableCell
+                      sx={{
+                        borderRight: "1px solid #d3d3d3",
+                      }}
+                    >
                       {subcode.Code}
                     </TableCell>
-                    <TableCell sx={{ borderRight: "1px solid #d3d3d3" }}>
+                    <TableCell
+                      sx={{
+                        borderRight: "1px solid #d3d3d3",
+                      }}
+                    >
                       {subcode.CodeName}
                     </TableCell>
                   </TableRow>
@@ -465,7 +567,16 @@ const CodeMange = () => {
                 />
               ) : groupCodeUpdateMode ? (
                 <>
-                  <input type="text" />
+                  <TextField
+                    variant="standard"
+                    value={editCodeGroup.groupCode}
+                    // selectedGroupCode?.GroupCode ||
+                    // selectedGroupCode?.GroupCodeName ||
+                    // selectedGroupCode?.CreateUserId ||
+                    name="groupCode"
+                    onChange={onEditCodeGroupChange}
+                    label="그룹코드를 편집하세요"
+                  />
                 </>
               ) : (
                 <TextField
@@ -493,7 +604,13 @@ const CodeMange = () => {
                 />
               ) : groupCodeUpdateMode ? (
                 <>
-                  <input type="text" />
+                  <TextField
+                    variant="standard"
+                    value={editCodeGroup.groupCodeName}
+                    name="groupCodeName"
+                    onChange={onEditCodeGroupChange}
+                    label="그룹명을 편집하세요"
+                  />
                 </>
               ) : (
                 <TextField
@@ -520,9 +637,15 @@ const CodeMange = () => {
                   placeholder="사용자를 입력해주세요"
                 />
               ) : groupCodeUpdateMode ? (
-                <div>
-                  <input type="text" />
-                </div>
+                <>
+                  <TextField
+                    variant="standard"
+                    value={editCodeGroup.createUserId}
+                    name="createUserId"
+                    onChange={onEditCodeGroupChange}
+                    label="사용자를 편집하세요"
+                  />
+                </>
               ) : (
                 <TextField
                   fullWidth
@@ -539,16 +662,7 @@ const CodeMange = () => {
 
             <Stack direction="row" alignItems="center">
               {groupCodeCreateMode ? (
-                <>
-                  {/* <label style={{ flex: 0.2 }}>새로운 유저</label>
-                  <TextField
-                    type="text"
-                    value={createCodeGroup.updateUserId}
-                    name="updateUserId"
-                    onChange={onGroupCodeChange}
-                    placeholder="유저ID를 입력해주세요"
-                  /> */}
-                </>
+                <></>
               ) : groupCodeUpdateMode ? (
                 <></>
               ) : (
@@ -568,7 +682,7 @@ const CodeMange = () => {
               )}
             </Stack>
 
-            {groupCodeCreateMode && (
+            {groupCodeCreateMode ? (
               <Button
                 variant="text"
                 color="warning"
@@ -577,8 +691,14 @@ const CodeMange = () => {
               >
                 취소하기
               </Button>
+            ) : (
+              groupCodeUpdateMode && (
+                <Button onClick={() => setGroupCodeUpdateMode(false)}>
+                  취소
+                </Button>
+              )
             )}
-            {groupCodeCreateMode && (
+            {groupCodeCreateMode ? (
               <Button
                 variant="contained"
                 color="success"
@@ -587,6 +707,10 @@ const CodeMange = () => {
               >
                 추가하기
               </Button>
+            ) : (
+              groupCodeUpdateMode && (
+                <Button onClick={() => editCodeDisplay()}>완료</Button>
+              )
             )}
           </Grid>
         </Box>
