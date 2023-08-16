@@ -18,8 +18,8 @@ const Dashboard = () => {
   // }, []);
 
   const fetchData = async () => {
-    const response = await axios.get("http://localhost:8080/hello");
-    console.log(response.data);
+    // const response = await axios.get("http://localhost:8080/hello");
+    // console.log(response.data);
   };
 
   useEffect(() => {
