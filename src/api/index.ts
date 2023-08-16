@@ -1,6 +1,30 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
+const Axios = axios.create({
+  baseURL: "http://192.168.11.31:8080/",
+  headers: { "Content-Type": "application/json" },
+  timeout: 1000,
+});
+
+axios.interceptors.request.use(
+  (config) => {
+    return config;
+  },
+  function (error) {
+    return Promise.reject(error);
+  }
+);
+
+axios.interceptors.response.use(
+  function (response) {
+    return response;
+  },
+  function (error) {
+    return Promise.reject(error);
+  }
+);
+
 export const fetchCustomerData: any = createAsyncThunk(
   "customers/GET",
   async (_, thunkApi) => {
@@ -15,10 +39,11 @@ export const fetchCustomerData: any = createAsyncThunk(
 
 export const handleAuthUserAPI = async (userInfo: any) => {
   try {
-    const response: any = await axios.post(
-      "http://192.168.11.164:8080/Code/GetTokenBearer",
-      { userName: userInfo.userName, password: userInfo.password }
-    );
+    const response: any = await Axios.post("Code/GetTokenBearer", {
+      userName: userInfo.userName,
+      password: userInfo.password,
+    });
+
     return response.data;
   } catch (error) {
     throw error;
@@ -27,10 +52,7 @@ export const handleAuthUserAPI = async (userInfo: any) => {
 
 export const fetchGroupCodeAPI = async () => {
   try {
-    const response = await axios.get(
-      "http://192.168.11.164:8080/Code/GroupCodelist"
-    );
-
+    const response = await Axios.get("Code/GroupCodelist");
     return response.data;
   } catch (error) {
     throw error;
@@ -39,10 +61,26 @@ export const fetchGroupCodeAPI = async () => {
 
 export const fetchCodeListAPI = async () => {
   try {
-    const response = await axios.get(
-      "http://192.168.11.164:8080/Code/codelist"
-    );
+    const response = await Axios.get("Code/codelist");
     return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const createCodeAPI = async (createCodeGroup: any) => {
+  try {
+    await Axios.post("Code/GroupCodelist/new", createCodeGroup);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const deleteCodeAPI = async (Id: string, GroupCode: string) => {
+  try {
+    await Axios.delete(
+      `Code/GroupCodelist/delete?id=${Id}&strGroupCode=${GroupCode}`
+    );
   } catch (error) {
     throw error;
   }
