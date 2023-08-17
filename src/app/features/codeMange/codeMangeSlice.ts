@@ -5,6 +5,7 @@ const initialState: any = {
   subCodeList: [],
   resultLists: [],
   selectedGroupCode: {},
+  selectedSubCode: {},
 };
 
 export const codeMangeSlice = createSlice({
@@ -23,6 +24,9 @@ export const codeMangeSlice = createSlice({
     selectSingleCodeList(state, action) {
       state.selectedGroupCode = action.payload;
     },
+    selectSingleSubCode(state, action) {
+      state.selectedSubCode = action.payload;
+    },
   },
 });
 
@@ -31,6 +35,7 @@ export const {
   getSubCodeList,
   getResultsList,
   selectSingleCodeList,
+  selectSingleSubCode,
 } = codeMangeSlice.actions;
 
 export default codeMangeSlice.reducer;
