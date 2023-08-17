@@ -50,6 +50,14 @@ export const handleAuthUserAPI = async (userInfo: any) => {
   }
 };
 
+export const createCodeAPI = async (createCodeGroup: any) => {
+  try {
+    await Axios.post("Code/GroupCodelist/new", createCodeGroup);
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const fetchGroupCodeAPI = async () => {
   try {
     const response = await Axios.get("Code/GroupCodelist");
@@ -68,9 +76,9 @@ export const fetchCodeListAPI = async () => {
   }
 };
 
-export const createCodeAPI = async (createCodeGroup: any) => {
+export const updateCodeAPI = async (Id: any, editCodeGroup: any) => {
   try {
-    await Axios.post("Code/GroupCodelist/new", createCodeGroup);
+    await Axios.put(`Code/GroupCodelist/modify/${Id}`, editCodeGroup);
   } catch (error) {
     throw error;
   }
