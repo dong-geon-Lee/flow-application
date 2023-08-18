@@ -58,6 +58,14 @@ export const createCodeAPI = async (createCodeGroup: any) => {
   }
 };
 
+export const createSubCodeAPI = async (subCodeList: any) => {
+  try {
+    await Axios.post("/Code/Codelist/new", subCodeList);
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const fetchGroupCodeAPI = async () => {
   try {
     const response = await Axios.get("Code/GroupCodelist");
@@ -93,3 +101,9 @@ export const deleteCodeAPI = async (Id: string, GroupCode: string) => {
     throw error;
   }
 };
+
+// export const deleteSubCodeAPI = async (Id: any, GroupCode: any) => {
+//   await Axios.delete(
+//     `Code/GroupCodelist/delete?id=${Id}&strGroupCode=${GroupCode}`
+//   );
+// };

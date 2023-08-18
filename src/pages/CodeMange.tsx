@@ -14,10 +14,16 @@ import {
   TableRow,
   TextField,
   Typography,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from "@mui/material";
 
 import {
   createCodeAPI,
+  createSubCodeAPI,
   deleteCodeAPI,
   fetchCodeListAPI,
   fetchGroupCodeAPI,
@@ -47,6 +53,7 @@ const CodeMange = () => {
   const [codeInfo, setCodeInfo] = useState<any>({});
 
   const [groupCodeCreateMode, setGroupCodeCreateMode] = useState(false);
+  const [groupSubCodeCreateMode, setGroupSubCodeCreateMode] = useState(false);
   const [groupCodeUpdateMode, setGroupCodeUpdateMode] = useState(false);
   const [createCodeGroup, setCreateCodeGroup] = useState({
     groupCode: "",
@@ -69,6 +76,16 @@ const CodeMange = () => {
     selectedGroupCode,
     selectedSubCode,
   } = useSelector((state: RootState) => state.code);
+
+  const [open, setOpen] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const dispatch = useDispatch();
 
@@ -142,6 +159,16 @@ const CodeMange = () => {
     }
   };
 
+  const createSubCodeGroup = async (subCodeList: any) => {
+    try {
+      await createSubCodeAPI(subCodeList);
+      fetchData();
+      createSubButtonState();
+    } catch (error: any) {
+      return error.response.data;
+    }
+  };
+
   const editCodeGroupData = () => {
     const { GroupCode, GroupCodeName, CreateUserId } = selectedGroupCode;
 
@@ -174,6 +201,10 @@ const CodeMange = () => {
 
   const createButtonState = () => {
     setGroupCodeCreateMode((prevState) => !prevState);
+  };
+
+  const createSubButtonState = () => {
+    setGroupSubCodeCreateMode((prevState) => !prevState);
   };
 
   const updateButtonState = () => {
@@ -218,6 +249,21 @@ const CodeMange = () => {
     }
 
     window.location.reload();
+  };
+
+  const deleteSubCode = async () => {
+    if (Object.keys(selectedSubCode).length !== 0) {
+      const choice = window.confirm(
+        `${selectedSubCode?.CodeName} 그룹 코드를 삭제 하시겠습니까?`
+      );
+
+      if (choice) {
+        console.log(selectedSubCode, "선택");
+        // await
+      } else {
+        console.log(choice, "취소");
+      }
+    }
   };
 
   const displayedResults = firstClick ? resultLists : subCodeList;
@@ -410,18 +456,20 @@ const CodeMange = () => {
                   >
                     그룹유저
                   </TableCell>
-                  <TableCell
-                    sx={{
-                      borderRight: "1px solid #d3d3d3",
-                      "&:hover": { background: "#d0d0d0" },
-                      cursor: "pointer",
-                      w: "50%",
-                    }}
-                    align="center"
-                    width={100}
-                  >
-                    그룹관리
-                  </TableCell>
+                  {selectCode && (
+                    <TableCell
+                      sx={{
+                        borderRight: "1px solid #d3d3d3",
+                        "&:hover": { background: "#d0d0d0" },
+                        cursor: "pointer",
+                        w: "50%",
+                      }}
+                      align="center"
+                      width={100}
+                    >
+                      그룹관리
+                    </TableCell>
+                  )}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -474,17 +522,38 @@ const CodeMange = () => {
                       {subcode.CreateUserId}
                     </TableCell>
 
-                    <TableCell width={100}>
-                      <div style={{ display: "flex", alignItems: "center" }}>
-                        <Button>
-                          <EditIcon />
-                        </Button>
+                    {selectCode && (
+                      <TableCell width={100}>
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                          <Button
+                            disabled={selectCode && !subcode.activeSubcode}
+                          >
+                            <EditIcon
+                              sx={{
+                                color:
+                                  selectCode && subcode.activeSubcode
+                                    ? "inherit"
+                                    : "#d3d3d3",
+                              }}
+                            />
+                          </Button>
 
-                        <Button>
-                          <DeleteIcon sx={{ color: "#ef5350" }} />
-                        </Button>
-                      </div>
-                    </TableCell>
+                          <Button
+                            onClick={deleteSubCode}
+                            disabled={selectCode && !subcode.activeSubcode}
+                          >
+                            <DeleteIcon
+                              sx={{
+                                color:
+                                  selectCode && subcode.activeSubcode
+                                    ? "#ef5350"
+                                    : "#d3d3d3",
+                              }}
+                            />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    )}
                   </TableRow>
                 )) || []}
               </TableBody>
@@ -500,9 +569,91 @@ const CodeMange = () => {
             justifyContent="center"
             gap={2}
           >
-            <Button variant="contained" sx={{ width: "100%" }}>
+            <Button
+              variant="contained"
+              sx={{ width: "100%" }}
+              onClick={handleClickOpen}
+            >
               코드 생성하기
             </Button>
+            <Dialog
+              open={open}
+              onClose={handleClose}
+              sx={{ ".MuiPaper-elevation24": { p: "2rem" } }}
+            >
+              <DialogTitle sx={{ fontSize: "1.8rem" }}>codeList</DialogTitle>
+              <DialogContent>
+                <DialogContentText fontSize="1rem">
+                  해당 그룹코드에 코드리스트가 추가됩니다. 아래의 양식에 맞춰서
+                  모두 작성해주십시오.
+                </DialogContentText>
+                <Box
+                  sx={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(2,1fr)",
+                    rowGap: "0.8rem",
+                    columnGap: "1.6rem",
+                    mt: "2rem",
+                  }}
+                >
+                  <TextField
+                    autoFocus
+                    margin="dense"
+                    id="name"
+                    label="그룹코드"
+                    type="email"
+                    fullWidth
+                    variant="outlined"
+                    autoComplete="off"
+                  />
+                  <TextField
+                    margin="dense"
+                    id="name"
+                    label="그룹코드명"
+                    type="email"
+                    fullWidth
+                    variant="outlined"
+                    autoComplete="off"
+                  />
+                  <TextField
+                    margin="dense"
+                    id="name"
+                    label="그룹코드이름"
+                    type="email"
+                    fullWidth
+                    variant="outlined"
+                    autoComplete="off"
+                  />
+                  <TextField
+                    margin="dense"
+                    id="name"
+                    label="그룹유저"
+                    type="email"
+                    fullWidth
+                    variant="outlined"
+                    autoComplete="off"
+                  />
+                </Box>
+              </DialogContent>
+              <DialogActions sx={{ p: "1rem 1.4rem", gap: "1rem", mt: "1rem" }}>
+                <Button
+                  variant="outlined"
+                  onClick={handleClose}
+                  fullWidth
+                  sx={{ p: "0.4rem" }}
+                >
+                  취소하기
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={handleClose}
+                  fullWidth
+                  sx={{ p: "0.4rem" }}
+                >
+                  생성하기
+                </Button>
+              </DialogActions>
+            </Dialog>
           </Stack>
         )}
       </Box>
