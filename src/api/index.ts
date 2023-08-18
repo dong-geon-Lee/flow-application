@@ -4,7 +4,7 @@ import axios from "axios";
 const Axios = axios.create({
   baseURL: "http://192.168.11.31:8080/",
   headers: { "Content-Type": "application/json" },
-  timeout: 1000,
+  timeout: 3000,
 });
 
 axios.interceptors.request.use(
@@ -60,7 +60,7 @@ export const createCodeAPI = async (createCodeGroup: any) => {
 
 export const createSubCodeAPI = async (subCodeList: any) => {
   try {
-    await Axios.post("/Code/Codelist/new", subCodeList);
+    await Axios.post("Code/Codelist/new", subCodeList);
   } catch (error) {
     throw error;
   }
@@ -102,8 +102,10 @@ export const deleteCodeAPI = async (Id: string, GroupCode: string) => {
   }
 };
 
-// export const deleteSubCodeAPI = async (Id: any, GroupCode: any) => {
-//   await Axios.delete(
-//     `Code/GroupCodelist/delete?id=${Id}&strGroupCode=${GroupCode}`
-//   );
-// };
+export const deleteSubCodeAPI = async (Id: any) => {
+  try {
+    await Axios.delete(`Code/Codelist/delete?id=${Id}`);
+  } catch (error) {
+    throw error;
+  }
+};

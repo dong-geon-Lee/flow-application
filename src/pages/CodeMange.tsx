@@ -25,6 +25,7 @@ import {
   createCodeAPI,
   createSubCodeAPI,
   deleteCodeAPI,
+  deleteSubCodeAPI,
   fetchCodeListAPI,
   fetchGroupCodeAPI,
   updateCodeAPI,
@@ -53,7 +54,6 @@ const CodeMange = () => {
   const [codeInfo, setCodeInfo] = useState<any>({});
 
   const [groupCodeCreateMode, setGroupCodeCreateMode] = useState(false);
-  const [groupSubCodeCreateMode, setGroupSubCodeCreateMode] = useState(false);
   const [groupCodeUpdateMode, setGroupCodeUpdateMode] = useState(false);
   const [createCodeGroup, setCreateCodeGroup] = useState({
     groupCode: "",
@@ -69,6 +69,14 @@ const CodeMange = () => {
     isDeleted: false,
   });
 
+  const [codeListInfo, setCodeListInfo] = useState({
+    code: "",
+    codeName: "",
+    isDeleted: false,
+    groupCode: "",
+    createUserId: "",
+  });
+
   const {
     codeList,
     subCodeList,
@@ -77,14 +85,14 @@ const CodeMange = () => {
     selectedSubCode,
   } = useSelector((state: RootState) => state.code);
 
-  const [open, setOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-  const handleClickOpen = () => {
-    setOpen(true);
+  const handleSubCodeDialogOpen = () => {
+    setDialogOpen(true);
   };
 
-  const handleClose = () => {
-    setOpen(false);
+  const handleSubCodeDialogClose = () => {
+    setDialogOpen(false);
   };
 
   const dispatch = useDispatch();
@@ -97,6 +105,10 @@ const CodeMange = () => {
 
   const onEditCodeGroupChange = (e: any) => {
     setEditCodeGroup({ ...editCodeGroup, [e.target.name]: e.target.value });
+  };
+
+  const onCodeListChange = (e: any) => {
+    setCodeListInfo({ ...codeListInfo, [e.target.name]: e.target.value });
   };
 
   const handleCodeListFilter = (row: any) => {
@@ -159,13 +171,16 @@ const CodeMange = () => {
     }
   };
 
-  const createSubCodeGroup = async (subCodeList: any) => {
+  // ! CREATE REFRASH
+  const createSubCodeGroup = async (subCode: any) => {
     try {
-      await createSubCodeAPI(subCodeList);
+      await createSubCodeAPI(subCode);
       fetchData();
-      createSubButtonState();
+      handleSubCodeDialogClose();
+      alert("데이터가 추가되었습니다!");
+      window.location.reload();
     } catch (error: any) {
-      return error.response.data;
+      return error.response?.data;
     }
   };
 
@@ -201,10 +216,6 @@ const CodeMange = () => {
 
   const createButtonState = () => {
     setGroupCodeCreateMode((prevState) => !prevState);
-  };
-
-  const createSubButtonState = () => {
-    setGroupSubCodeCreateMode((prevState) => !prevState);
   };
 
   const updateButtonState = () => {
@@ -258,21 +269,20 @@ const CodeMange = () => {
       );
 
       if (choice) {
-        console.log(selectedSubCode, "선택");
-        // await
+        await deleteSubCodeAPI(selectedSubCode.Id);
+        window.location.reload();
       } else {
-        console.log(choice, "취소");
+        return;
       }
     }
   };
 
   const displayedResults = firstClick ? resultLists : subCodeList;
+  // const displayedResults = subCodeList;
 
   useEffect(() => {
     fetchData();
-  }, []);
-
-  console.log(selectedSubCode, subCodeList, "CRUD 데이터", selectCode);
+  }, [dispatch]);
 
   return (
     <div
@@ -572,13 +582,14 @@ const CodeMange = () => {
             <Button
               variant="contained"
               sx={{ width: "100%" }}
-              onClick={handleClickOpen}
+              onClick={handleSubCodeDialogOpen}
             >
               코드 생성하기
             </Button>
+
             <Dialog
-              open={open}
-              onClose={handleClose}
+              open={dialogOpen}
+              onClose={handleSubCodeDialogClose}
               sx={{ ".MuiPaper-elevation24": { p: "2rem" } }}
             >
               <DialogTitle sx={{ fontSize: "1.8rem" }}>codeList</DialogTitle>
@@ -587,66 +598,77 @@ const CodeMange = () => {
                   해당 그룹코드에 코드리스트가 추가됩니다. 아래의 양식에 맞춰서
                   모두 작성해주십시오.
                 </DialogContentText>
+
                 <Box
-                  sx={{
+                  style={{
                     display: "grid",
                     gridTemplateColumns: "repeat(2,1fr)",
                     rowGap: "0.8rem",
                     columnGap: "1.6rem",
-                    mt: "2rem",
+                    marginTop: "2rem",
                   }}
                 >
                   <TextField
                     autoFocus
                     margin="dense"
-                    id="name"
                     label="그룹코드"
-                    type="email"
+                    type="text"
                     fullWidth
                     variant="outlined"
                     autoComplete="off"
+                    value={codeListInfo.groupCode}
+                    name="groupCode"
+                    onChange={onCodeListChange}
                   />
                   <TextField
                     margin="dense"
-                    id="name"
                     label="그룹코드명"
-                    type="email"
+                    type="text"
                     fullWidth
                     variant="outlined"
                     autoComplete="off"
+                    value={codeListInfo.code}
+                    name="code"
+                    onChange={onCodeListChange}
                   />
                   <TextField
                     margin="dense"
-                    id="name"
                     label="그룹코드이름"
-                    type="email"
+                    type="text"
                     fullWidth
                     variant="outlined"
                     autoComplete="off"
+                    value={codeListInfo.codeName}
+                    name="codeName"
+                    onChange={onCodeListChange}
                   />
                   <TextField
                     margin="dense"
-                    id="name"
                     label="그룹유저"
-                    type="email"
+                    type="text"
                     fullWidth
                     variant="outlined"
                     autoComplete="off"
+                    value={codeListInfo.createUserId}
+                    name="createUserId"
+                    onChange={onCodeListChange}
                   />
                 </Box>
               </DialogContent>
               <DialogActions sx={{ p: "1rem 1.4rem", gap: "1rem", mt: "1rem" }}>
                 <Button
+                  type="button"
                   variant="outlined"
-                  onClick={handleClose}
+                  onClick={handleSubCodeDialogClose}
                   fullWidth
                   sx={{ p: "0.4rem" }}
                 >
                   취소하기
                 </Button>
                 <Button
+                  type="button"
                   variant="contained"
-                  onClick={handleClose}
+                  onClick={() => createSubCodeGroup(codeListInfo)}
                   fullWidth
                   sx={{ p: "0.4rem" }}
                 >
@@ -714,7 +736,6 @@ const CodeMange = () => {
               onClick={() => {
                 setFirstClick(false);
                 setSelectCode(false);
-                // setSubSelectCode(false);
               }}
               sx={{
                 fontSize: "1rem",
@@ -889,19 +910,19 @@ const CodeMange = () => {
               )
             )}
             {groupCodeCreateMode ? (
-              // <Button
-              //   variant="contained"
-              //   color="success"
-              //   size="large"
-              //   onClick={() => createCodeGroupData(createCodeGroup)}
-              // >
-              //   추가하기
-              // </Button>
-              <ActionButton
-                createCodeGroupData={createCodeGroupData}
-                createCodeGroup={createCodeGroup}
-              />
+              <Button
+                variant="contained"
+                color="success"
+                size="large"
+                onClick={() => createCodeGroupData(createCodeGroup)}
+              >
+                추가하기
+              </Button>
             ) : (
+              // <ActionButton
+              //   createCodeGroupData={createCodeGroupData}
+              //   createCodeGroup={createCodeGroup}
+              // />
               groupCodeUpdateMode && (
                 <Button onClick={() => editCodeDisplay()}>완료</Button>
               )
