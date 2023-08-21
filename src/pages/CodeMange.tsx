@@ -172,13 +172,65 @@ const CodeMange = () => {
   };
 
   // ! CREATE REFRASH
+  // const createSubCodeGroup = async (subCode: any) => {
+  //   try {
+  //     await createSubCodeAPI(subCode);
+  //     fetchData();
+  //     handleSubCodeDialogClose();
+  //     alert("데이터가 추가되었습니다!");
+  //     window.location.reload();
+
+  //   } catch (error: any) {
+  //     return error.response?.data;
+  //   }
+  // };
+
   const createSubCodeGroup = async (subCode: any) => {
     try {
       await createSubCodeAPI(subCode);
-      fetchData();
+
+      const singleSubCode = {
+        Id: null,
+        Code: subCode.code,
+        CodeName: subCode.codeName,
+        CreateUserId: subCode.createUserId,
+        GroupCode: subCode.groupCode,
+        IsDeleted: subCode.isDeleted,
+      };
+
+      const updatedSubCodeList = [...subCodeList, singleSubCode];
+      dispatch(getSubCodeList(updatedSubCodeList));
+
+      const filteredResults = updatedSubCodeList.filter(
+        (subcode: any) => subcode.GroupCode === selectedGroupCode.GroupCode
+      );
+
+      dispatch(getResultsList(filteredResults));
+
+      // const singleSubCode = {
+      //   Code: subCode.code,
+      //   CodeName: subCode.codeName,
+      //   CreateUserId: subCode.createUserId,
+      //   GroupCode: subCode.groupCode,
+      //   IsDeleted: subCode.isDeleted,
+      // };
+
+      // if (selectedGroupCode.GroupCode) {
+      //   const updatedDisplayedResults = [...resultLists, singleSubCode];
+      //   dispatch(getResultsList(updatedDisplayedResults));
+
+      //   const updatedCodeList = codeList.map((code: any) =>
+      //     code.GroupCode === selectedGroupCode.GroupCode ? code : code
+      //   );
+
+      //   dispatch(getCodeList(updatedCodeList));
+      // } else {
+      //   const updatedCodeList = [...codeList, subCode];
+      //   dispatch(getCodeList(updatedCodeList));
+      //   dispatch(getResultsList(updatedCodeList));
+      // }
       handleSubCodeDialogClose();
       alert("데이터가 추가되었습니다!");
-      window.location.reload();
     } catch (error: any) {
       return error.response?.data;
     }
@@ -279,6 +331,8 @@ const CodeMange = () => {
 
   const displayedResults = firstClick ? resultLists : subCodeList;
   // const displayedResults = subCodeList;
+
+  console.log(subCodeList);
 
   useEffect(() => {
     fetchData();
