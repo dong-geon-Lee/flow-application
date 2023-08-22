@@ -92,6 +92,14 @@ export const updateCodeAPI = async (Id: any, editCodeGroup: any) => {
   }
 };
 
+export const updateSubCodeAPI = async (Id: any, editCodeListGroup: any) => {
+  try {
+    await Axios.put(`Code/Codelist/modify?Id=${Id}`, editCodeListGroup);
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const deleteCodeAPI = async (Id: string, GroupCode: string) => {
   try {
     await Axios.delete(

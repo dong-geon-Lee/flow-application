@@ -29,6 +29,7 @@ import {
   fetchCodeListAPI,
   fetchGroupCodeAPI,
   updateCodeAPI,
+  updateSubCodeAPI,
 } from "api";
 
 import {
@@ -42,8 +43,11 @@ import {
 import { RootState } from "app/store";
 
 import ActionButton from "components/ActionButton";
+
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DoneIcon from "@mui/icons-material/Done";
+import CloseIcon from "@mui/icons-material/Close";
 
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -69,6 +73,14 @@ const CodeMange = () => {
     isDeleted: false,
   });
 
+  const [editSubCodeList, setEditSubCodeList] = useState({
+    code: "",
+    codeName: "",
+    isDeleted: false,
+    groupCode: "",
+    createUserId: "",
+  });
+
   const [codeListInfo, setCodeListInfo] = useState({
     code: "",
     codeName: "",
@@ -86,6 +98,7 @@ const CodeMange = () => {
   } = useSelector((state: RootState) => state.code);
 
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [subCodeEditState, setSubCodeEditState] = useState(false);
 
   const handleSubCodeDialogOpen = () => {
     setDialogOpen(true);
@@ -109,6 +122,10 @@ const CodeMange = () => {
 
   const onCodeListChange = (e: any) => {
     setCodeListInfo({ ...codeListInfo, [e.target.name]: e.target.value });
+  };
+
+  const onSubCOdeListChange = (e: any) => {
+    setEditSubCodeList({ ...editSubCodeList, [e.target.name]: e.target.value });
   };
 
   const handleCodeListFilter = (row: any) => {
@@ -254,6 +271,57 @@ const CodeMange = () => {
     updateButtonState();
   };
 
+  const editSubCodeListData = () => {
+    setSubCodeEditState(true);
+
+    setEditSubCodeList({
+      code: selectedSubCode.Code,
+      codeName: selectedSubCode.CodeName,
+      isDeleted: false,
+      groupCode: selectedSubCode.GroupCode,
+      createUserId: selectedSubCode.CreateUserId,
+    });
+  };
+
+  //! 딴건 되는데 CreateUserId 필드가 안바뀜! Postman도 역시 안됨!
+  const editSubCodeDisplay = async () => {
+    const { Id } = selectedSubCode;
+
+    const updateNewList = {
+      Code: editSubCodeList.code,
+      CodeName: editSubCodeList.codeName,
+      isDeleted: false,
+      GroupCode: editSubCodeList.groupCode,
+      CreateUserId: editSubCodeList.createUserId,
+    };
+
+    try {
+      await updateSubCodeAPI(Id, editSubCodeList);
+      const newSubCodeList = subCodeList.map((subcode: any) => {
+        if (subcode.Id === Id) {
+          return {
+            ...subcode,
+            ...updateNewList,
+            activeSubcode: false,
+          };
+        } else {
+          return { ...subcode, activeSubcode: false };
+        }
+      });
+
+      dispatch(getSubCodeList(newSubCodeList));
+
+      const resultSubCode = newSubCodeList.filter(
+        (x: any) => x.GroupCode === selectedSubCode.GroupCode
+      );
+
+      dispatch(getResultsList(resultSubCode));
+      alert("업데이트가 완료되었습니다!");
+    } catch (error: any) {
+      return error.response?.data;
+    }
+  };
+
   const editCodeDisplay = async () => {
     const { Id } = selectedGroupCode;
 
@@ -330,9 +398,6 @@ const CodeMange = () => {
   };
 
   const displayedResults = firstClick ? resultLists : subCodeList;
-  // const displayedResults = subCodeList;
-
-  console.log(subCodeList);
 
   useEffect(() => {
     fetchData();
@@ -556,65 +621,192 @@ const CodeMange = () => {
                     }}
                     onClick={() => handleSubCodeListActive(subcode.Id)}
                   >
-                    <TableCell
-                      sx={{
-                        borderRight: "1px solid #d3d3d3",
-                        ".MuiTableCell-body": { p: "6px", display: "block" },
-                      }}
-                    >
-                      {subcode.GroupCode}
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        borderRight: "1px solid #d3d3d3",
-                      }}
-                    >
-                      {subcode.Code}
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        borderRight: "1px solid #d3d3d3",
-                      }}
-                    >
-                      {subcode.CodeName}
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        borderRight: "1px solid #d3d3d3",
-                      }}
-                    >
-                      {subcode.CreateUserId}
-                    </TableCell>
+                    {subCodeEditState && subcode.Id === selectedSubCode.Id ? (
+                      <TableCell
+                        sx={{
+                          borderRight: "1px solid #d3d3d3",
+                          ".MuiTableCell-body": { p: "6px", display: "block" },
+                        }}
+                      >
+                        <TextField
+                          type="text"
+                          fullWidth
+                          sx={{
+                            flex: "1",
+                            ".MuiInputBase-input": { padding: "5px 14px" },
+                          }}
+                          value={editSubCodeList.groupCode}
+                          name="groupCode"
+                          onChange={onSubCOdeListChange}
+                        />
+                      </TableCell>
+                    ) : (
+                      <TableCell
+                        sx={{
+                          borderRight: "1px solid #d3d3d3",
+                          ".MuiTableCell-body": { p: "6px", display: "block" },
+                        }}
+                      >
+                        {subcode.GroupCode}
+                      </TableCell>
+                    )}
+
+                    {subCodeEditState && subcode.Id === selectedSubCode.Id ? (
+                      <TableCell
+                        sx={{
+                          borderRight: "1px solid #d3d3d3",
+                          ".MuiTableCell-body": { p: "6px", display: "block" },
+                        }}
+                      >
+                        <TextField
+                          type="text"
+                          fullWidth
+                          sx={{
+                            flex: "1",
+                            ".MuiInputBase-input": { padding: "5px 14px" },
+                          }}
+                          value={editSubCodeList.code}
+                          name="code"
+                          onChange={onSubCOdeListChange}
+                        />
+                      </TableCell>
+                    ) : (
+                      <TableCell
+                        sx={{
+                          borderRight: "1px solid #d3d3d3",
+                        }}
+                      >
+                        {subcode.Code}
+                      </TableCell>
+                    )}
+
+                    {subCodeEditState && subcode.Id === selectedSubCode.Id ? (
+                      <TableCell
+                        sx={{
+                          borderRight: "1px solid #d3d3d3",
+                          ".MuiTableCell-body": { p: "6px", display: "block" },
+                        }}
+                      >
+                        <TextField
+                          type="text"
+                          fullWidth
+                          sx={{
+                            flex: "1",
+                            ".MuiInputBase-input": { padding: "5px 14px" },
+                          }}
+                          value={editSubCodeList.codeName}
+                          name="codeName"
+                          onChange={onSubCOdeListChange}
+                        />
+                      </TableCell>
+                    ) : (
+                      <TableCell
+                        sx={{
+                          borderRight: "1px solid #d3d3d3",
+                        }}
+                      >
+                        {subcode.CodeName}
+                      </TableCell>
+                    )}
+
+                    {subCodeEditState && subcode.Id === selectedSubCode.Id ? (
+                      <TableCell
+                        sx={{
+                          borderRight: "1px solid #d3d3d3",
+                          ".MuiTableCell-body": { p: "6px", display: "block" },
+                        }}
+                      >
+                        <TextField
+                          type="text"
+                          fullWidth
+                          sx={{
+                            flex: "1",
+                            ".MuiInputBase-input": { padding: "5px 14px" },
+                          }}
+                          value={editSubCodeList.createUserId}
+                          name="createUserId"
+                          onChange={onSubCOdeListChange}
+                        />
+                      </TableCell>
+                    ) : (
+                      <TableCell
+                        sx={{
+                          borderRight: "1px solid #d3d3d3",
+                        }}
+                      >
+                        {subcode.CreateUserId}
+                      </TableCell>
+                    )}
 
                     {selectCode && (
                       <TableCell width={100}>
                         <div style={{ display: "flex", alignItems: "center" }}>
-                          <Button
-                            disabled={selectCode && !subcode.activeSubcode}
-                          >
-                            <EditIcon
-                              sx={{
-                                color:
-                                  selectCode && subcode.activeSubcode
-                                    ? "inherit"
-                                    : "#d3d3d3",
+                          {subCodeEditState &&
+                          subcode.Id === selectedSubCode.Id ? (
+                            <Button
+                              onClick={() => {
+                                setSubCodeEditState(false);
                               }}
-                            />
-                          </Button>
+                              disabled={selectCode && !subcode.activeSubcode}
+                            >
+                              <CloseIcon
+                                sx={{
+                                  color:
+                                    selectCode && subcode.activeSubcode
+                                      ? "inherit"
+                                      : "#d3d3d3",
+                                }}
+                              />
+                            </Button>
+                          ) : (
+                            <Button
+                              disabled={selectCode && !subcode.activeSubcode}
+                            >
+                              <EditIcon
+                                sx={{
+                                  color:
+                                    selectCode && subcode.activeSubcode
+                                      ? "inherit"
+                                      : "#d3d3d3",
+                                }}
+                                onClick={editSubCodeListData}
+                              />
+                            </Button>
+                          )}
 
-                          <Button
-                            onClick={deleteSubCode}
-                            disabled={selectCode && !subcode.activeSubcode}
-                          >
-                            <DeleteIcon
-                              sx={{
-                                color:
-                                  selectCode && subcode.activeSubcode
-                                    ? "#ef5350"
-                                    : "#d3d3d3",
+                          {subCodeEditState &&
+                          subcode.Id === selectedSubCode.Id ? (
+                            <Button
+                              onClick={() => {
+                                setSubCodeEditState(false);
                               }}
-                            />
-                          </Button>
+                              disabled={selectCode && !subcode.activeSubcode}
+                            >
+                              <DoneIcon
+                                onClick={editSubCodeDisplay}
+                                sx={{
+                                  color:
+                                    selectCode && subcode.activeSubcode
+                                      ? "#ef5350"
+                                      : "#d3d3d3",
+                                }}
+                              />
+                            </Button>
+                          ) : (
+                            <Button
+                              onClick={deleteSubCode}
+                              disabled={selectCode && !subcode.activeSubcode}
+                            >
+                              <DeleteIcon
+                                sx={{
+                                  color:
+                                    selectCode && subcode.activeSubcode
+                                      ? "#ef5350"
+                                      : "#d3d3d3",
+                                }}
+                              />
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     )}
@@ -932,7 +1124,7 @@ const CodeMange = () => {
                 <></>
               ) : (
                 <>
-                  <label style={{ flex: 0.2 }}>사용 여부</label>
+                  {/* <label style={{ flex: 0.2 }}>사용 여부</label>
                   <TextField
                     fullWidth
                     type="text"
@@ -942,7 +1134,7 @@ const CodeMange = () => {
                     }}
                     value={codeInfo?.IsDeleted ? "Y" : "N"}
                     name="IsDeleted"
-                  />
+                  /> */}
                 </>
               )}
             </Stack>
