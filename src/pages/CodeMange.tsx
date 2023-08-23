@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  Grid,
   MenuItem,
   Paper,
   Select,
@@ -52,6 +51,11 @@ import CloseIcon from "@mui/icons-material/Close";
 
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
+
+// const clickStatus: any = JSON.parse(
+//   localStorage.getItem("resultClick") || "{}"
+// );
 
 const CodeMange = () => {
   const [selectCode, setSelectCode] = useState(false);
@@ -152,7 +156,8 @@ const CodeMange = () => {
   };
 
   const handleCodeListFilter = (row: any) => {
-    const { Id, GroupCode, GroupCodeName, CreateUserId } = row || {};
+    console.log(row, "드ㄹ어올떄와 안들어올떄의 차이");
+    const { Id, GroupCode, GroupCodeName, CreateUserId } = row || [];
 
     dispatch(
       selectSingleCodeList({ Id, GroupCode, GroupCodeName, CreateUserId })
@@ -167,7 +172,6 @@ const CodeMange = () => {
     });
 
     dispatch(getCodeList(newList));
-
     dispatch(otherResultList(newList));
 
     const selectedLists = subCodeList.filter(
@@ -370,9 +374,16 @@ const CodeMange = () => {
 
   const fetchData = async () => {
     try {
-      // const codeDataInfo = await handleDummy();
       const codeDataInfo = await fetchGroupCodeAPI();
-      dispatch(getCodeList(codeDataInfo));
+      const newCodeData = codeDataInfo.map((code: any, idx: number) => {
+        if (idx === 5) {
+          return { ...code, activeCode: true };
+        } else {
+          return { ...code, activeCode: false };
+        }
+      });
+
+      dispatch(getCodeList(newCodeData));
 
       // const data = await handleDummySubCode();
       const data = await fetchCodeListAPI();
@@ -435,7 +446,7 @@ const CodeMange = () => {
   useEffect(() => {
     if (!selectCode) {
       const newCodeList = codeList.map((code: any, idx: number) => {
-        if (idx === 0) {
+        if (idx === 5) {
           return { ...code, activeCode: true };
         } else {
           return {
@@ -445,17 +456,14 @@ const CodeMange = () => {
         }
       });
 
-      handleCodeListFilter(newCodeList[0]);
+      selectSingleCodeList(newCodeList[5]);
+      handleCodeListFilter(newCodeList[5]);
     }
   }, [resultLists.length === 0 && codeList.length > 0]);
 
-  // const displayedResults = firstClick ? resultLists : subCodeList;
-
   const displayedResults =
     resultLists.length === 0 && resultsClick
-      ? subCodeList.filter(
-          (x: any) => x?.GroupCode === otherResult[0]?.GroupCode
-        )
+      ? subCodeList.filter((x: any) => x?.GroupCode === codeList[5]?.GroupCode)
       : resultLists.length === 0 && !resultsClick
       ? resultLists
       : resultLists;
@@ -575,10 +583,6 @@ const CodeMange = () => {
                         background: row.activeCode ? "#fbf9ee" : "#f4f4f4",
                       },
                       cursor: "pointer",
-                      // "&:last-child td, &:last-child th": {
-                      //   border: 0,
-                      //   borderRight: "1px solid #d3d3d3",
-                      // },
                       background:
                         firstClick && row.activeCode ? "#fbf9ee" : "inherit",
                       borderBottom: "1px solid #d3d3d3",
