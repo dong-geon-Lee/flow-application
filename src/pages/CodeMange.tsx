@@ -42,7 +42,8 @@ import {
 
 import { RootState } from "app/store";
 
-import ActionButton from "components/ActionButton";
+// * Spinner 내장 버튼 컴포넌트
+// import ActionButton from "components/ActionButton";
 
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -51,28 +52,19 @@ import CloseIcon from "@mui/icons-material/Close";
 
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
-
-// const clickStatus: any = JSON.parse(
-//   localStorage.getItem("resultClick") || "{}"
-// );
 
 const CodeMange = () => {
   const [selectCode, setSelectCode] = useState(false);
   const [firstClick, setFirstClick] = useState(false);
-  const [codeInfo, setCodeInfo] = useState<any>({});
   const [resultsClick, setResultsClick] = useState(false);
+  const [createCount, setCreateCount] = useState(false);
 
-  const [groupCodeCreateMode, setGroupCodeCreateMode] = useState(false);
-  const [groupCodeUpdateMode, setGroupCodeUpdateMode] = useState(false);
   const [createCodeGroup, setCreateCodeGroup] = useState({
     groupCode: "",
     groupCodeName: "",
     createUserId: "",
     isDeleted: false,
   });
-
-  const [codeListEffect, setCodeListEffect] = useState([]);
 
   const [editCodeGroup, setEditCodeGroup] = useState({
     groupCode: "",
@@ -103,7 +95,6 @@ const CodeMange = () => {
     resultLists,
     selectedGroupCode,
     selectedSubCode,
-    otherResult,
   } = useSelector((state: RootState) => state.code);
 
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -156,7 +147,6 @@ const CodeMange = () => {
   };
 
   const handleCodeListFilter = (row: any) => {
-    console.log(row, "드ㄹ어올떄와 안들어올떄의 차이");
     const { Id, GroupCode, GroupCodeName, CreateUserId } = row || [];
 
     dispatch(
@@ -165,7 +155,6 @@ const CodeMange = () => {
 
     const newList: any = codeList?.map((code: any) => {
       if (code.Id === Id) {
-        setCodeInfo(code);
         return { ...code, activeCode: true };
       }
       return { ...code, activeCode: false };
@@ -208,28 +197,31 @@ const CodeMange = () => {
   // };
 
   const createCodeGroupData = async (createCodeGroup: any) => {
+    setCreateCount(true);
+
     try {
       await createCodeAPI(createCodeGroup);
       fetchData();
-      createButtonState();
+      handleCreateDialogClose();
+
+      console.log(createCodeGroup);
+      console.log(codeList, "여기");
+
+      // const selectData = [...codeList, createCodeGroup];
+      // console.log(selectData, "방금 생성한 데이터");
+      // console.log(selectData.at(-1));
+      // dispatch(selectSingleCodeList(selectData.at(-1)));
+
+      setCreateCodeGroup({
+        groupCode: "",
+        groupCodeName: "",
+        createUserId: "",
+        isDeleted: false,
+      });
     } catch (error: any) {
       return error.response.data;
     }
   };
-
-  // ! CREATE REFRASH
-  // const createSubCodeGroup = async (subCode: any) => {
-  //   try {
-  //     await createSubCodeAPI(subCode);
-  //     fetchData();
-  //     handleSubCodeDialogClose();
-  //     alert("데이터가 추가되었습니다!");
-  //     window.location.reload();
-
-  //   } catch (error: any) {
-  //     return error.response?.data;
-  //   }
-  // };
 
   const createSubCodeGroup = async (subCode: any) => {
     try {
@@ -253,28 +245,6 @@ const CodeMange = () => {
 
       dispatch(getResultsList(filteredResults));
 
-      // const singleSubCode = {
-      //   Code: subCode.code,
-      //   CodeName: subCode.codeName,
-      //   CreateUserId: subCode.createUserId,
-      //   GroupCode: subCode.groupCode,
-      //   IsDeleted: subCode.isDeleted,
-      // };
-
-      // if (selectedGroupCode.GroupCode) {
-      //   const updatedDisplayedResults = [...resultLists, singleSubCode];
-      //   dispatch(getResultsList(updatedDisplayedResults));
-
-      //   const updatedCodeList = codeList.map((code: any) =>
-      //     code.GroupCode === selectedGroupCode.GroupCode ? code : code
-      //   );
-
-      //   dispatch(getCodeList(updatedCodeList));
-      // } else {
-      //   const updatedCodeList = [...codeList, subCode];
-      //   dispatch(getCodeList(updatedCodeList));
-      //   dispatch(getResultsList(updatedCodeList));
-      // }
       handleSubCodeDialogClose();
       alert("데이터가 추가되었습니다!");
     } catch (error: any) {
@@ -284,7 +254,7 @@ const CodeMange = () => {
 
   const editCodeGroupData = () => {
     const { GroupCode, GroupCodeName, CreateUserId } = selectedGroupCode;
-    console.log(GroupCode, GroupCodeName, CreateUserId);
+
     if (!GroupCode || !GroupCodeName) {
       alert("편집 대상을 선택해주세요");
       handleEditDialogClose();
@@ -298,7 +268,8 @@ const CodeMange = () => {
       isDeleted: false,
     });
 
-    updateButtonState();
+    selectSingleCodeList(selectedGroupCode);
+    fetchData(selectedGroupCode.Id);
   };
 
   const editSubCodeListData = () => {
@@ -357,26 +328,24 @@ const CodeMange = () => {
 
     try {
       await updateCodeAPI(Id, editCodeGroup);
-      updateButtonState();
       fetchData();
+      handleEditDialogClose();
     } catch (error: any) {
       return error.response?.data;
     }
   };
 
-  const createButtonState = () => {
-    setGroupCodeCreateMode((prevState) => !prevState);
-  };
-
-  const updateButtonState = () => {
-    setGroupCodeUpdateMode((prevState) => !prevState);
-  };
-
-  const fetchData = async () => {
+  const fetchData = async (Id?: number) => {
     try {
       const codeDataInfo = await fetchGroupCodeAPI();
       const newCodeData = codeDataInfo.map((code: any, idx: number) => {
-        if (idx === 5) {
+        // if (Id === code.Id) {
+        //   return { ...code, activeCode: true };
+        // } else {
+        //   return { ...code, activeCode: false };
+        // }
+
+        if (idx === 0) {
           return { ...code, activeCode: true };
         } else {
           return { ...code, activeCode: false };
@@ -385,7 +354,6 @@ const CodeMange = () => {
 
       dispatch(getCodeList(newCodeData));
 
-      // const data = await handleDummySubCode();
       const data = await fetchCodeListAPI();
       dispatch(getSubCodeList(data));
     } catch (error: any) {
@@ -395,26 +363,31 @@ const CodeMange = () => {
 
   const deleteCodeGroupData = async () => {
     const { Id, GroupCode } = selectedGroupCode;
+    const choice = window.confirm(`${GroupCode} 그룹코드를 삭제 하시겠습니까?`);
 
     if (!Id || !GroupCode) {
       alert("그룹코드 또는 그룹코드명을 선택해주세요");
       return;
     }
 
-    try {
-      await deleteCodeAPI(Id, GroupCode);
+    if (choice && Id && GroupCode) {
+      try {
+        await deleteCodeAPI(Id, GroupCode);
 
-      const [targetLists] = subCodeList.filter(
-        (x: any) => x.GroupCode === GroupCode
-      );
+        const [targetLists] = subCodeList.filter(
+          (x: any) => x.GroupCode === GroupCode
+        );
 
-      const codeDataInfo = codeList.filter(
-        (x: any) => x.GroupCode !== targetLists.GroupCode
-      );
+        const codeDataInfo = codeList.filter(
+          (x: any) => x.GroupCode !== targetLists.GroupCode
+        );
 
-      dispatch(getCodeList(codeDataInfo));
-    } catch (error: any) {
-      return error.response?.data;
+        dispatch(getCodeList(codeDataInfo));
+      } catch (error: any) {
+        return error.response?.data;
+      }
+    } else {
+      alert("데이터 삭제에 실패하였습니다");
     }
 
     window.location.reload();
@@ -446,7 +419,7 @@ const CodeMange = () => {
   useEffect(() => {
     if (!selectCode) {
       const newCodeList = codeList.map((code: any, idx: number) => {
-        if (idx === 5) {
+        if (idx === 0) {
           return { ...code, activeCode: true };
         } else {
           return {
@@ -455,18 +428,36 @@ const CodeMange = () => {
           };
         }
       });
-
-      selectSingleCodeList(newCodeList[5]);
-      handleCodeListFilter(newCodeList[5]);
+      handleCodeListFilter(newCodeList[0]);
     }
   }, [resultLists.length === 0 && codeList.length > 0]);
 
   const displayedResults =
     resultLists.length === 0 && resultsClick
-      ? subCodeList.filter((x: any) => x?.GroupCode === codeList[5]?.GroupCode)
+      ? subCodeList.filter((x: any) => x?.GroupCode === codeList[0]?.GroupCode)
       : resultLists.length === 0 && !resultsClick
       ? resultLists
       : resultLists;
+
+  // useEffect(() => {
+  //   if (createCount) {
+  //     dispatch(selectSingleCodeList(codeList.at(-1)));
+  //     setCreateCount(false);
+  //   }
+  // }, [createCount]);
+
+  // useEffect(() => {
+  //   if (count >= 0) {
+  //     dispatch(selectSingleCodeList(codeList.at(-1)));
+  //     dispatch(getCodeList(codeList));
+  //     console.log(codeList.at(-1));
+  //     console.log(selectedGroupCode);
+  //     count--;
+  //   }
+  //   console.log(count, "콘솔");
+  // }, [selectedGroupCode, count]);
+
+  // console.log(selectedGroupCode, codeList.at(-1));
 
   return (
     <div
@@ -570,6 +561,7 @@ const CodeMange = () => {
                   </TableCell>
                 </TableRow>
               </TableHead>
+
               <TableBody sx={{ overflowY: "scroll", height: "10rem" }}>
                 {codeList?.map((row: any) => (
                   <TableRow
@@ -584,7 +576,12 @@ const CodeMange = () => {
                       },
                       cursor: "pointer",
                       background:
-                        firstClick && row.activeCode ? "#fbf9ee" : "inherit",
+                        // row?.Id === selectedGroupCode?.Id
+                        //   ? "#fbf9ee"
+                        //   : "inherit",
+                        row?.Id === selectedGroupCode?.Id
+                          ? "#fbf9ee"
+                          : "inherit",
                       borderBottom: "1px solid #d3d3d3",
                     }}
                   >
@@ -681,6 +678,7 @@ const CodeMange = () => {
                     </TableCell>
                   </TableRow>
                 </TableHead>
+
                 <TableBody sx={{ borderBottom: "1px solid #d3d3d3" }}>
                   {displayedResults?.map((subcode: any) => (
                     <TableRow
@@ -928,35 +926,25 @@ const CodeMange = () => {
           <form style={{}}>
             <Box
               sx={{
-                border: "1px solid #d0d0d0",
-                width: "28rem",
+                maxWidth: "28rem",
                 margin: "1rem 0",
                 position: "relative",
                 display: "block",
-                p: "1rem 2rem",
               }}
             >
               <Stack
                 direction="row"
                 width="100%"
-                justifyContent="right"
+                justifyContent="center"
                 gap="1rem"
               >
                 <Button
+                  variant="contained"
                   onClick={() => {
                     editCodeGroupData();
                     handleEditDialogOpen();
                   }}
-                  disabled={groupCodeCreateMode}
-                  sx={{
-                    fontSize: "1rem",
-                    color: "black",
-                    background: "#efefef",
-                    border: "1px solid #aaa",
-                    minWidth: "5rem",
-                  }}
                 >
-                  {/* {groupCodeUpdateMode ? "취소" : "편집"} */}
                   편집
                 </Button>
                 <Dialog
@@ -992,7 +980,7 @@ const CodeMange = () => {
                         value={editCodeGroup.groupCode}
                         name="groupCode"
                         onChange={onEditCodeGroupChange}
-                        autoFocus
+                        disabled
                       />
                       <TextField
                         type="text"
@@ -1004,6 +992,7 @@ const CodeMange = () => {
                         value={editCodeGroup.groupCodeName}
                         name="groupCodeName"
                         onChange={onEditCodeGroupChange}
+                        autoFocus
                       />
                     </Box>
                   </DialogContent>
@@ -1013,10 +1002,7 @@ const CodeMange = () => {
                     <Button
                       type="button"
                       variant="outlined"
-                      onClick={() => {
-                        handleEditDialogClose();
-                        updateButtonState();
-                      }}
+                      onClick={() => handleEditDialogClose()}
                       fullWidth
                       sx={{ p: "0.4rem" }}
                     >
@@ -1025,10 +1011,7 @@ const CodeMange = () => {
                     <Button
                       type="button"
                       variant="contained"
-                      onClick={() => {
-                        editCodeDisplay();
-                        handleEditDialogClose();
-                      }}
+                      onClick={() => editCodeDisplay()}
                       fullWidth
                       sx={{ p: "0.4rem" }}
                     >
@@ -1038,25 +1021,14 @@ const CodeMange = () => {
                 </Dialog>
 
                 <Button
-                  sx={{
-                    fontSize: "1rem",
-                    color: "black",
-                    background: "#efefef",
-                    border: "1px solid #aaa",
-                    minWidth: "5rem",
-                  }}
-                  onClick={() => {
-                    createButtonState();
-                    handleCreateDialogOpen();
-                  }}
-                  disabled={groupCodeUpdateMode}
+                  variant="contained"
+                  onClick={() => handleCreateDialogOpen()}
                 >
-                  {/* {groupCodeCreateMode ? "취소" : "생성"} */}
                   생성
                 </Button>
                 <Dialog
                   open={createDialogOpen}
-                  onClose={handleSubCodeDialogClose}
+                  onClose={handleCreateDialogClose}
                   sx={{ ".MuiPaper-elevation24": { p: "2rem" } }}
                 >
                   <DialogTitle sx={{ fontSize: "1.8rem" }}>
@@ -1109,7 +1081,6 @@ const CodeMange = () => {
                       variant="outlined"
                       onClick={() => {
                         handleCreateDialogClose();
-                        createButtonState();
                       }}
                       fullWidth
                       sx={{ p: "0.4rem" }}
@@ -1121,8 +1092,7 @@ const CodeMange = () => {
                       variant="contained"
                       onClick={() => {
                         createCodeGroupData(createCodeGroup);
-                        handleCreateDialogClose();
-                        createButtonState();
+                        // handleCreateDialogClose();
                       }}
                       fullWidth
                       sx={{ p: "0.4rem" }}
@@ -1132,21 +1102,10 @@ const CodeMange = () => {
                   </DialogActions>
                 </Dialog>
 
-                <Button
-                  disabled={groupCodeCreateMode || groupCodeUpdateMode}
-                  onClick={deleteCodeGroupData}
-                  sx={{
-                    fontSize: "1rem",
-                    color: "black",
-                    background: "#efefef",
-                    border: "1px solid #aaa",
-                    minWidth: "5rem",
-                  }}
-                >
+                <Button variant="contained" onClick={deleteCodeGroupData}>
                   삭제
                 </Button>
-                <Button
-                  disabled={groupCodeCreateMode || groupCodeUpdateMode}
+                {/* <Button
                   onClick={() => {
                     setFirstClick(false);
                     setSelectCode(false);
@@ -1160,7 +1119,7 @@ const CodeMange = () => {
                   }}
                 >
                   초기화
-                </Button>
+                </Button> */}
               </Stack>
             </Box>
           </form>
