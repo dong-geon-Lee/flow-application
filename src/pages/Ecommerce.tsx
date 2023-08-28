@@ -225,8 +225,6 @@ export default function Ecommerce() {
   };
 
   const createSubCodeData = async (subCode: any) => {
-    console.log(subCode, "인자");
-
     try {
       await createSubCodeAPI(subCode);
       fetchData();
@@ -265,6 +263,18 @@ export default function Ecommerce() {
   };
 
   const processRowUpdate = async (newRow: GridRowModel) => {
+    if (newRow.mode === "create") {
+      await createCodeAPI(newRow);
+      fetchData();
+
+      const updatedRow = { ...newRow, isNew: false };
+      setRows(
+        rows.map((row: any) => (row.id === newRow.id ? updatedRow : row))
+      );
+
+      return updatedRow;
+    }
+
     const modifyRow = {
       groupCode: newRow.groupCode,
       groupCodeName: newRow.groupCodeName,
@@ -386,13 +396,15 @@ export default function Ecommerce() {
       field: "groupCode",
       headerName: "그룹코드",
       width: 100,
-      editable: false,
+      editable: true,
     },
     {
       field: "groupCodeName",
       headerName: "그룹코드명",
-      width: 100,
+      width: 370,
       editable: true,
+      align: "left",
+      headerAlign: "left",
     },
     {
       field: "actions",
@@ -446,12 +458,12 @@ export default function Ecommerce() {
       field: "code",
       headerName: "코드",
       width: 100,
-      editable: true,
+      editable: false,
     },
     {
       field: "codeName",
       headerName: "코드명",
-      width: 100,
+      width: 370,
       editable: true,
     },
     {
@@ -463,8 +475,6 @@ export default function Ecommerce() {
       getActions: (params: any) => {
         const isInEditMode =
           subrowModesModel[params.id]?.mode === GridRowModes.Edit;
-
-        // console.log(params);
 
         if (isInEditMode) {
           return [
@@ -610,6 +620,40 @@ export default function Ecommerce() {
   // console.log(rows);
   // console.log(subRows);
 
+  function createToolbar(props: EditToolbarProps | any) {
+    const { setRows, setRowModesModel } = props;
+
+    const handleClick = () => {
+      const id = randomId();
+
+      setRows((oldRows: any) => [
+        ...oldRows,
+        {
+          id,
+          groupCode: "",
+          groupCodeName: "",
+          isDeleted: false,
+          createUserId: "",
+          isNew: true,
+          mode: "create",
+        },
+      ]);
+
+      setRowModesModel((oldModel: any) => ({
+        ...oldModel,
+        [id]: { mode: GridRowModes.Edit, fieldToFocus: "groupCode" },
+      }));
+    };
+
+    return (
+      <GridToolbarContainer>
+        <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
+          등록하기
+        </Button>
+      </GridToolbarContainer>
+    );
+  }
+
   return (
     <Box sx={{ padding: "2rem" }}>
       <Typography variant="h6" sx={{ mb: "1.2rem" }}>
@@ -639,13 +683,11 @@ export default function Ecommerce() {
             processRowUpdate={processRowUpdate}
             rowHeight={30}
             // checkboxSelection
-            slots={
-              {
-                // toolbar: EditToolbar,
-              }
-            }
+            slots={{
+              toolbar: createToolbar,
+            }}
             slotProps={{
-              toolbar: { setRows, setRowModesModel },
+              toolbar: { setRows, setRowModesModel, column, rows },
             }}
             pageSizeOptions={[10, 20, 30]}
             initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
