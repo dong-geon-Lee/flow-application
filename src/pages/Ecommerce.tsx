@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
@@ -20,7 +20,7 @@ import {
   GridRowEditStopReasons,
 } from "@mui/x-data-grid";
 import { randomId } from "@mui/x-data-grid-generator";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
   createCodeAPI,
   createSubCodeAPI,
@@ -113,6 +113,14 @@ export default function Ecommerce() {
     createUserId: "",
     isDeleted: false,
   });
+
+  const [columnEditMode, setColumnEditMode] = useState(false);
+  const [subColumnEditMode, setSubColumnEditMode] = useState(false);
+
+  const groupCodeRef: any = useRef(null);
+
+  const [selectedGroupCode, setSelectedGroupCode] = useState<any>({});
+  const [activeIdx, setActiveIdx] = useState(0);
 
   const onChange = (e: any) => {
     setGroupCodeInfo({ ...groupCodeInfo, [e.target.name]: e.target.value });
@@ -263,7 +271,14 @@ export default function Ecommerce() {
   };
 
   const processRowUpdate = async (newRow: GridRowModel) => {
+    column.forEach((c: any) => {
+      if (c.field === "groupCode") {
+        c.editable = false;
+      }
+    });
+
     if (newRow.mode === "create") {
+      setColumnEditMode(false);
       await createCodeAPI(newRow);
       fetchData();
 
@@ -301,6 +316,25 @@ export default function Ecommerce() {
   };
 
   const processSubRowUpdate = async (newSubRow: GridRowModel) => {
+    columns.forEach((c: any) => {
+      if (c.field === "code") {
+        c.editable = false;
+      }
+    });
+
+    if (newSubRow.mode === "create") {
+      setSubColumnEditMode(false);
+      await createSubCodeAPI(newSubRow);
+      fetchData();
+
+      const updatedRow = { ...newSubRow, isNew: false };
+      setSubRows(
+        subRows.map((row: any) => (row.id === newSubRow.id ? updatedRow : row))
+      );
+
+      return updatedRow;
+    }
+
     const modifySubRow = {
       code: newSubRow.code,
       codeName: newSubRow.codeName,
@@ -395,8 +429,9 @@ export default function Ecommerce() {
     {
       field: "groupCode",
       headerName: "그룹코드",
-      width: 100,
-      editable: true,
+      width: 120,
+      editable: false,
+      cellClassName: "super__tree",
     },
     {
       field: "groupCodeName",
@@ -613,17 +648,39 @@ export default function Ecommerce() {
     }
   };
 
+  console.log(selectedGroupCode);
+  console.log(activeIdx);
+  console.log(rows);
+
   useEffect(() => {
     fetchData();
   }, []);
 
-  // console.log(rows);
-  // console.log(subRows);
+  // useEffect(() => {
+  //   if (activeIdx === 0) {
+  //     rows.forEach((r: any, idx: number) => {
+  //       if (idx === activeIdx) {
+  //         r.activeStatus = true;
+  //       } else {
+  //         r.activeStatus = false;
+  //       }
+  //     });
+  //   }
+  // }, []);
 
-  function createToolbar(props: EditToolbarProps | any) {
-    const { setRows, setRowModesModel } = props;
+  function useCreateToolbar(props: EditToolbarProps | any) {
+    const { setRows, setRowModesModel, column } = props;
+
+    if (columnEditMode) {
+      column.forEach((c: any) => {
+        if (c.field === "groupCode") {
+          c.editable = true;
+        }
+      });
+    }
 
     const handleClick = () => {
+      setColumnEditMode(true);
       const id = randomId();
 
       setRows((oldRows: any) => [
@@ -645,9 +702,68 @@ export default function Ecommerce() {
       }));
     };
 
+    // ! get
+    // useEffect(() => {
+    //   setSelectedGroupCode(rows[activeIdx]);
+    // }, []);
+
     return (
       <GridToolbarContainer>
-        <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
+        <Button
+          color="primary"
+          startIcon={<AddIcon />}
+          onClick={handleClick}
+          disabled={subColumnEditMode}
+        >
+          등록하기
+        </Button>
+      </GridToolbarContainer>
+    );
+  }
+
+  function createSubToolbar(props: EditToolbarProps | any) {
+    const { setSubRows, setSubrowModesModel, columns } = props;
+
+    if (subColumnEditMode) {
+      columns?.forEach((c: any) => {
+        if (c.field === "code") {
+          c.editable = true;
+        }
+      });
+    }
+
+    const handleSubClick = () => {
+      setSubColumnEditMode(true);
+      const id = randomId();
+
+      setSubRows((oldRows: any) => [
+        ...oldRows,
+        {
+          id,
+          code: "",
+          codeName: "",
+          isDeleted: false,
+          groupCode: "",
+          createUserId: "",
+          isNew: true,
+          mode: "create",
+        },
+      ]);
+
+      setSubrowModesModel((oldModel: any) => ({
+        ...oldModel,
+        [id]: { mode: GridRowModes.Edit, fieldToFocus: "code" },
+      }));
+    };
+
+    return (
+      <GridToolbarContainer>
+        <Button
+          color="primary"
+          startIcon={<AddIcon />}
+          onClick={handleSubClick}
+          disabled={columnEditMode}
+        >
           등록하기
         </Button>
       </GridToolbarContainer>
@@ -671,9 +787,18 @@ export default function Ecommerce() {
             "& .textPrimary": {
               color: "text.primary",
             },
+            ".css-5wly58-MuiDataGrid-root .MuiDataGrid-columnHeader:focus, .css-5wly58-MuiDataGrid-root .MuiDataGrid-cell":
+              {
+                outline: columnEditMode ? "1px solid #e0e0e0" : "inherit",
+              },
+
+            // ".MuiDataGrid-row.Mui-selected": {
+            //   background: selectedGroupCode ? "beige" : "inherit",
+            // },
           }}
         >
           <DataGrid
+            key={rows.id}
             rows={rows}
             columns={column}
             editMode="row"
@@ -684,13 +809,29 @@ export default function Ecommerce() {
             rowHeight={30}
             // checkboxSelection
             slots={{
-              toolbar: createToolbar,
+              toolbar: useCreateToolbar,
             }}
             slotProps={{
               toolbar: { setRows, setRowModesModel, column, rows },
             }}
             pageSizeOptions={[10, 20, 30]}
-            initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+            initialState={{
+              pagination: { paginationModel: { pageSize: 10 } },
+            }}
+            ref={groupCodeRef}
+            sx={{
+              ".MuiDataGrid-row.Mui-selected, .MuiDataGrid-row.Mui-selected:hover, .MuiDataGrid-row":
+                {
+                  // background: selectedGroupCode ? "beige" : "inherit",
+                  // background: "beige",
+                },
+            }}
+            onRowClick={(params: any, e) => {
+              setSelectedGroupCode(params.row);
+
+              const idx = rows.findIndex((r: any) => r.id === params.row.id);
+              setActiveIdx(idx);
+            }}
           />
 
           <Button
@@ -778,6 +919,10 @@ export default function Ecommerce() {
             "& .textPrimary": {
               color: "text.primary",
             },
+            ".css-5wly58-MuiDataGrid-root .MuiDataGrid-columnHeader:focus, .css-5wly58-MuiDataGrid-root .MuiDataGrid-cell":
+              {
+                outline: subColumnEditMode ? "1px solid #e0e0e0" : "inherit",
+              },
           }}
         >
           <DataGrid
@@ -788,13 +933,9 @@ export default function Ecommerce() {
             onRowModesModelChange={handleSubRowModesModelChange}
             onRowEditStop={handleSubRowEditStop}
             processRowUpdate={processSubRowUpdate}
-            slots={
-              {
-                // toolbar: EditToolbar,
-              }
-            }
+            slots={{ toolbar: createSubToolbar }}
             slotProps={{
-              toolbar: { setSubRows, setSubrowModesModel },
+              toolbar: { setSubRows, setSubrowModesModel, columns, rows },
             }}
             pageSizeOptions={[30, 60, 90]}
             initialState={{ pagination: { paginationModel: { pageSize: 30 } } }}
