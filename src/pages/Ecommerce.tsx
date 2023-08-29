@@ -121,6 +121,8 @@ export default function Ecommerce() {
 
   const [selectedGroupCode, setSelectedGroupCode] = useState<any>({});
   const [activeIdx, setActiveIdx] = useState(0);
+  const [selectionModel, setSelectionModel] = useState<any>([]);
+  const [selectedRows, setSelectedRows] = useState<any>({});
 
   const onChange = (e: any) => {
     setGroupCodeInfo({ ...groupCodeInfo, [e.target.name]: e.target.value });
@@ -164,8 +166,18 @@ export default function Ecommerce() {
   };
 
   const handleDeleteClick = (id: GridRowId, GroupCode: any) => () => {
-    deleteCodeGroupData(id, GroupCode);
-    setRows(rows.filter((row: any) => row.id !== id));
+    const choice = window.confirm(
+      `그룹코드 ${selectedRows.groupCode}를 정말 삭제하시겠습니까?`
+    );
+
+    if (choice) {
+      deleteCodeGroupData(id, GroupCode);
+      setRows(rows.filter((row: any) => row.id !== id));
+    } else {
+      alert("취소되었습니다");
+    }
+
+    window.location.reload();
   };
 
   const handleCancelClick = (id: GridRowId) => () => {
@@ -445,7 +457,7 @@ export default function Ecommerce() {
       field: "actions",
       type: "actions",
       headerName: "Actions",
-      width: 100,
+      width: 110,
       cellClassName: "actions",
       getActions: (params: any) => {
         const isInEditMode =
@@ -648,14 +660,15 @@ export default function Ecommerce() {
     }
   };
 
-  console.log(selectedGroupCode);
-  console.log(activeIdx);
-  console.log(rows);
-
   useEffect(() => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    setSelectionModel(rows[0]?.id);
+  }, [rows[0]?.id]);
+
+  // ? map 데이터 active 속성 추가 해야된다고 본다.
   // useEffect(() => {
   //   if (activeIdx === 0) {
   //     rows.forEach((r: any, idx: number) => {
@@ -770,6 +783,9 @@ export default function Ecommerce() {
     );
   }
 
+  console.log(selectionModel);
+  console.log(selectedRows);
+
   return (
     <Box sx={{ padding: "2rem" }}>
       <Typography variant="h6" sx={{ mb: "1.2rem" }}>
@@ -807,25 +823,33 @@ export default function Ecommerce() {
             onRowEditStop={handleRowEditStop}
             processRowUpdate={processRowUpdate}
             rowHeight={30}
-            // checkboxSelection
-            slots={{
-              toolbar: useCreateToolbar,
+            checkboxSelection={false}
+            rowSelectionModel={selectionModel}
+            onRowSelectionModelChange={(newSelection: any) => {
+              const [selectionID] = newSelection;
+              setSelectionModel(selectionID);
+
+              const selectedIDs = new Set(newSelection);
+              const [selectedRows] = rows.filter((r: any) =>
+                selectedIDs.has(r.id)
+              );
+
+              setSelectedRows(selectedRows);
             }}
-            slotProps={{
-              toolbar: { setRows, setRowModesModel, column, rows },
-            }}
+            slots={{ toolbar: useCreateToolbar }}
+            slotProps={{ toolbar: { setRows, setRowModesModel, column, rows } }}
             pageSizeOptions={[10, 20, 30]}
             initialState={{
               pagination: { paginationModel: { pageSize: 10 } },
             }}
-            ref={groupCodeRef}
-            sx={{
-              ".MuiDataGrid-row.Mui-selected, .MuiDataGrid-row.Mui-selected:hover, .MuiDataGrid-row":
-                {
-                  // background: selectedGroupCode ? "beige" : "inherit",
-                  // background: "beige",
-                },
-            }}
+            // sx={{
+            //   ".MuiDataGrid-row.Mui-selected, .MuiDataGrid-row.Mui-selected:hover, .MuiDataGrid-row":
+            //     {
+            //       background: selectedGroupCode ? "beige" : "inherit",
+            //       background: "beige",
+            //       outline: columnEditMode ? "1px solid #e0e0e0" : "inherit",
+            //     },
+            // }}
             onRowClick={(params: any, e) => {
               setSelectedGroupCode(params.row);
 
