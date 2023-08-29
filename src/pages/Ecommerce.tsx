@@ -117,10 +117,6 @@ export default function Ecommerce() {
   const [columnEditMode, setColumnEditMode] = useState(false);
   const [subColumnEditMode, setSubColumnEditMode] = useState(false);
 
-  const groupCodeRef: any = useRef(null);
-
-  const [selectedGroupCode, setSelectedGroupCode] = useState<any>({});
-  const [activeIdx, setActiveIdx] = useState(0);
   const [selectionModel, setSelectionModel] = useState<any>([]);
   const [selectedRows, setSelectedRows] = useState<any>({});
 
@@ -158,10 +154,12 @@ export default function Ecommerce() {
   };
 
   const handleEditClick = (id: GridRowId) => () => {
+    setColumnEditMode(true);
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
   };
 
   const handleSaveClick = (id: GridRowId, row: any) => () => {
+    setColumnEditMode(false);
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
   };
 
@@ -181,6 +179,8 @@ export default function Ecommerce() {
   };
 
   const handleCancelClick = (id: GridRowId) => () => {
+    setColumnEditMode(false);
+
     setRowModesModel({
       ...rowModesModel,
       [id]: { mode: GridRowModes.View, ignoreModifications: true },
@@ -298,6 +298,10 @@ export default function Ecommerce() {
       setRows(
         rows.map((row: any) => (row.id === newRow.id ? updatedRow : row))
       );
+
+      console.log(updatedRow);
+      // setSelectionModel(newRow.id);
+      // setSelectedRows(newRow);
 
       return updatedRow;
     }
@@ -488,12 +492,14 @@ export default function Ecommerce() {
             className="textPrimary"
             color="inherit"
             onClick={handleEditClick(params.id)}
+            disabled={selectionModel !== params.id}
           />,
           <GridActionsCellItem
             icon={<DeleteIcon />}
             label="Delete"
             color="inherit"
             onClick={handleDeleteClick(params.id, params.row.GroupCode)}
+            disabled={selectionModel !== params.id}
           />,
         ];
       },
@@ -681,6 +687,9 @@ export default function Ecommerce() {
   //   }
   // }, []);
 
+  console.log(selectionModel, "모델 아이디");
+  console.log(selectedRows, "Rows");
+
   function useCreateToolbar(props: EditToolbarProps | any) {
     const { setRows, setRowModesModel, column } = props;
 
@@ -783,9 +792,6 @@ export default function Ecommerce() {
     );
   }
 
-  console.log(selectionModel);
-  console.log(selectedRows);
-
   return (
     <Box sx={{ padding: "2rem" }}>
       <Typography variant="h6" sx={{ mb: "1.2rem" }}>
@@ -850,12 +856,12 @@ export default function Ecommerce() {
             //       outline: columnEditMode ? "1px solid #e0e0e0" : "inherit",
             //     },
             // }}
-            onRowClick={(params: any, e) => {
-              setSelectedGroupCode(params.row);
+            // onRowClick={(params: any, e) => {
+            //   setSelectedGroupCode(params.row);
 
-              const idx = rows.findIndex((r: any) => r.id === params.row.id);
-              setActiveIdx(idx);
-            }}
+            //   const idx = rows.findIndex((r: any) => r.id === params.row.id);
+            //   setActiveIdx(idx);
+            // }}
           />
 
           <Button
