@@ -46,39 +46,6 @@ import {
   Typography,
 } from "@mui/material";
 
-// const initialRows: GridRowsProp = [
-//   {
-//     id: randomId(),
-//     name: randomTraderName(),
-//     age: "25",
-//     joinDate: randomCreatedDate(),
-//   },
-//   {
-//     id: randomId(),
-//     name: randomTraderName(),
-//     age: "36",
-//     joinDate: randomCreatedDate(),
-//   },
-//   {
-//     id: randomId(),
-//     name: randomTraderName(),
-//     age: "19",
-//     joinDate: randomCreatedDate(),
-//   },
-//   {
-//     id: randomId(),
-//     name: randomTraderName(),
-//     age: "28",
-//     joinDate: randomCreatedDate(),
-//   },
-//   {
-//     id: randomId(),
-//     name: randomTraderName(),
-//     age: "23",
-//     joinDate: randomCreatedDate(),
-//   },
-// ];
-
 interface EditToolbarProps {
   setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void;
   setRowModesModel: (
@@ -87,7 +54,6 @@ interface EditToolbarProps {
 }
 
 export default function Ecommerce() {
-  // const { codeList } = useSelector((state: any) => state.code);
   const dispatch = useDispatch();
 
   const [rows, setRows]: any = useState([]);
@@ -158,7 +124,7 @@ export default function Ecommerce() {
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
   };
 
-  const handleSaveClick = (id: GridRowId, row: any) => () => {
+  const handleSaveClick = (id: GridRowId) => () => {
     setColumnEditMode(false);
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
   };
@@ -292,16 +258,14 @@ export default function Ecommerce() {
     if (newRow.mode === "create") {
       setColumnEditMode(false);
       await createCodeAPI(newRow);
-      fetchData();
+      // fetchData();
+      setSelectionModel(newRow.id);
+      setSelectedRows(newRow);
 
       const updatedRow = { ...newRow, isNew: false };
       setRows(
         rows.map((row: any) => (row.id === newRow.id ? updatedRow : row))
       );
-
-      console.log(updatedRow);
-      // setSelectionModel(newRow.id);
-      // setSelectedRows(newRow);
 
       return updatedRow;
     }
@@ -473,7 +437,7 @@ export default function Ecommerce() {
               icon={<SaveIcon />}
               label="Save"
               sx={{ color: "primary.main" }}
-              onClick={handleSaveClick(params.id, params)}
+              onClick={handleSaveClick(params.id)}
             />,
             <GridActionsCellItem
               icon={<CancelIcon />}
@@ -565,38 +529,6 @@ export default function Ecommerce() {
     },
   ];
 
-  // function EditToolbar(props: EditToolbarProps) {
-  //   const { setRows, setRowModesModel } = props;
-
-  //   const handleClick = () => {
-  //     const id = randomId();
-
-  //     setRows((oldRows) => [
-  //       ...oldRows,
-  //       { id, GroupCode: "", GroupCodeName: "", isNew: true },
-  //     ]);
-
-  //     setRowModesModel((oldModel) => ({
-  //       ...oldModel,
-  //       [id]: { mode: GridRowModes.Edit, fieldToFocus: "GroupCode" },
-  //     }));
-  //   };
-
-  //   return (
-  //     <GridToolbarContainer>
-  //       <Button
-  //         color="primary"
-  //         startIcon={<AddIcon />}
-  //         onClick={() => {
-  //           handleClick();
-  //         }}
-  //       >
-  //         그룹코드 추가
-  //       </Button>
-  //     </GridToolbarContainer>
-  //   );
-  // }
-
   function codeDataFormatter(dataInfo: any) {
     return dataInfo.map((code: any) => {
       const {
@@ -674,22 +606,10 @@ export default function Ecommerce() {
     setSelectionModel(rows[0]?.id);
   }, [rows[0]?.id]);
 
-  // ? map 데이터 active 속성 추가 해야된다고 본다.
-  // useEffect(() => {
-  //   if (activeIdx === 0) {
-  //     rows.forEach((r: any, idx: number) => {
-  //       if (idx === activeIdx) {
-  //         r.activeStatus = true;
-  //       } else {
-  //         r.activeStatus = false;
-  //       }
-  //     });
-  //   }
-  // }, []);
-
   console.log(selectionModel, "모델 아이디");
   console.log(selectedRows, "Rows");
 
+  // * 컴포넌트 area
   function useCreateToolbar(props: EditToolbarProps | any) {
     const { setRows, setRowModesModel, column } = props;
 
@@ -723,11 +643,6 @@ export default function Ecommerce() {
         [id]: { mode: GridRowModes.Edit, fieldToFocus: "groupCode" },
       }));
     };
-
-    // ! get
-    // useEffect(() => {
-    //   setSelectedGroupCode(rows[activeIdx]);
-    // }, []);
 
     return (
       <GridToolbarContainer>
@@ -800,6 +715,7 @@ export default function Ecommerce() {
 
       <Grid sx={{ display: "flex", gap: "2.4rem" }}>
         <Box
+          className=".css-5wly58-MuiDataGrid-root .MuiDataGrid-row .MuiDataGrid-columnHeader:focus, .css-5wly58-MuiDataGrid-root .MuiDataGrid-cell:focus"
           sx={{
             flex: 1,
             height: 500,
@@ -814,9 +730,11 @@ export default function Ecommerce() {
                 outline: columnEditMode ? "1px solid #e0e0e0" : "inherit",
               },
 
-            // ".MuiDataGrid-row.Mui-selected": {
-            //   background: selectedGroupCode ? "beige" : "inherit",
-            // },
+            ".css-5wly58-MuiDataGrid-root .MuiDataGrid-cell.MuiDataGrid-cell--editing:focus-within":
+              {
+                zIndex: 3,
+                outline: "solid #1976d2 1px",
+              },
           }}
         >
           <DataGrid
@@ -848,20 +766,6 @@ export default function Ecommerce() {
             initialState={{
               pagination: { paginationModel: { pageSize: 10 } },
             }}
-            // sx={{
-            //   ".MuiDataGrid-row.Mui-selected, .MuiDataGrid-row.Mui-selected:hover, .MuiDataGrid-row":
-            //     {
-            //       background: selectedGroupCode ? "beige" : "inherit",
-            //       background: "beige",
-            //       outline: columnEditMode ? "1px solid #e0e0e0" : "inherit",
-            //     },
-            // }}
-            // onRowClick={(params: any, e) => {
-            //   setSelectedGroupCode(params.row);
-
-            //   const idx = rows.findIndex((r: any) => r.id === params.row.id);
-            //   setActiveIdx(idx);
-            // }}
           />
 
           <Button
