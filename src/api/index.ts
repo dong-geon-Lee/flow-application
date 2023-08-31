@@ -52,7 +52,11 @@ export const handleAuthUserAPI = async (userInfo: any) => {
 
 export const createCodeAPI = async (createCodeGroup: any) => {
   try {
-    await Axios.post("Code/GroupCodelist/new", createCodeGroup);
+    const response = await Axios.post(
+      "Code/GroupCodelist/new",
+      createCodeGroup
+    );
+    return response.data;
   } catch (error) {
     throw error;
   }
@@ -94,7 +98,8 @@ export const updateCodeAPI = async (Id: any, editCodeGroup: any) => {
 
 export const updateSubCodeAPI = async (Id: any, editCodeListGroup: any) => {
   try {
-    await Axios.put(`Code/Codelist/modify?Id=${Id}`, editCodeListGroup);
+    // await Axios.put(`Code/Codelist/modify?Id=${Id}`, editCodeListGroup);
+    await Axios.put(`Code/Codelist/modify/${Id}`, editCodeListGroup);
   } catch (error) {
     throw error;
   }
