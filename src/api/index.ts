@@ -1,7 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const Axios = axios.create({
+export const Axios = axios.create({
   baseURL: "http://192.168.11.31:8080/",
   headers: { "Content-Type": "application/json" },
   timeout: 3000,

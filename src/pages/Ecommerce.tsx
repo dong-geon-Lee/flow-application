@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import SaveIcon from "@mui/icons-material/Save";
@@ -12,15 +11,14 @@ import {
   GridRowModes,
   DataGrid,
   GridColDef,
-  GridToolbarContainer,
   GridActionsCellItem,
   GridEventListener,
   GridRowId,
   GridRowModel,
   GridRowEditStopReasons,
+  GridToolbar,
 } from "@mui/x-data-grid";
 
-import { randomId } from "@mui/x-data-grid-generator";
 import { useDispatch } from "react-redux";
 
 import {
@@ -59,14 +57,20 @@ interface EditToolbarProps {
 export default function Ecommerce() {
   const dispatch = useDispatch();
 
+  // * rows 목록 및 선택상태
   const [rows, setRows]: any = useState([]);
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
+
+  // * subRows 및 선택상태
   const [subRows, setSubRows]: any = useState([]);
   const [subrowModesModel, setSubrowModesModel] = useState<GridRowModesModel>(
     {}
   );
 
+  // * rows Dialog Open 버튼
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+
+  // * rows 생성 시 상태
   const [groupCodeInfo, setGroupCodeInfo] = useState({
     groupCode: "",
     groupCodeName: "",
@@ -74,7 +78,10 @@ export default function Ecommerce() {
     isDeleted: false,
   });
 
+  // * subRows Dialog Open 버튼
   const [createSubDialogOpen, setCreateSubDialogOpen] = useState(false);
+
+  // * subRows 생성 시 상태
   const [codeListInfo, setCodeListInfo] = useState({
     code: "",
     codeName: "",
@@ -83,67 +90,78 @@ export default function Ecommerce() {
     isDeleted: false,
   });
 
+  // * rows Edit 및 색상 상태관여
   const [columnEditMode, setColumnEditMode] = useState(false);
   const [columnActionMode, setColumnActionMode] = useState(false);
 
+  // * subRows Edit 및 색상 상태관여
   const [subColumnEditMode, setSubColumnEditMode] = useState(false);
   const [subColumnActionMode, setSubColumnActionMode] = useState(false);
 
+  // * rows 클릭 시 1개의 테이블 id와 정보 상태
   const [selectionModel, setSelectionModel] = useState<any>([]);
   const [selectedRows, setSelectedRows] = useState<any>({});
 
+  // * subRows 클릭 시 1개의 테이블 id와 정보 상태
   const [selectionSubModel, setSelectionSubModel] = useState<any>([]);
   const [selectedSubRows, setSelectedSubRows] = useState<any>({});
 
-  // * Dialog 버튼
+  // * 등록 버튼 클릭 시 groupCode 상태값 반영 (rows 쪽 Dialog)
   const onChange = (e: any) => {
     setGroupCodeInfo({ ...groupCodeInfo, [e.target.name]: e.target.value });
   };
 
+  // * rows Dialog Open
   const handleCreateDialogOpen = () => {
     setCreateDialogOpen(true);
   };
 
+  // * rows Dialog Close
   const handleCreateDialogClose = () => {
     setCreateDialogOpen(false);
   };
 
+  // * 등록 버튼 클릭 시 codeListInfo 상태값 반영 (subRows 쪽 Dialog)
   const onSubChange = (e: any) => {
     setCodeListInfo({ ...codeListInfo, [e.target.name]: e.target.value });
   };
 
+  // * subRows Dialog Open
   const handleSubCreateDialogOpen = () => {
     setCreateSubDialogOpen(true);
   };
 
+  // * subRows Dialog Close
   const handleSubCreateDialogClose = () => {
     setCreateSubDialogOpen(false);
   };
 
-  // ! 다중 edit  event.defaultMuiPrevented = true
+  // * rows 쪽 싱글 Edit 및 다중 Edit 허요
   const handleRowEditStop: GridEventListener<"rowEditStop"> = (
     params,
     event
   ) => {
-    console.log(params, event);
-
     if (params.reason === GridRowEditStopReasons.rowFocusOut) {
       event.defaultMuiPrevented = false;
     }
   };
 
+  // * rows Actions 쪽 Edit 아이콘 클릭 시 작동
   const handleEditClick = (id: GridRowId) => () => {
     setColumnEditMode(false);
     setColumnActionMode(true);
+
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
   };
 
+  // * rows Actions 쪽 Save 아이콘 클릭 시 작동
   const handleSaveClick = (id: GridRowId) => () => {
     setColumnEditMode(false);
     setColumnActionMode(false);
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
   };
 
+  // * rows Actions 쪽 Delete 아이콘 클릭 시 작동
   const handleDeleteClick = (id: GridRowId, GroupCode: any) => () => {
     const choice = window.confirm(
       `그룹코드 ${selectedRows.groupCode}를 정말 삭제하시겠습니까?`
@@ -159,6 +177,7 @@ export default function Ecommerce() {
     window.location.reload();
   };
 
+  // * rows Actions 쪽 Cancel 아이콘 클릭 시 작동
   const handleCancelClick = (id: GridRowId) => () => {
     setColumnEditMode(false);
     setColumnActionMode(false);
@@ -175,6 +194,7 @@ export default function Ecommerce() {
     }
   };
 
+  // * 여기부터
   const handleSubRowEditStop: GridEventListener<"rowEditStop"> = (
     params,
     event
@@ -207,6 +227,7 @@ export default function Ecommerce() {
     setSubRows(subRows.filter((row: any) => row.id !== id));
   };
 
+  // * 여기까지 다 sub로 Actions 함수
   const handleSubCancelClick = (id: GridRowId) => () => {
     setSubColumnEditMode(false);
     setSubColumnActionMode(false);
@@ -225,7 +246,12 @@ export default function Ecommerce() {
 
   const createCodeGroupData = async (createCodeGroup: any) => {
     try {
+      console.log(createCodeGroup, "체크");
       await createCodeAPI(createCodeGroup);
+      // const [response] = await createCodeAPI(createCodeGroup);
+      // const data = codeDataFormatter(response);
+      // console.log(data);
+
       fetchData();
       // const data = codeDataFormatter(response);
       // const updatedRow = data;
@@ -244,8 +270,6 @@ export default function Ecommerce() {
   const createSubCodeData = async (subCode: any) => {
     try {
       await createSubCodeAPI(subCode);
-      console.log(subCode);
-
       fetchData();
       handleSubCreateDialogClose();
     } catch (error: any) {
@@ -297,9 +321,7 @@ export default function Ecommerce() {
         }
       });
 
-      alert(
-        "등록에 실패하였습니다. 그룹코드와 그룹코드명을 모두 작성해주십시오"
-      );
+      alert("그룹코드와 그룹코드명을 모두 작성해주십시오");
 
       // ! 등록 실패 시 아예 지워버리는 옵션
       const codeDataInfo = await fetchGroupCodeAPI();
@@ -493,6 +515,9 @@ export default function Ecommerce() {
         const isInEditMode =
           subrowModesModel[params.id]?.mode === GridRowModes.Edit;
 
+        if (selectedRows.groupCode !== params.row.groupCode) {
+        }
+
         if (isInEditMode) {
           return [
             <GridActionsCellItem
@@ -609,30 +634,63 @@ export default function Ecommerce() {
 
   useEffect(() => {
     if (
-      groupCodeInfo.groupCode &&
-      groupCodeInfo.groupCodeName &&
-      rows.some((r: any) => r.groupCode === groupCodeInfo.groupCode)
+      groupCodeInfo.groupCode !== "" &&
+      groupCodeInfo.groupCodeName !== "" &&
+      rows.some((r: any) => r?.groupCode === groupCodeInfo?.groupCode)
     ) {
+      if (rows.find((r: any) => r?.groupCode === selectedSubRows?.groupCode)) {
+        setSelectionModel(selectedRows.id);
+        setSelectedRows(selectedRows);
+        return;
+      }
+
       setSelectionModel(rows[rows.length - 1]?.id);
       setSelectedRows(rows[rows.length - 1]);
     }
   }, [groupCodeInfo.groupCode, groupCodeInfo.groupCodeName, rows]);
 
   // todo subRows Active 사이드 이펙트
-  useEffect(() => {
-    setSelectionSubModel(subRows[0]?.id);
-    setSelectedSubRows(subRows[0]);
-  }, [subRows[0]?.id]);
-
-  console.log(selectedSubRows, "값 안찍히나?");
 
   const filteredCodeLists = subRows.filter(
     (x: any) => x.groupCode === selectedRows?.groupCode
   );
 
-  // console.log(selectionModel, selectedRows, "초기값");
-  // console.log(columnActionMode, columnEditMode);
+  useEffect(() => {
+    setSelectionSubModel(filteredCodeLists[0]?.id);
+    setSelectedSubRows(filteredCodeLists[0]);
+  }, [filteredCodeLists[0]?.id]);
 
+  useEffect(() => {
+    if (
+      codeListInfo.code &&
+      codeListInfo.codeName &&
+      subRows.some(
+        (s: any) =>
+          s.groupCode === codeListInfo.groupCode &&
+          s.code === codeListInfo.code &&
+          s.codeName === codeListInfo.codeName
+      )
+    ) {
+      setSelectionSubModel(subRows[subRows.length - 1]?.id);
+      setSelectedSubRows(subRows[subRows.length - 1]);
+    }
+  }, [codeListInfo.code, codeListInfo.codeName, subRows]);
+
+  // * 콘솔 zone
+  // console.log(selectedSubRows, "값 안찍히나?");
+  // console.log(codeListInfo);
+
+  useEffect(() => {
+    const [id] = Object.keys(subrowModesModel);
+
+    if (id) {
+      setSubrowModesModel({
+        ...subrowModesModel,
+        [id]: { mode: GridRowModes.View, ignoreModifications: true },
+      });
+    }
+  }, [selectedRows]);
+  // rowModesModel[params.id]?.mode === GridRowModes.Edit;
   // * 툴바
   // function useCreateToolbar(props: EditToolbarProps | any) {
   //   const { setRows, setRowModesModel, column } = props;
@@ -749,6 +807,7 @@ export default function Ecommerce() {
   //   );
   // }
 
+  console.log(selectedRows, selectedSubRows);
   return (
     <Box sx={{ padding: "2rem" }}>
       <Typography variant="h6" sx={{ mb: "1.2rem" }}>
@@ -783,11 +842,14 @@ export default function Ecommerce() {
                     : "inherit",
               },
             ".css-5wly58-MuiDataGrid-root .MuiDataGrid-row.Mui-selected": {
-              background:
-                selectedRows || selectedSubRows
-                  ? "rgba(25, 118, 210, 0.08)"
-                  : "inherit",
+              // background: selectedRows ? "rgba(25, 118, 210, 0.08)" : "inherit",
+              background: selectedRows ? "rgba(25, 118, 210, 0.08)" : "inherit",
             },
+            ".css-1knaqv7-MuiButtonBase-root-MuiButton-root + button": {
+              display: "none",
+            },
+            ".css-3be3ve-MuiFormControl-root-MuiTextField-root-MuiDataGrid-toolbarQuickFilter":
+              { marginRight: "0.4rem", marginTop: "0.4rem" },
           }}
         >
           <DataGrid
@@ -812,7 +874,7 @@ export default function Ecommerce() {
               );
 
               // * 코드리스트에 필터링 해야되는 매개변수들
-              console.log(selectedRows, selectionID);
+              // console.log(selectedRows, selectionID);
               setSelectedRows(selectedRows);
 
               // ! 이 로직 codeList Active 해결 후 해야됨
@@ -825,7 +887,19 @@ export default function Ecommerce() {
               // }
             }}
             // slots={{ toolbar: useCreateToolbar }}
-            slotProps={{ toolbar: { setRows, setRowModesModel, column, rows } }}
+
+            slots={{ toolbar: GridToolbar }}
+            slotProps={{
+              toolbar: {
+                // setRows,
+                // setRowModesModel,
+                column,
+                rows,
+                showQuickFilter: true,
+              },
+            }}
+            disableColumnFilter
+            disableColumnSelector
             pageSizeOptions={[100, 200, 300]}
             // initialState={{
             //   pagination: { paginationModel: { pageSize: 100 } },
@@ -847,6 +921,7 @@ export default function Ecommerce() {
                 });
               }
             }}
+
             // sx={{
             //   ".css-5wly58-MuiDataGrid-root .MuiDataGrid-row.Mui-selected": {
             //     background: selectedRows
@@ -872,7 +947,15 @@ export default function Ecommerce() {
           {/* //* Dialog 주석 처리 */}
           <Button
             variant="contained"
-            onClick={() => handleCreateDialogOpen()}
+            onClick={() => {
+              handleCreateDialogOpen();
+              setGroupCodeInfo({
+                groupCode: "",
+                groupCodeName: "",
+                createUserId: "",
+                isDeleted: false,
+              });
+            }}
             sx={{ mt: "1.6rem" }}
           >
             등록
@@ -948,7 +1031,6 @@ export default function Ecommerce() {
         </Box>
 
         <Box
-          className="bot"
           sx={{
             flex: 1,
             height: 500,
@@ -974,13 +1056,31 @@ export default function Ecommerce() {
             ".css-5wly58-MuiDataGrid-root .MuiDataGrid-columnHeader:focus-within, .css-5wly58-MuiDataGrid-root .MuiDataGrid-cell:focus-within":
               { zIndex: 3, userSelect: "none", outline: "solid #1976d2 1px" },
 
-            // ! 클래스 중첩 되는 문제 생각해볼것
-            // ? 클래스만 별로로 지정하기만 하면 바로 해결되는 문제이다.
+            ".css-5wly58-MuiDataGrid-root .MuiDataGrid-row.Mui-selected": {
+              background: selectedSubRows
+                ? "rgba(25, 118, 210, 0.08)"
+                : "inherit",
+            },
+            ".css-1knaqv7-MuiButtonBase-root-MuiButton-root + button": {
+              display: "none",
+            },
+            ".css-3be3ve-MuiFormControl-root-MuiTextField-root-MuiDataGrid-toolbarQuickFilter":
+              { marginRight: "0.4rem", marginTop: "0.4rem" },
+            // ".css-1hziph0 .css-5wly58-MuiDataGrid-root .MuiDataGrid-row.Mui-selected":
+            //   { background: "none" },
             // ".css-5wly58-MuiDataGrid-root .MuiDataGrid-row.Mui-selected": {
-            //   background: selectedSubRows
-            //     ? "rgba(25, 118, 210, 0.08)"
-            //     : "inherit",
+            //   background: "none",
             // },
+
+            // ".css-5wly58-MuiDataGrid-root .MuiDataGrid-row.Mui-selected:hover, .css-5wly58-MuiDataGrid-root .MuiDataGrid-row.Mui-selected.Mui-hovered":
+            //   {
+            //     background: "none",
+            //   },
+
+            // ".css-5wly58-MuiDataGrid-root .MuiDataGrid-row:hover, .css-5wly58-MuiDataGrid-root .MuiDataGrid-row.Mui-hovered":
+            //   {
+            //     background: "none",
+            //   },
 
             // todo 클래스를 바꿔주니 실제로 작동한다.
             // * 원하는 동작이랑은 관계없음
@@ -989,14 +1089,39 @@ export default function Ecommerce() {
             //     ? "rgba(25, 118, 210, 0.08)"
             //     : "inherit",
             // },
+
+            // ".cold": {
+            //   background: selectedSubRows
+            //     ? "rgba(25, 118, 210, 0.08)"
+            //     : "inherit",
+            // },
           }}
         >
           <DataGrid
+            // getCellClassName={(params: GridCellParams<any, any, any>) => {
+            //   const { code, codeName }: any = params.row;
+
+            //   if (
+            //     code === selectedSubRows?.code &&
+            //     codeName === selectedSubRows?.codeName
+            //   ) {
+            //     return (
+            //       params.row?.code &&
+            //       params.row?.codeName &&
+            //       selectedSubRows &&
+            //       "cold"
+            //     );
+            //   }
+
+            //   return;
+            // }}
             rows={filteredCodeLists}
             columns={columns}
             editMode="row"
             rowModesModel={subrowModesModel}
             onRowModesModelChange={handleSubRowModesModelChange}
+            checkboxSelection={false}
+            rowSelectionModel={selectionSubModel}
             onRowSelectionModelChange={(newSelection: any) => {
               const [selectionID] = newSelection;
               setSelectionSubModel(selectionID);
@@ -1014,13 +1139,22 @@ export default function Ecommerce() {
             processRowUpdate={processSubRowUpdate}
             // slots={{ toolbar: createSubToolbar }}
             slotProps={{
-              toolbar: { setSubRows, setSubrowModesModel, columns, rows },
+              toolbar: { columns, rows, showQuickFilter: true },
             }}
+            slots={{ toolbar: GridToolbar }}
+            disableColumnFilter
+            disableColumnSelector
             // pageSizeOptions={[30, 60, 90]}
             // initialState={{ pagination: { paginationModel: { pageSize: 30 } } }}
             rowHeight={30}
             hideFooterPagination
-            onCellDoubleClick={(params) => {
+            onCellClick={(params: any) => {
+              // setSubRows("");
+              // console.log(params);
+            }}
+            onCellDoubleClick={(params, e: any) => {
+              console.log(params.cellMode, e, e.view.closed);
+
               if (params.field === "codeName") {
                 setSubColumnEditMode(true);
 
@@ -1040,6 +1174,13 @@ export default function Ecommerce() {
               variant="contained"
               onClick={() => {
                 handleSubCreateDialogOpen();
+                setCodeListInfo({
+                  code: "",
+                  codeName: "",
+                  groupCode: "",
+                  createUserId: "",
+                  isDeleted: false,
+                });
                 setCodeListInfo((prevState) => ({
                   ...prevState,
                   groupCode: selectedRows.groupCode,
