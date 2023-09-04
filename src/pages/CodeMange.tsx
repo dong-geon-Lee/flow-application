@@ -42,6 +42,8 @@ import {
 
 import { RootState } from "app/store";
 
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
+
 // * Spinner 내장 버튼 컴포넌트
 // import ActionButton from "components/ActionButton";
 
@@ -52,8 +54,45 @@ import CloseIcon from "@mui/icons-material/Close";
 
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useDemoData } from "@mui/x-data-grid-generator";
+
+const columns: GridColDef[] = [
+  // { field: "id", headerName: "ID", width: 90 },
+  {
+    field: "firstName",
+    headerName: "그룹코드",
+    width: 150,
+    editable: true,
+  },
+  {
+    field: "lastName",
+    headerName: "그룹코드명",
+    width: 150,
+    editable: true,
+  },
+];
+
+const rows = [
+  { id: 1, lastName: "Snow", firstName: "Jon", age: 35 },
+  { id: 2, lastName: "Lannister", firstName: "Cersei", age: 42 },
+  { id: 3, lastName: "Lannister", firstName: "Jaime", age: 45 },
+  { id: 4, lastName: "Stark", firstName: "Arya", age: 16 },
+  { id: 5, lastName: "Targaryen", firstName: "Daenerys", age: null },
+  { id: 6, lastName: "Melisandre", firstName: null, age: 150 },
+  { id: 7, lastName: "Clifford", firstName: "Ferrara", age: 44 },
+  { id: 8, lastName: "Frances", firstName: "Rossini", age: 36 },
+  { id: 9, lastName: "Roxie", firstName: "Harvey", age: 65 },
+  { id: 10, lastName: "Frances", firstName: "Rossini", age: 36 },
+  { id: 11, lastName: "Roxie", firstName: "Harvey", age: 65 },
+];
 
 const CodeMange = () => {
+  const { data } = useDemoData({
+    dataSet: "Commodity",
+    rowLength: 100,
+    maxColumns: 6,
+  });
+
   const [selectCode, setSelectCode] = useState(false);
   const [firstClick, setFirstClick] = useState(false);
   const [resultsClick, setResultsClick] = useState(false);
@@ -297,6 +336,7 @@ const CodeMange = () => {
     };
 
     try {
+      console.log(selectedSubCode, editSubCodeList, "왜 이건 ??");
       await updateSubCodeAPI(Id, editSubCodeList);
       const newSubCodeList = subCodeList.map((subcode: any) => {
         if (subcode.Id === Id) {
@@ -309,6 +349,8 @@ const CodeMange = () => {
           return { ...subcode, activeSubcode: false };
         }
       });
+
+      console.log(newSubCodeList);
 
       dispatch(getSubCodeList(newSubCodeList));
 
@@ -458,6 +500,8 @@ const CodeMange = () => {
   // }, [selectedGroupCode, count]);
 
   // console.log(selectedGroupCode, codeList.at(-1));
+
+  console.log();
 
   return (
     <div
@@ -622,16 +666,6 @@ const CodeMange = () => {
                       background: "#e6e6e6",
                     }}
                   >
-                    {/* <TableCell
-                    sx={{
-                      borderRight: "1px solid #d3d3d3",
-                      "&:hover": { background: "#d0d0d0" },
-                      cursor: "pointer",
-                    }}
-                    align="center"
-                  >
-                    그룹코드
-                  </TableCell> */}
                     <TableCell
                       sx={{
                         borderRight: "1px solid #d3d3d3",
@@ -652,17 +686,6 @@ const CodeMange = () => {
                     >
                       코드명
                     </TableCell>
-                    {/* <TableCell
-                    sx={{
-                      borderRight: "1px solid #d3d3d3",
-                      "&:hover": { background: "#d0d0d0" },
-                      cursor: "pointer",
-                      w: "50%",
-                    }}
-                    align="center"
-                  >
-                    그룹유저
-                  </TableCell> */}
 
                     <TableCell
                       sx={{
@@ -720,15 +743,6 @@ const CodeMange = () => {
                           />
                         </TableCell>
                       ) : (
-                        // * 그룹코드를 기준으로 하지만 우측에 보일 필요가 없다.
-                        // <TableCell
-                        //   sx={{
-                        //     borderRight: "1px solid #d3d3d3",
-                        //     ".MuiTableCell-body": { p: "6px", display: "block" },
-                        //   }}
-                        // >
-                        //   {subcode.GroupCode}
-                        // </TableCell>
                         <></>
                       )}
 
@@ -819,14 +833,6 @@ const CodeMange = () => {
                           />
                         </TableCell>
                       ) : (
-                        // * 그룹유저도 우측에 보일 필요가 없다.
-                        // <TableCell
-                        //   sx={{
-                        //     borderRight: "1px solid #d3d3d3",
-                        //   }}
-                        // >
-                        //   {subcode.CreateUserId}
-                        // </TableCell>
                         <></>
                       )}
 
@@ -1105,21 +1111,6 @@ const CodeMange = () => {
                 <Button variant="contained" onClick={deleteCodeGroupData}>
                   삭제
                 </Button>
-                {/* <Button
-                  onClick={() => {
-                    setFirstClick(false);
-                    setSelectCode(false);
-                  }}
-                  sx={{
-                    fontSize: "1rem",
-                    color: "black",
-                    background: "#efefef",
-                    border: "1px solid #aaa",
-                    minWidth: "5rem",
-                  }}
-                >
-                  초기화
-                </Button> */}
               </Stack>
             </Box>
           </form>
@@ -1250,6 +1241,36 @@ const CodeMange = () => {
           )}
         </Box>
       </Box>
+
+      {/* <DataGridDemo /> */}
+
+      <Stack direction="row" gap="2rem">
+        <Box sx={{ height: 400, width: "50%" }}>
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: 9,
+                },
+              },
+            }}
+            pageSizeOptions={[5]}
+            checkboxSelection
+            density="compact"
+            editMode="cell"
+            rowHeight={35}
+
+            // disableColumnMenu
+            // disableRowSelectionOnClick
+          />
+        </Box>
+
+        <Box sx={{ height: 400, width: "50%", mt: "2rem" }}>
+          <DataGrid rowHeight={25} {...data} />
+        </Box>
+      </Stack>
 
       {/* //* 코드 생성하기 공간으로 옮겨보자 */}
       {/* <form style={{ marginTop: "auto", marginBottom: "10rem" }}>
