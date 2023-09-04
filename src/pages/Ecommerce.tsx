@@ -22,6 +22,7 @@ import {
 import { useDispatch } from "react-redux";
 
 import {
+  Axios,
   createCodeAPI,
   createSubCodeAPI,
   deleteCodeAPI,
@@ -46,6 +47,8 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import EditToolbar from "components/EditToolbar";
+import SubEditToolbar from "components/SubEditToolbar";
 
 interface EditToolbarProps {
   setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void;
@@ -59,13 +62,16 @@ export default function Ecommerce() {
 
   // * rows 목록 및 선택상태
   const [rows, setRows]: any = useState([]);
-  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
+  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel | any>(
+    {}
+  );
 
   // * subRows 및 선택상태
   const [subRows, setSubRows]: any = useState([]);
-  const [subrowModesModel, setSubrowModesModel] = useState<GridRowModesModel>(
-    {}
-  );
+  const [subrowModesModel, setSubrowModesModel] = useState<
+    GridRowModesModel | any
+  >({});
+  const [filteredSubRows, setFilteredSubRows] = useState([]);
 
   // * rows Dialog Open 버튼
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -162,7 +168,7 @@ export default function Ecommerce() {
   };
 
   // * rows Actions 쪽 Delete 아이콘 클릭 시 작동
-  const handleDeleteClick = (id: GridRowId, GroupCode: any) => () => {
+  const handleDeleteClick1 = (id: GridRowId, GroupCode: any) => () => {
     const choice = window.confirm(
       `그룹코드 ${selectedRows.groupCode}를 정말 삭제하시겠습니까?`
     );
@@ -175,6 +181,51 @@ export default function Ecommerce() {
     }
 
     window.location.reload();
+  };
+
+  const handleDeleteClick = () => () => {
+    const { id, groupCode } = selectedRows;
+    console.log(id, groupCode);
+
+    const deleteCodeAPI = async (Id: any, GroupCode: any) => {
+      try {
+        await Axios.delete(
+          `Code/GroupCodelist/delete?id=${Id}&strGroupCode=${GroupCode}`
+        );
+      } catch (error) {
+        throw error;
+      }
+    };
+
+    deleteCodeAPI(id, groupCode);
+    setRows(rows.filter((row: any) => row.id !== id));
+
+    // const handleDelete = async () => {
+    //   try {
+    //     await Axios.delete(`api/traders/${id}`);
+    //   } catch (error) {
+    //     console.error("Error deleting data:", error);
+    //   }
+    // };
+
+    // handleDelete();
+    // setRows(rows.filter((row: any) => row.id !== id));
+  };
+
+  const handleSubDeleteClick = () => () => {
+    const { id } = selectedSubRows;
+    console.log(id);
+
+    const deleteSubCodeAPI = async (Id: any) => {
+      try {
+        await Axios.delete(`Code/Codelist/delete?id=${Id}`);
+      } catch (error) {
+        throw error;
+      }
+    };
+
+    deleteSubCodeAPI(id);
+    setSubRows(subRows.filter((row: any) => row.id !== id));
   };
 
   // * rows Actions 쪽 Cancel 아이콘 클릭 시 작동
@@ -220,11 +271,6 @@ export default function Ecommerce() {
       ...rowModesModel,
       [id]: { mode: GridRowModes.View },
     });
-  };
-
-  const handleSubDeleteClick = (id: GridRowId) => () => {
-    deleteSubCode(id);
-    setSubRows(subRows.filter((row: any) => row.id !== id));
   };
 
   // * 여기까지 다 sub로 Actions 함수
@@ -438,120 +484,120 @@ export default function Ecommerce() {
     {
       field: "groupCodeName",
       headerName: "그룹코드명",
-      width: 370,
+      width: 500,
       editable: true,
       align: "left",
       headerAlign: "left",
     },
-    {
-      field: "actions",
-      type: "actions",
-      headerName: "Actions",
-      width: 110,
-      cellClassName: "actions",
-      getActions: (params: any) => {
-        const isInEditMode =
-          rowModesModel[params.id]?.mode === GridRowModes.Edit;
+    // {
+    //   field: "actions",
+    //   type: "actions",
+    //   headerName: "Actions",
+    //   width: 110,
+    //   cellClassName: "actions",
+    //   getActions: (params: any) => {
+    //     const isInEditMode =
+    //       rowModesModel[params.id]?.mode === GridRowModes.Edit;
 
-        if (isInEditMode) {
-          return [
-            <GridActionsCellItem
-              icon={<SaveIcon />}
-              label="Save"
-              sx={{ color: "primary.main" }}
-              onClick={handleSaveClick(params.id)}
-            />,
-            <GridActionsCellItem
-              icon={<CancelIcon />}
-              label="Cancel"
-              className="textPrimary"
-              color="inherit"
-              onClick={handleCancelClick(params.id)}
-            />,
-          ];
-        }
+    //     if (isInEditMode) {
+    //       return [
+    //         <GridActionsCellItem
+    //           icon={<SaveIcon />}
+    //           label="Save"
+    //           sx={{ color: "primary.main" }}
+    //           onClick={handleSaveClick(params.id)}
+    //         />,
+    //         <GridActionsCellItem
+    //           icon={<CancelIcon />}
+    //           label="Cancel"
+    //           className="textPrimary"
+    //           color="inherit"
+    //           onClick={handleCancelClick(params.id)}
+    //         />,
+    //       ];
+    //     }
 
-        return [
-          <GridActionsCellItem
-            icon={<EditIcon />}
-            label="Edit"
-            className="textPrimary"
-            color="inherit"
-            onClick={handleEditClick(params.id)}
-            disabled={selectionModel !== params.id}
-          />,
-          <GridActionsCellItem
-            icon={<DeleteIcon />}
-            label="Delete"
-            color="inherit"
-            onClick={handleDeleteClick(params.id, params.row.GroupCode)}
-            disabled={selectionModel !== params.id}
-          />,
-        ];
-      },
-    },
+    //     return [
+    //       <GridActionsCellItem
+    //         icon={<EditIcon />}
+    //         label="Edit"
+    //         className="textPrimary"
+    //         color="inherit"
+    //         onClick={handleEditClick(params.id)}
+    //         disabled={selectionModel !== params.id}
+    //       />,
+    //       <GridActionsCellItem
+    //         icon={<DeleteIcon />}
+    //         label="Delete"
+    //         color="inherit"
+    //         onClick={handleDeleteClick(params.id, params.row.GroupCode)}
+    //         disabled={selectionModel !== params.id}
+    //       />,
+    //     ];
+    //   },
+    // },
   ];
 
   const columns: GridColDef[] = [
     {
       field: "code",
       headerName: "코드",
-      width: 100,
+      width: 120,
       editable: false,
     },
     {
       field: "codeName",
       headerName: "코드명",
-      width: 370,
+      width: 500,
       editable: true,
     },
-    {
-      field: "actions",
-      type: "actions",
-      headerName: "Actions",
-      width: 100,
-      cellClassName: "actions",
-      getActions: (params: any) => {
-        const isInEditMode =
-          subrowModesModel[params.id]?.mode === GridRowModes.Edit;
+    // {
+    //   field: "actions",
+    //   type: "actions",
+    //   headerName: "Actions",
+    //   width: 100,
+    //   cellClassName: "actions",
+    //   getActions: (params: any) => {
+    //     const isInEditMode =
+    //       subrowModesModel[params.id]?.mode === GridRowModes.Edit;
 
-        if (selectedRows.groupCode !== params.row.groupCode) {
-        }
+    //     if (selectedRows.groupCode !== params.row.groupCode) {
+    //     }
 
-        if (isInEditMode) {
-          return [
-            <GridActionsCellItem
-              icon={<SaveIcon />}
-              label="Save"
-              onClick={handleSubSaveClick(params.id, params)}
-              sx={{ color: "primary.main" }}
-            />,
-            <GridActionsCellItem
-              icon={<CancelIcon />}
-              label="Cancel"
-              className="textPrimary"
-              onClick={handleSubCancelClick(params.id)}
-              color="inherit"
-            />,
-          ];
-        }
-        return [
-          <GridActionsCellItem
-            icon={<EditIcon />}
-            label="Edit"
-            className="textPrimary"
-            onClick={handleSubEditClick(params.id)}
-            color="inherit"
-          />,
-          <GridActionsCellItem
-            icon={<DeleteIcon />}
-            label="Delete"
-            onClick={handleSubDeleteClick(params.id)}
-            color="inherit"
-          />,
-        ];
-      },
-    },
+    //     if (isInEditMode) {
+    //       return [
+    //         <GridActionsCellItem
+    //           icon={<SaveIcon />}
+    //           label="Save"
+    //           onClick={handleSubSaveClick(params.id, params)}
+    //           sx={{ color: "primary.main" }}
+    //         />,
+    //         <GridActionsCellItem
+    //           icon={<CancelIcon />}
+    //           label="Cancel"
+    //           className="textPrimary"
+    //           onClick={handleSubCancelClick(params.id)}
+    //           color="inherit"
+    //         />,
+    //       ];
+    //     }
+    //     return [
+    //       <GridActionsCellItem
+    //         icon={<EditIcon />}
+    //         label="Edit"
+    //         className="textPrimary"
+    //         onClick={handleSubEditClick(params.id)}
+    //         color="inherit"
+    //       />,
+    //       <GridActionsCellItem
+    //         icon={<DeleteIcon />}
+    //         label="Delete"
+    //         onClick={handleSubDeleteClick(params.id)}
+    //         color="inherit"
+    //       />,
+    //     ];
+    //   },
+    // },
   ];
 
   function codeDataFormatter(dataInfo: any) {
@@ -628,53 +674,64 @@ export default function Ecommerce() {
   }, []);
 
   useEffect(() => {
+    // if (!selectedSubRows) {
+    // }
+
     setSelectionModel(rows[0]?.id);
     setSelectedRows(rows[0]);
   }, [rows[0]?.id]);
 
-  useEffect(() => {
-    if (
-      groupCodeInfo.groupCode !== "" &&
-      groupCodeInfo.groupCodeName !== "" &&
-      rows.some((r: any) => r?.groupCode === groupCodeInfo?.groupCode)
-    ) {
-      if (rows.find((r: any) => r?.groupCode === selectedSubRows?.groupCode)) {
-        setSelectionModel(selectedRows.id);
-        setSelectedRows(selectedRows);
-        return;
-      }
+  // ! ??
+  // useEffect(() => {
+  //   if (rows.length > 0) {
+  //     setSelectionModel([rows[0]?.id]);
+  //     setSelectedRows(rows[0]);
+  //   } else {
+  //     setSelectionModel([]);
+  //     setSelectedRows([]);
+  //   }
+  // }, [rows]);
 
-      setSelectionModel(rows[rows.length - 1]?.id);
-      setSelectedRows(rows[rows.length - 1]);
-    }
-  }, [groupCodeInfo.groupCode, groupCodeInfo.groupCodeName, rows]);
+  // ! 사이드 이펙트 잠시 제거
+  // useEffect(() => {
+  //   if (
+  //     groupCodeInfo.groupCode !== "" &&
+  //     groupCodeInfo.groupCodeName !== "" &&
+  //     rows.some((r: any) => r?.groupCode === groupCodeInfo?.groupCode)
+  //   ) {
+  //     if (rows.find((r: any) => r?.groupCode === selectedSubRows?.groupCode)) {
+  //       setSelectionModel(selectedRows.id);
+  //       setSelectedRows(selectedRows);
+  //       return;
+  //     }
+
+  //     setSelectionModel(rows[rows.length - 1]?.id);
+  //     setSelectedRows(rows[rows.length - 1]);
+  //   }
+  // }, [groupCodeInfo.groupCode, groupCodeInfo.groupCodeName, rows]);
 
   // todo subRows Active 사이드 이펙트
 
-  const filteredCodeLists = subRows.filter(
-    (x: any) => x.groupCode === selectedRows?.groupCode
-  );
+  // useEffect(() => {
+  //   setSelectionSubModel(filteredCodeLists[0]?.id);
+  //   setSelectedSubRows(filteredCodeLists[0]);
+  // }, [filteredCodeLists[0]?.id]);
 
-  useEffect(() => {
-    setSelectionSubModel(filteredCodeLists[0]?.id);
-    setSelectedSubRows(filteredCodeLists[0]);
-  }, [filteredCodeLists[0]?.id]);
-
-  useEffect(() => {
-    if (
-      codeListInfo.code &&
-      codeListInfo.codeName &&
-      subRows.some(
-        (s: any) =>
-          s.groupCode === codeListInfo.groupCode &&
-          s.code === codeListInfo.code &&
-          s.codeName === codeListInfo.codeName
-      )
-    ) {
-      setSelectionSubModel(subRows[subRows.length - 1]?.id);
-      setSelectedSubRows(subRows[subRows.length - 1]);
-    }
-  }, [codeListInfo.code, codeListInfo.codeName, subRows]);
+  // useEffect(() => {
+  //   if (
+  //     codeListInfo.code &&
+  //     codeListInfo.codeName &&
+  //     subRows.some(
+  //       (s: any) =>
+  //         s.groupCode === codeListInfo.groupCode &&
+  //         s.code === codeListInfo.code &&
+  //         s.codeName === codeListInfo.codeName
+  //     )
+  //   ) {
+  //     setSelectionSubModel(subRows[subRows.length - 1]?.id);
+  //     setSelectedSubRows(subRows[subRows.length - 1]);
+  //   }
+  // }, [codeListInfo.code, codeListInfo.codeName, subRows]);
 
   // * 콘솔 zone
   // console.log(selectedSubRows, "값 안찍히나?");
@@ -689,7 +746,7 @@ export default function Ecommerce() {
         [id]: { mode: GridRowModes.View, ignoreModifications: true },
       });
     }
-  }, [selectedRows]);
+  }, [selectedRows, selectedSubRows]);
   // rowModesModel[params.id]?.mode === GridRowModes.Edit;
   // * 툴바
   // function useCreateToolbar(props: EditToolbarProps | any) {
@@ -807,7 +864,20 @@ export default function Ecommerce() {
   //   );
   // }
 
-  console.log(selectedRows, selectedSubRows);
+  const filteredCodeLists = subRows.filter(
+    (x: any) => x.groupCode === selectedRows?.groupCode
+  );
+
+  // useEffect(() => {
+  //   const filteredCodeLists = subRows.filter(
+  //     (x: any) => x.groupCode === selectedRows?.groupCode
+  //   );
+  //   console.log(filteredCodeLists);
+  //   setSubRows(filteredCodeLists);
+
+  //   setFilteredSubRows(filteredCodeLists);
+  // }, [selectedRows]);
+
   return (
     <Box sx={{ padding: "2rem" }}>
       <Typography variant="h6" sx={{ mb: "1.2rem" }}>
@@ -818,6 +888,7 @@ export default function Ecommerce() {
         <Box
           sx={{
             flex: 1,
+            minWidth: "40rem",
             height: 500,
             "& .actions": {
               color: "text.secondary",
@@ -853,7 +924,7 @@ export default function Ecommerce() {
           }}
         >
           <DataGrid
-            key={rows.id}
+            // key={rows.id}
             rows={rows}
             columns={column}
             editMode="row"
@@ -865,9 +936,6 @@ export default function Ecommerce() {
             checkboxSelection={false}
             rowSelectionModel={selectionModel}
             onRowSelectionModelChange={(newSelection: any) => {
-              const [selectionID] = newSelection;
-              setSelectionModel(selectionID);
-
               const selectedIDs = new Set(newSelection);
               const [selectedRows] = rows.filter((r: any) =>
                 selectedIDs.has(r.id)
@@ -875,6 +943,8 @@ export default function Ecommerce() {
 
               // * 코드리스트에 필터링 해야되는 매개변수들
               // console.log(selectedRows, selectionID);
+              const [selectionID] = newSelection;
+              setSelectionModel(selectionID);
               setSelectedRows(selectedRows);
 
               // ! 이 로직 codeList Active 해결 후 해야됨
@@ -888,14 +958,21 @@ export default function Ecommerce() {
             }}
             // slots={{ toolbar: useCreateToolbar }}
 
-            slots={{ toolbar: GridToolbar }}
+            slots={{ toolbar: EditToolbar }}
             slotProps={{
               toolbar: {
-                // setRows,
-                // setRowModesModel,
-                column,
-                rows,
+                setRows,
+                setRowModesModel,
+                handleDeleteClick,
+                handleEditClick,
                 showQuickFilter: true,
+                handleCreateDialogOpen,
+                setGroupCodeInfo,
+                createDialogOpen,
+                handleCreateDialogClose,
+                groupCodeInfo,
+                onChange,
+                createCodeGroupData,
               },
             }}
             disableColumnFilter
@@ -905,6 +982,7 @@ export default function Ecommerce() {
             //   pagination: { paginationModel: { pageSize: 100 } },
             // }}
             hideFooterPagination
+            getRowId={(row: any) => row.id}
             // ! setting
             onCellClick={(params: any) => {
               setSelectedRows(params.row);
@@ -944,8 +1022,8 @@ export default function Ecommerce() {
             // }}
           />
 
-          {/* //* Dialog 주석 처리 */}
-          <Button
+          {/* //* rows 쪽 Dialog 주석 처리 */}
+          {/* <Button
             variant="contained"
             onClick={() => {
               handleCreateDialogOpen();
@@ -1027,7 +1105,7 @@ export default function Ecommerce() {
                 등록하기
               </Button>
             </DialogActions>
-          </Dialog>
+          </Dialog> */}
         </Box>
 
         <Box
@@ -1043,7 +1121,9 @@ export default function Ecommerce() {
             ".css-5wly58-MuiDataGrid-root .MuiDataGrid-columnHeader:focus, .css-5wly58-MuiDataGrid-root .MuiDataGrid-cell":
               {
                 outline:
-                  subColumnEditMode || subColumnActionMode
+                  (subColumnEditMode || subColumnActionMode) &&
+                  selectedRows &&
+                  selectedSubRows
                     ? "1px solid #e0e0e0"
                     : "inherit",
               },
@@ -1116,6 +1196,10 @@ export default function Ecommerce() {
             //   return;
             // }}
             rows={filteredCodeLists}
+            // rows={subRows.filter(
+            //   (s: any) => s.groupCode === selectedRows?.groupCode
+            // )}
+
             columns={columns}
             editMode="row"
             rowModesModel={subrowModesModel}
@@ -1139,9 +1223,22 @@ export default function Ecommerce() {
             processRowUpdate={processSubRowUpdate}
             // slots={{ toolbar: createSubToolbar }}
             slotProps={{
-              toolbar: { columns, rows, showQuickFilter: true },
+              toolbar: {
+                setSubRows,
+                setSubrowModesModel,
+                handleSubDeleteClick,
+                showQuickFilter: true,
+                selectedRows,
+                handleSubCreateDialogOpen,
+                setCodeListInfo,
+                createSubDialogOpen,
+                codeListInfo,
+                onSubChange,
+                handleSubCreateDialogClose,
+                createSubCodeData,
+              },
             }}
-            slots={{ toolbar: GridToolbar }}
+            slots={{ toolbar: SubEditToolbar }}
             disableColumnFilter
             disableColumnSelector
             // pageSizeOptions={[30, 60, 90]}
@@ -1152,9 +1249,8 @@ export default function Ecommerce() {
               // setSubRows("");
               // console.log(params);
             }}
+            getRowId={(row: any) => row.id}
             onCellDoubleClick={(params, e: any) => {
-              console.log(params.cellMode, e, e.view.closed);
-
               if (params.field === "codeName") {
                 setSubColumnEditMode(true);
 
@@ -1169,7 +1265,15 @@ export default function Ecommerce() {
             }}
           />
 
-          <Box sx={{ width: "100%", display: "flex" }}>
+          {/* <Box
+            sx={{
+              width: "100%",
+              display: "flex",
+              // position: "sticky",
+              // top: "50%",
+              // right: "0%",
+            }}
+          >
             <Button
               variant="contained"
               onClick={() => {
@@ -1268,7 +1372,7 @@ export default function Ecommerce() {
                 등록하기
               </Button>
             </DialogActions>
-          </Dialog>
+          </Dialog> */}
         </Box>
       </Grid>
     </Box>
